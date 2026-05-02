@@ -7,6 +7,11 @@ class Program
     static void Main(string[] args)
     {
         Stopwatch sw = Stopwatch.StartNew();
+        Hashing.TamperProtection();
+        
+        ILexer lexer = new Lexer();
+
+        Token[] tokens = lexer.Lex("");
         
         ILexer lexer = new Lexer();
         IAstGenerator astGenerator = new AstGenerator();
