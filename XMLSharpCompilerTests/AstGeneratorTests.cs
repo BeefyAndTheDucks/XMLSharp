@@ -70,7 +70,7 @@ public class AstGeneratorTests
     {
         Token[] tokenInput =
         [
-            new IdentifierToken("foo"), new AssignmentToken(), new ImmediateToken(2), new AddToken(), new ImmediateToken(2), new SemicolonToken()
+            new IdentifierToken("foo"), new AssignmentToken(), new NumberToken(2), new AddToken(), new NumberToken(2), new SemicolonToken()
         ];
         
         AstNode ast = new AstGenerator().Generate(tokenInput);
@@ -85,7 +85,7 @@ public class AstGeneratorTests
     {
         Token[] tokenInput =
         [
-            new IdentifierToken("foo"), new AssignmentToken(), new ImmediateToken(2), new AddToken(), new IdentifierToken("bar"), new SemicolonToken()
+            new IdentifierToken("foo"), new AssignmentToken(), new NumberToken(2), new AddToken(), new IdentifierToken("bar"), new SemicolonToken()
         ];
         
         AstNode ast = new AstGenerator().Generate(tokenInput);
@@ -101,7 +101,7 @@ public class AstGeneratorTests
         // foo = 1 + bar + 3;
         Token[] tokenInput =
         [
-            new IdentifierToken("foo"), new AssignmentToken(), new ImmediateToken(1), new AddToken(), new IdentifierToken("bar"), new AddToken(), new ImmediateToken(3), new SemicolonToken()
+            new IdentifierToken("foo"), new AssignmentToken(), new NumberToken(1), new AddToken(), new IdentifierToken("bar"), new AddToken(), new NumberToken(3), new SemicolonToken()
         ];
         
         AstNode ast = new AstGenerator().Generate(tokenInput);
@@ -119,7 +119,7 @@ public class AstGeneratorTests
         // foo = 1 + bar + 2 + baz + 3
         Token[] tokenInput =
         [
-            new IdentifierToken("foo"), new AssignmentToken(), new ImmediateToken(1), new AddToken(), new IdentifierToken("bar"), new AddToken(), new ImmediateToken(2), new AddToken(), new IdentifierToken("baz"), new AddToken(), new ImmediateToken(3), new SemicolonToken()
+            new IdentifierToken("foo"), new AssignmentToken(), new NumberToken(1), new AddToken(), new IdentifierToken("bar"), new AddToken(), new NumberToken(2), new AddToken(), new IdentifierToken("baz"), new AddToken(), new NumberToken(3), new SemicolonToken()
         ];
         
         AstNode ast = new AstGenerator().Generate(tokenInput);
