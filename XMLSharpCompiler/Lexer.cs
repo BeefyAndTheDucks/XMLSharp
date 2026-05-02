@@ -114,7 +114,7 @@ public class Lexer : ILexer
             }
             if (!matched)
             {
-                throw new Exception($"Unexpected character at {line}:{col}");
+                throw new UnexpectedCharacterException(line, col);
             }
         }
 
@@ -122,3 +122,5 @@ public class Lexer : ILexer
         return tokens.ToArray();
     }
 }
+
+public class UnexpectedCharacterException(int line, int col) : Exception($"Unexpected character at {line}:{col}.");
