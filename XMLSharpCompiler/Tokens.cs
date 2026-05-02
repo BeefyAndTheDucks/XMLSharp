@@ -13,6 +13,7 @@ public record AssignmentToken : Token;
 public record AddToken : Token;
 public record LessOrEqualsToken : Token;
 public record GreaterOrEqualsToken : Token;
+public record EqualsToken : Token;
 public record SemicolonToken : Token;
 
 // special
