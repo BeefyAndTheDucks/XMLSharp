@@ -71,7 +71,7 @@ public class Lexer : ILexer
                 }
                 if (keywords.TryGetValue(word, out var create))
                 {
-                    tokens.Add(keywords[word]());
+                    tokens.Add(create());
                 }
                 else
                 {
@@ -101,20 +101,21 @@ public class Lexer : ILexer
 
             // pattern matching
             bool matched = false;
-            foreach ((string Pattern, Func<Token> Create, int Length) definition in definitions)
+            foreach ((string Pattern, Func<Token> Create) definition in definitions)
             {
-                if (i + definition.Length <= input.Length && input.Substring(i, definition.Length) == definition.Pattern)
+                int length = definition.Pattern.Length;
+                if (i + length <= input.Length && input.Substring(i, length) == definition.Pattern)
                 {
                     tokens.Add(definition.Create());
-                    i += definition.Length;
-                    col += definition.Length;
+                    i += length;
+                    col += length;
                     matched = true;
                     break;
                 }
             }
             if (!matched)
             {
-                throw new UnexpectedCharacterException(line, col);
+                throw new UnexpectedCharacterException(line, col, input[i]);
             }
         }
 
@@ -123,4 +124,9 @@ public class Lexer : ILexer
     }
 }
 
-public class UnexpectedCharacterException(int line, int col) : Exception($"Unexpected character at {line}:{col}.");
+public class UnexpectedCharacterException(int line, int col, char character) : Exception($"Unexpected character \"{character}\" at {line}:{col}.")
+{
+    public readonly int Line = line;
+    public readonly int Col = col;
+    public readonly char Character = character;
+}

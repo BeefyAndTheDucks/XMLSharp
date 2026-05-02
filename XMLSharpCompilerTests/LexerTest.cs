@@ -40,7 +40,12 @@ public class LexerTest
     public void TestUnexpectedCharacter()
     {
         Lexer lexer = new Lexer();
-        Exception ex = Assert.Throws<Exception>(() => lexer.Lex("number foo = @;"));
-        Assert.That(ex.Message, Does.Contain("1:14"));
+        UnexpectedCharacterException ex = Assert.Throws<UnexpectedCharacterException>(() => lexer.Lex("number foo = @;"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(ex.Line, Is.EqualTo(1));
+            Assert.That(ex.Col, Is.EqualTo(14));
+            Assert.That(ex.Character, Is.EqualTo('@'));
+        }
     }
 }

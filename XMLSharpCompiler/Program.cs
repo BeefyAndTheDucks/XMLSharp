@@ -1,24 +1,23 @@
-﻿using System.Diagnostics;
+﻿using System.CommandLine;
+using Client.Commands;
 
 namespace XMLSharpCompiler;
 
-class Program
+internal static class Program
 {
-    static void Main(string[] args)
+    private static void Main(string[] args)
     {
-        string version = Version.GetExecutableVersion();
-        Console.WriteLine($"Starting XML# Compiler {version}");
-
-        Stopwatch sw = Stopwatch.StartNew();
         Hashing.TamperProtection();
         
-        ILexer lexer = new Lexer();
-        IAstGenerator astGenerator = new AstGenerator();
+        string version = Version.GetExecutableVersion();
+        Console.WriteLine($"Starting XMLSharp Compiler v{version}...");
+        
+        RootCommand rootCommand = new()
+        {
+            new CompileCommand().CreateCommand()
+        };
 
-        Token[] tokens = lexer.Lex("number foo = 2;");
-        
-        AstNode ast = astGenerator.Generate(tokens);
-        
-        Console.WriteLine($"Compilation completed in {sw.ElapsedMilliseconds}ms. Result: {ast}");
+        rootCommand.Parse(args)
+            .Invoke();
     }
 }
