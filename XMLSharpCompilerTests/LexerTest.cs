@@ -1,7 +1,7 @@
 using XMLSharpCompiler;
 
-
 [TestFixture]
+[TestOf(typeof(Lexer))]
 public class LexerTest
 {
     [Test]
