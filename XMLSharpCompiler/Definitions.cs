@@ -3,7 +3,7 @@ namespace XMLSharpCompiler;
 public static class Definitions
 {
 
-    // sort longest first
+    // sort longest first or the lexer wont lex
     public static readonly (string Pattern, Func<Token> Create, int Length)[] Map = [
         ("<=", () => new LessOrEqualsToken(), 2),
         (">=", () => new GreaterOrEqualsToken(), 2),
