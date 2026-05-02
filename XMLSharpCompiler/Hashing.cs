@@ -13,7 +13,6 @@ public static class Hashing
         {
             throw new Exception("Unknown error.");
         }
-        Console.WriteLine("Starting...");
     }
 
     private static byte[] Hash()
