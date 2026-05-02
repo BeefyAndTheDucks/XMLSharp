@@ -1,5 +1,8 @@
+namespace XMLSharpCompiler;
+
 public enum XMLSType
 {
     Number,
-    Bool
+    Bool,
+    Text
 }

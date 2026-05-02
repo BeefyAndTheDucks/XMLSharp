@@ -20,11 +20,11 @@ public class AstGenerator : IAstGenerator
                 ConvertOrThrow<AssignmentToken>(tokens[currentIndex++]);
                 return new CreateVariableNode(identifierToken.Name, variableDefinitionToken.Type, Parse(tokens, currentIndex));
             }
-            case ImmediateToken immediateToken:
+            case NumberToken NumberToken:
             {
                 currentIndex++;
                 Token nextToken = tokens[currentIndex];
-                NumberNode self = new(immediateToken.Value);
+                NumberNode self = new(NumberToken.Value);
                 switch (nextToken)
                 {
                     case AddToken:

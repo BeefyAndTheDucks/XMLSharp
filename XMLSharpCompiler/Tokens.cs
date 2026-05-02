@@ -1,19 +1,19 @@
-public abstract class Token { }
+namespace XMLSharpCompiler;
 
-public class IdentifierToken(string name) : Token
-{
-    public string Name = name;
-}
+public abstract record Token;
 
-public class ImmediateToken(int value) : Token
-{
-    public int Value = value;
-}
+// matched by content
+public record NumberToken(int Value) : Token;
+public record TextToken(string Text) : Token;
+public record IdentifierToken(string Name) : Token;
+public record VariableDefinitionToken(XMLSType Type) : Token;
 
-public class AssignmentToken : Token { }
-public class AddToken : Token { }
-public class SemicolonToken : Token { }
-public class VariableDefinitionToken(XMLSType type) : Token
-{
-    public XMLSType Type = type;
-}
+// matched by pattern
+public record AssignmentToken : Token;
+public record AddToken : Token;
+public record LessOrEqualsToken : Token;
+public record GreaterOrEqualsToken : Token;
+public record SemicolonToken : Token;
+
+// special
+public record EOFToken : Token;

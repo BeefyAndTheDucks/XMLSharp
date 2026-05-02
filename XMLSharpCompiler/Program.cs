@@ -6,7 +6,7 @@ class Program
     {
         ILexer lexer = new Lexer();
 
-        Token[] tokens = lexer.Lex();
+        Token[] tokens = lexer.Lex("");
         
         Console.WriteLine("Goodbye sanity =)");
     }

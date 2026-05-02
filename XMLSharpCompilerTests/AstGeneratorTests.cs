@@ -12,7 +12,7 @@ public class AstGeneratorTests
         Token[] tokenInput =
         [
             new VariableDefinitionToken(XMLSType.Number), new IdentifierToken("foo"), new AssignmentToken(),
-            new ImmediateToken(2), new AddToken(), new ImmediateToken(2), new SemicolonToken()
+            new NumberToken(2), new AddToken(), new NumberToken(2), new SemicolonToken()
         ];
         
         AstNode ast = new AstGenerator().Generate(tokenInput);
@@ -36,7 +36,7 @@ public class AstGeneratorTests
     {
         Token[] tokenInput =
         [
-            new ImmediateToken(2), new AddToken(), new IdentifierToken("bar"), new SemicolonToken()
+            new NumberToken(2), new AddToken(), new IdentifierToken("bar"), new SemicolonToken()
         ];
         
         AstNode ast = new AstGenerator().Generate(tokenInput);
@@ -55,7 +55,7 @@ public class AstGeneratorTests
     {
         Token[] tokenInput =
         [
-            new IdentifierToken("foo"), new AssignmentToken(), new ImmediateToken(2), new SemicolonToken()
+            new IdentifierToken("foo"), new AssignmentToken(), new NumberToken(2), new SemicolonToken()
         ];
         
         AstNode ast = new AstGenerator().Generate(tokenInput);
