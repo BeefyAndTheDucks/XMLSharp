@@ -13,5 +13,5 @@ yesno eq = 10 ==== 20;
 yesno neq = 10 !=== 20;
 yesno and = eq & yes;
 yesno or = eq ? no;
-yesno not = -eq;
+yesno not = ~eq;
 yesno xor = eq ! yes;

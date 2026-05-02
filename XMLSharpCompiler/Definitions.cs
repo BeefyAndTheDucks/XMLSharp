@@ -14,7 +14,7 @@ public static class Definitions
         (">"   , () => new GreaterToken()),
         ("&"   , () => new AndToken()),
         ("?"   , () => new OrToken()),
-        ("-"   , () => new NotToken()),
+        ("~"   , () => new NotToken()),
         ("!"   , () => new XorToken()),
         ("yes" , () => new YesToken()),
         ("no"  , () => new NoToken()),
