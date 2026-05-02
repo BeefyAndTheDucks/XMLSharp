@@ -8,13 +8,13 @@ Writing in lowercase means it is a literal and cannot change.
 - Each statement **MUST** end with a semicolon!!
 
 ## Variables
-Variables in XML# is identical to other C-like languages. You define a variable by doing `TYPE NAME = VALUE`.
+Variables in XML# are identical to other C-like languages. You define a variable by doing `TYPE NAME = VALUE`.
 You cannot make uninitialized variables though, but you *can* set it to `null`.
 
 ## Booleans
 Boolean logic in XML# is a bit different from other C-like languages.
 The names of `true` and `false` has changed to `yes` and `no` respectively, 
-but the symbols are a bit different, and we only have 1 symbol instead of 2.
+but the symbols are a bit different, and we only have one symbol instead of 2.
 
 Here are the changes:
 
@@ -53,11 +53,11 @@ Here are some examples:
 `true ! true` -> `false`
 
 #### NOT
-And finally we have the not operator. Here we use a single `-` sign instead of the `!` you might be used to:
+And finally, we have the not operator. Here we use a single `~` sign instead of the `!` you might be used to:
 
-`-false` -> `true`
+`~false` -> `true`
 
-`-true` -> `false`
+`~true` -> `false`
 
 ## Branching
 Branching in XML# is like you're used to from other C-like languages.
@@ -71,7 +71,7 @@ if (CONDITION) {
 ```
 
 ## Classes and structs
-Like other C-like languages we have classes and structs.
+Like other C-like languages, we have classes and structs.
 
 There are some differences between classes and structs:
 
@@ -96,7 +96,7 @@ struct NAME {
 Access can either be `public` or `private`. Public means that anybody can access/change the value.
 Private means that only methods on the `class` or `struct` can access/change the value.
 
-You can use 2 access modifiers.
+You can use two access modifiers.
 
 `private public` means `private` access, `public` change.
 
@@ -110,7 +110,7 @@ CLASS_OR_STRUCT_NAME VARIABLE_NAME = create(CONSTRUCTOR_ARGUMENTS);
 ## Functions & Methods
 This might be the biggest difference between XML# and other C-like languages.
 
-a `function` is a freestanding function that isn't associated with a type. For example defining:
+A `function` is a freestanding function not associated with a type. For example, defining:
 ```
 function NAME(PARAM_1_TYPE PARAM_1_NAME, PARAM_2_TYPE PARAM_2_NAME) -> RET_TYPE {
     SOME CODE;
@@ -120,7 +120,7 @@ function NAME(PARAM_1_TYPE PARAM_1_NAME, PARAM_2_TYPE PARAM_2_NAME) -> RET_TYPE 
 Calling that function is as easy as
 ```RET_TYPE RESULT = NAME(PARAMETER_1, PARAMETER_2)```
 
-Now the fun part is `method`s. Each method is always associated for a type. For example this code:
+Now the fun part is `method`s. Each method is always associated for a type. For example, this code:
 ```
 class SOME_CLASS {
     SOME FIELD;
@@ -141,9 +141,9 @@ SOME_CLASS VARIABLE_NAME = create(CONSTRUCTOR_ARGUMENTS);
 RETURN_TYPE RETURN_VARIABLE_NAME = VARIABLE_NAME.METHOD_NAME(METHOD_PARAMETERS);
 ```
 
-Function overloading is not possible, just give it a separate name. Although, if I get enough begging I might implement overloading in the future.
+Function overloading is not possible, give it a separate name. Although, if I get enough begging, I might implement overloading in the future.
 
-Constructors for classes is identical to creating methods, except you omit `NAME` and `RET_TYPE`. For example:
+Constructors for classes are identical to creating methods, except you omit `NAME` and `RET_TYPE`. For example:
 
 ```
 class SOME_CLASS {
@@ -166,5 +166,5 @@ You can use the `this` keyword to refer to fields in the `struct` or `class` if 
 - A `double` is called `many_decimals`
 
 ## Maths
-Maths is  right-to-left. That means 1 + 2 + 3 becomes 1 + (2 + 3).
+Maths is right-to-left. That means 1 + 2 + 3 becomes 1 + (2 + 3).
 This is definitely not an oversight in the compiler (it is).
