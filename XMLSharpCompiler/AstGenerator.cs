@@ -38,8 +38,15 @@ public class AstGenerator : IAstGenerator
                 currentIndex++;
                 Token nextToken = tokens[currentIndex];
 
-                if (nextToken is AssignmentToken)
-                    return new SetVariableNode(identifierToken.Name, Parse(tokens, currentIndex + 1));
+                switch (nextToken)
+                {
+                    case AssignmentToken:
+                        currentIndex++;
+                        return new SetVariableNode(identifierToken.Name, Parse(tokens, currentIndex));
+                    case AddToken:
+                        currentIndex++;
+                        return new AddNode(new GetVariableNode(identifierToken.Name), Parse(tokens, currentIndex));
+                }
                 
                 return new GetVariableNode(identifierToken.Name);
             }

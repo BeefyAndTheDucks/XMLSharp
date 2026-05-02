@@ -164,3 +164,7 @@ You can use the `this` keyword to refer to fields in the `struct` or `class` if 
 - An `int` is called `number`
 - A `float` is called `decimals`
 - A `double` is called `many_decimals`
+
+## Maths
+Maths is  right-to-left. That means 1 + 2 + 3 becomes 1 + (2 + 3).
+This is definitely not an oversight in the compiler (it is).
