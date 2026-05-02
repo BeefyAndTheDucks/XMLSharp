@@ -14,11 +14,14 @@ public class AstGenerator : IAstGenerator
         switch (currentToken)
         {
             case VariableDefinitionToken variableDefinitionToken:
+            {
                 currentIndex++;
                 IdentifierToken identifierToken = ConvertOrThrow<IdentifierToken>(tokens[currentIndex++]);
                 ConvertOrThrow<AssignmentToken>(tokens[currentIndex++]);
                 return new CreateVariableNode(identifierToken.Name, variableDefinitionToken.Type, Parse(tokens, currentIndex));
+            }
             case ImmediateToken immediateToken:
+            {
                 currentIndex++;
                 Token nextToken = tokens[currentIndex];
                 NumberNode self = new(immediateToken.Value);
@@ -29,6 +32,17 @@ public class AstGenerator : IAstGenerator
                         return new AddNode(self, Parse(tokens, currentIndex));
                 }
                 return self;
+            }
+            case IdentifierToken identifierToken:
+            {
+                currentIndex++;
+                Token nextToken = tokens[currentIndex];
+
+                if (nextToken is AssignmentToken)
+                    return new SetVariableNode(identifierToken.Name, Parse(tokens, currentIndex + 1));
+                
+                return new GetVariableNode(identifierToken.Name);
+            }
         }
         
         throw new UnexpectedTokenException(currentToken);
