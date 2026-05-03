@@ -37,7 +37,7 @@ public class AstGenerator : IAstGenerator
             }
             case NumberToken numberToken:
             {
-                return ParseNextForNumber(tokens, new NumberNode(numberToken.Value), currentIndex);
+                return ParseNext(tokens, new NumberNode(numberToken.Value), currentIndex);
             }
             case IdentifierToken identifierToken:
             {
@@ -47,8 +47,7 @@ public class AstGenerator : IAstGenerator
                     return new SetVariableNode(identifierToken.Name, Parse(tokens, currentIndex + 2));
                 
                 // Identifier (variables) can be a lot... we must check for them all.
-                return ParseNextForMultipleTypes(tokens, new GetVariableNode(identifierToken.Name), currentIndex,
-                    ParseNextForNumber, ParseNextForBoolean);
+                return ParseNext(tokens, new GetVariableNode(identifierToken.Name), currentIndex);
             }
             case NotToken:
             {
@@ -56,35 +55,21 @@ public class AstGenerator : IAstGenerator
                 return new NotNode(Parse(tokens, currentIndex));
             }
             case YesToken:
-                return ParseNextForBoolean(tokens, new BooleanNode(true), currentIndex);
+                return ParseNext(tokens, new BooleanNode(true), currentIndex);
             case NoToken:
-                return ParseNextForBoolean(tokens, new BooleanNode(false), currentIndex);
+                return ParseNext(tokens, new BooleanNode(false), currentIndex);
         }
         
         throw new UnexpectedTokenException(currentToken);
     }
 
-    private static AstNode ParseNextForMultipleTypes(Token[] tokens, AstNode self, int currentIndex,
-        params Func<Token[], AstNode, int, AstNode>[] actions)
+    private static AstNode ParseNext(Token[] tokens, AstNode self, int currentIndex)
     {
-        foreach (var action in actions)
-        {
-            AstNode result = action(tokens, self, currentIndex);
-            if (result != self) return result;
-        }
-
-        return self;
-    }
-
-    private static AstNode ParseNextForNumber(Token[] tokens, AstNode self, int currentIndex)
-    {
-        if (self is not (GetVariableNode or NumberNode))
-            throw new InvalidOperationException("Expected a variable or number.");
-        
         currentIndex++;
         Token nextToken = tokens[currentIndex];
         switch (nextToken)
         {
+            // Numbers
             case AddToken:
                 currentIndex++;
                 return new AddNode(self, Parse(tokens, currentIndex));
@@ -101,6 +86,7 @@ public class AstGenerator : IAstGenerator
                 currentIndex++;
                 return new ModuloNode(self, Parse(tokens, currentIndex));
             
+            // Comparisons
             case GreaterToken:
                 currentIndex++;
                 return new GreaterThanNode(self, Parse(tokens, currentIndex));
@@ -113,16 +99,14 @@ public class AstGenerator : IAstGenerator
             case LessOrEqualsToken:
                 currentIndex++;
                 return new LessThanOrEqualNode(self, Parse(tokens, currentIndex));
-        }
-        return ParseNextForValueTypes(tokens, self, currentIndex - 1);
-    }
-
-    private static AstNode ParseNextForBoolean(Token[] tokens, AstNode self, int currentIndex)
-    {
-        currentIndex++;
-        Token nextToken = tokens[currentIndex];
-        switch (nextToken)
-        {
+            case EqualsToken:
+                currentIndex++;
+                return new EqualNode(self, Parse(tokens, currentIndex));
+            case NotEqualsToken:
+                currentIndex++;
+                return new NotEqualNode(self, Parse(tokens, currentIndex));
+            
+            // Boolean
             case AndToken:
                 currentIndex++;
                 return new AndNode(self, Parse(tokens, currentIndex));
@@ -133,22 +117,7 @@ public class AstGenerator : IAstGenerator
                 currentIndex++;
                 return new XorNode(self, Parse(tokens, currentIndex));
         }
-        return ParseNextForValueTypes(tokens, self, currentIndex - 1);
-    }
 
-    private static AstNode ParseNextForValueTypes(Token[] tokens, AstNode self, int currentIndex)
-    {
-        currentIndex++;
-        Token nextToken = tokens[currentIndex];
-        switch (nextToken)
-        {
-            case EqualsToken:
-                currentIndex++;
-                return new EqualNode(self, Parse(tokens, currentIndex));
-            case NotEqualsToken:
-                currentIndex++;
-                return new NotEqualNode(self, Parse(tokens, currentIndex));
-        }
         return self;
     }
 
