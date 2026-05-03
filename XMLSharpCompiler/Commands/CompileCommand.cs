@@ -14,7 +14,10 @@ public class CompileCommand : CommandBase
     {
         FileInfo inputFile = parseResult.GetRequiredValue(_fileArg);
         if (!inputFile.Exists)
+        {
             Console.Error.WriteLine($"File {inputFile.FullName} does not exist.");
+            Environment.Exit(1);
+        }
         
         FileInfo outputFile = parseResult.GetValue(_outputFileArg) ?? new FileInfo(
             Path.Combine(inputFile.Directory!.FullName, Path.GetFileNameWithoutExtension(inputFile.Name) + ".ir"));
