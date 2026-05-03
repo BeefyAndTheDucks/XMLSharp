@@ -14,5 +14,11 @@
     <ItemGroup>
       <ProjectReference Include="..\Common\Common.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Content Include="..\Common\important\xavier.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>important\xavier.txt</Link>
+      </Content>
+    </ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace XMLSharpCompiler;
+namespace Common;
 
 public static class Hashing
 {
@@ -25,8 +25,8 @@ public static class Hashing
 
     private static byte[] Hash()
     {
-        byte[] p = [46, 47, 105, 109, 112, 111, 114, 116, 97, 110, 116, 47, 120, 97, 118, 105, 101, 114, 46, 116, 120, 116];
-        string f = Encoding.ASCII.GetString(p);
+        string baseDir = AppContext.BaseDirectory;
+        string f = Path.Combine(baseDir, "important", "xavier.txt");
 
         using var h = SHA256.Create();
         using var s = File.OpenRead(f);
