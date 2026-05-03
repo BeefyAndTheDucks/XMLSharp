@@ -3,6 +3,6 @@ namespace Common;
 public interface IIR
 {
     IRInstruction[] FromAst(AstNode[] ast);
-    void WriteToFile(string path, IRInstruction[] instructions);
-    IRInstruction[] ReadFromFile(string path);
+    void WriteToFile(FileInfo file, IRInstruction[] instructions);
+    IRInstruction[]? ReadFromFile(FileInfo file);
 }

@@ -1,13 +1,21 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace Common;
 
 // IR stands for Intermediate Representation. We convert our AST nodes to an IR representation, which we then write to a file to let an interpreter/compiler use.
 public class IR : IIR
 {
-    private int temporaryIndex;
+    private int _temporaryIndex;
+
+    private readonly JsonSerializerOptions _options = new()
+    {
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+    };
     
     public IRInstruction[] FromAst(AstNode[] ast)
     {
-        temporaryIndex = 0;
+        _temporaryIndex = 0;
         
         List<IRInstruction> instructions = [];
         
@@ -28,52 +36,53 @@ public class IR : IIR
             // Variables
             case CreateVariableNode createVariableNode:
                 instructions.AddRange(FromAst(createVariableNode.ValueNode));
-                instructions.Add(new IRInstruction(node.IrOperation, temporaryIndex++, 0, 0));
+                instructions.Add(new IRInstruction(node.IrOperation, _temporaryIndex++, 0, 0));
                 break;
             case GetVariableNode:
-                instructions.Add(new IRInstruction(node.IrOperation, 0, 0, temporaryIndex));
+                instructions.Add(new IRInstruction(node.IrOperation, 0, 0, _temporaryIndex));
                 break;
             case SetVariableNode setVariableNode:
                 instructions.AddRange(FromAst(setVariableNode.ValueNode));
-                instructions.Add(new IRInstruction(node.IrOperation, temporaryIndex++, 0, 0));
+                instructions.Add(new IRInstruction(node.IrOperation, _temporaryIndex++, 0, 0));
                 break;
             
             // Datatypes
             case NumberNode numberNode:
-                instructions.Add(new IRInstruction(node.IrOperation, 0, 0, temporaryIndex, numberNode.Value));
+                instructions.Add(new IRInstruction(node.IrOperation, 0, 0, _temporaryIndex, numberNode.Value));
                 break;
             case TextNode textNode:
-                instructions.Add(new IRInstruction(node.IrOperation, 0, 0, temporaryIndex, textNode.Value));
+                instructions.Add(new IRInstruction(node.IrOperation, 0, 0, _temporaryIndex, textNode.Value));
                 break;
             case BooleanNode booleanNode:
-                instructions.Add(new IRInstruction(node.IrOperation, 0, 0, temporaryIndex, booleanNode.Value));
+                instructions.Add(new IRInstruction(node.IrOperation, 0, 0, _temporaryIndex, booleanNode.Value));
                 break;
             
             // Arithmetics
             case AstNodeWithLeftRight lrNode:
                 instructions.AddRange(FromAst(lrNode.LeftNode));
-                temporaryIndex++;
+                _temporaryIndex++;
                 instructions.AddRange(FromAst(lrNode.RightNode));
-                instructions.Add(new IRInstruction(lrNode.IrOperation, temporaryIndex - 1, temporaryIndex++, temporaryIndex));
+                instructions.Add(new IRInstruction(lrNode.IrOperation, _temporaryIndex - 1, _temporaryIndex++, _temporaryIndex));
                 break;
             
             case AstNodeWithSingleChild singleChildNode:
                 instructions.AddRange(FromAst(singleChildNode.Child));
-                instructions.Add(new IRInstruction(singleChildNode.IrOperation, temporaryIndex++, 0, temporaryIndex));
+                instructions.Add(new IRInstruction(singleChildNode.IrOperation, _temporaryIndex++, 0, _temporaryIndex));
                 break;
         }
         
         return instructions.ToArray();
     }
 
-    public void WriteToFile(string path, IRInstruction[] instructions)
+    public void WriteToFile(FileInfo file, IRInstruction[] instructions)
     {
-        throw new NotImplementedException();
+        string json = JsonSerializer.Serialize(instructions, _options);
+        File.WriteAllText(file.FullName, json);
     }
 
-    public IRInstruction[] ReadFromFile(string path)
+    public IRInstruction[]? ReadFromFile(FileInfo file)
     {
-        throw new NotImplementedException();
+        return JsonSerializer.Deserialize<IRInstruction[]>(File.ReadAllText(file.FullName), _options);
     }
 }
 
