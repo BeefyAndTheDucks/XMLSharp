@@ -21,7 +21,6 @@ public record GetVariableNode(string Name) : AstNode;
 #endregion
 
 #region Boolean
-
 public record NotNode(AstNode Node) : AstNode;
 
 public record BooleanNode(bool Value) : AstNode;
@@ -31,7 +30,9 @@ public record AndNode(AstNode LeftNode, AstNode RightNode) : AstNode;
 public record OrNode(AstNode LeftNode, AstNode RightNode) : AstNode;
 
 public record XorNode(AstNode LeftNode, AstNode RightNode) : AstNode;
+#endregion
 
+#region Comparisons
 public record EqualNode(AstNode LeftNode, AstNode RightNode) : AstNode;
 
 public record NotEqualNode(AstNode LeftNode, AstNode RightNode) : AstNode;
