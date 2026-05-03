@@ -49,13 +49,14 @@ public class Lexer : ILexer
             if (char.IsDigit(input[i]))
             {
                 string word = "";
+                int startCol = col;
                 while (i < input.Length && char.IsDigit(input[i]))
                 {
                     word += input[i];
                     i++;
                     col++;
                 }
-                tokens.Add(new NumberToken(int.Parse(word)));
+                tokens.Add(new NumberToken(int.Parse(word), line, startCol));
                 continue;
             }
 
@@ -63,6 +64,7 @@ public class Lexer : ILexer
             if (char.IsLetter(input[i]) || input[i] == '_')
             {
                 string word = "";
+                int startCol = col;
                 while (i < input.Length && (char.IsLetterOrDigit(input[i]) || input[i] == '_'))
                 {
                     word += input[i];
@@ -71,11 +73,13 @@ public class Lexer : ILexer
                 }
                 if (keywords.TryGetValue(word, out var create))
                 {
-                    tokens.Add(create());
+                    Token token = create();
+                    token = token with { Line = line, Col = startCol };
+                    tokens.Add(token);
                 }
                 else
                 {
-                    tokens.Add(new IdentifierToken(word));
+                    tokens.Add(new IdentifierToken(word, line, startCol));
                 }
                 continue;
             }
@@ -86,6 +90,7 @@ public class Lexer : ILexer
                 i++;
                 col++;
                 string word = "";
+                int startCol = col;
 
                 while (i < input.Length && input[i] != '"')
                 {
@@ -95,7 +100,7 @@ public class Lexer : ILexer
                 }
                 i++;
                 col++;
-                tokens.Add(new TextToken(word));
+                tokens.Add(new TextToken(word, line, startCol));
                 continue;
             }
 
@@ -106,7 +111,9 @@ public class Lexer : ILexer
                 int length = definition.Pattern.Length;
                 if (i + length <= input.Length && input.Substring(i, length) == definition.Pattern)
                 {
-                    tokens.Add(definition.Create());
+                    Token token = definition.Create();
+                    token = token with { Line = line, Col = col };
+                    tokens.Add(token);
                     i += length;
                     col += length;
                     matched = true;

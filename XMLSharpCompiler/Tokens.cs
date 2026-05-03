@@ -1,40 +1,40 @@
 namespace XMLSharpCompiler;
 
-public abstract record Token;
+public abstract record Token(int Line = 0, int Col = 0);
 
 // matched by content
-public record NumberToken(int Value) : Token;
-public record TextToken(string Text) : Token;
-public record IdentifierToken(string Name) : Token;
-public record VariableDefinitionToken(XMLSType Type) : Token;
+public record NumberToken(int Value, int Line = 0, int Col = 0) : Token(Line, Col);
+public record TextToken(string Text, int Line = 0, int Col = 0) : Token(Line, Col);
+public record IdentifierToken(string Name, int Line = 0, int Col = 0) : Token(Line, Col);
+public record VariableDefinitionToken(XMLSType Type, int Line = 0, int Col = 0) : Token(Line, Col);
 
 // matched by pattern
-public record AssignmentToken : Token;
+public record AssignmentToken(int Line = 0, int Col = 0) : Token(Line, Col);
 
-public record AddToken : Token;
-public record SubtractToken : Token;
-public record MultiplyToken : Token;
-public record DivideToken : Token;
-public record ModuloToken : Token;
+public record AddToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record SubtractToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record MultiplyToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record DivideToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record ModuloToken(int Line = 0, int Col = 0) : Token(Line, Col);
 
-public record LessOrEqualsToken : Token;
-public record GreaterOrEqualsToken : Token;
-public record GreaterToken : Token;
-public record LessToken : Token;
-public record EqualsToken : Token;
-public record NotEqualsToken : Token;
+public record LessOrEqualsToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record GreaterOrEqualsToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record GreaterToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record LessToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record EqualsToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record NotEqualsToken(int Line = 0, int Col = 0) : Token(Line, Col);
 
-public record AndToken : Token;
-public record OrToken : Token;
-public record NotToken : Token;
-public record XorToken : Token;
+public record AndToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record OrToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record NotToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record XorToken(int Line = 0, int Col = 0) : Token(Line, Col);
 
-public record YesToken : Token;
-public record NoToken : Token;
+public record YesToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record NoToken(int Line = 0, int Col = 0) : Token(Line, Col);
 
-public record ConcatToken : Token;
+public record ConcatToken(int Line = 0, int Col = 0) : Token(Line, Col);
 
-public record SemicolonToken : Token;
+public record SemicolonToken(int Line = 0, int Col = 0) : Token(Line, Col);
 
 // special
-public record EOFToken : Token;
+public record EOFToken(int Line = 0, int Col = 0) : Token(Line, Col);
