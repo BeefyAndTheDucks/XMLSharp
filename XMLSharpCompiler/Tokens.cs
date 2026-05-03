@@ -1,3 +1,5 @@
+using Common;
+
 namespace XMLSharpCompiler;
 
 public abstract record Token(int Line = 0, int Col = 0);

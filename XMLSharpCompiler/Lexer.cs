@@ -1,6 +1,5 @@
 namespace XMLSharpCompiler;
 
-
 // actual code
 public class Lexer : ILexer
 {

@@ -1,3 +1,5 @@
+using Common;
+
 namespace XMLSharpCompiler;
 
 public static class Keywords

@@ -1,4 +1,4 @@
-namespace XMLSharpCompiler;
+namespace Common;
 
 public abstract record AstNode;
 

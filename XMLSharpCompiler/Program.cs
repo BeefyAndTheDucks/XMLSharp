@@ -1,5 +1,5 @@
 ﻿using System.CommandLine;
-using Client.Commands;
+using XMLSharpCompiler.Commands;
 
 namespace XMLSharpCompiler;
 

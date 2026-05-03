@@ -1,4 +1,7 @@
+using Common;
 using XMLSharpCompiler;
+
+namespace XMLSharpCompilerTests;
 
 [TestFixture]
 [TestOf(typeof(SyntaxValidator))]

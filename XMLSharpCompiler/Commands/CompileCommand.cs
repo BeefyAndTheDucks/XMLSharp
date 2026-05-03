@@ -1,9 +1,9 @@
+using Common;
+
 using System.CommandLine;
 using System.Diagnostics;
-using XMLSharpCompiler;
-using Version = XMLSharpCompiler.Version;
 
-namespace Client.Commands;
+namespace XMLSharpCompiler.Commands;
 
 public class CompileCommand : CommandBase
 {

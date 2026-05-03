@@ -1,6 +1,6 @@
 namespace XMLSharpCompiler;
 
-public interface ISyntaxRule { }
+public interface ISyntaxRule;
 
 public interface ITokenRule : ISyntaxRule
 {
