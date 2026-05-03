@@ -35,26 +35,38 @@ public class AstGenerator : IAstGenerator
                 currentIndex++;
                 IdentifierToken identifierToken = ConvertOrThrow<IdentifierToken>(tokens[currentIndex++]);
                 ConvertOrThrow<AssignmentToken>(tokens[currentIndex++]);
-                return new CreateVariableNode(identifierToken.Name, variableDefinitionToken.Type, ParseExpression(tokens, currentIndex));
+                return new CreateVariableNode(identifierToken.Name, variableDefinitionToken.Type, ParseExpression(tokens.Skip(currentIndex).ToArray()));
             }
             case IdentifierToken identifierToken:
             {
                 currentIndex++;
                 ConvertOrThrow<AssignmentToken>(tokens[currentIndex++]);
-                return new SetVariableNode(identifierToken.Name, ParseExpression(tokens, currentIndex));
+                return new SetVariableNode(identifierToken.Name, ParseExpression(tokens.Skip(currentIndex).ToArray()));
             }
         }
         
         throw new UnexpectedTokenException(currentToken);
     }
 
-    internal static AstNode ParseExpression(Token[] tokens, int startIndex, int? stopIndex = null)
+    internal static AstNode ParseExpression(Token[] tokens, int? stopIndex = null)
     {
-        int leastPrecedence = GetLeastPrecedenceNodeIndex(tokens, startIndex, stopIndex);
+        int leastPrecedence = GetLeastPrecedenceNodeIndex(tokens, stopIndex);
         
         return leastPrecedence == -1
-            ? NodeFromToken(tokens[startIndex])
-            : ParseOperation(tokens, leastPrecedence, startIndex);
+            ? FirstPossibleNode(tokens)
+            : ParseOperation(tokens, leastPrecedence);
+    }
+
+    private static AstNode FirstPossibleNode(Token[] tokens)
+    {
+        foreach (Token token in tokens)
+        {
+            try
+            {
+                return NodeFromToken(token);
+            } catch (InvalidOperationException) {}
+        }
+        throw new InvalidOperationException("Cannot create node from tokens.");
     }
 
     private static AstNode NodeFromToken(Token token)
@@ -71,24 +83,37 @@ public class AstGenerator : IAstGenerator
         };
     }
 
-    private static int GetLeastPrecedenceNodeIndex(Token[] tokens, int currentIndex, int? stopIndex = null)
+    private static int GetLeastPrecedenceNodeIndex(Token[] tokens, int? stopIndex = null)
     {
         int leastPrecedence = int.MaxValue;
         int leastPrecedenceIndex = -1;
-        while (tokens[currentIndex] is not SemicolonToken)
+        int precedenceBonus = 0;
+        for (int i = 0; i < tokens.Length; i++)
         {
-            if (currentIndex >= stopIndex)
+            if (i >= stopIndex)
+                break;
+
+            if (tokens[i] is SemicolonToken)
                 break;
             
-            Token token = tokens[currentIndex];
-            int precedence = GetPrecedence(token);
-            if (precedence <= leastPrecedence && precedence > 0)
+            Token token = tokens[i];
+
+            switch (token)
             {
-                leastPrecedence = precedence;
-                leastPrecedenceIndex = currentIndex;
+                case OpenParenToken:
+                    precedenceBonus += 100;
+                    continue;
+                case CloseParenToken:
+                    precedenceBonus -= 100;
+                    continue;
             }
+
+            int tokenPrecedence = GetPrecedence(token);
+            int combinedPrecedence = tokenPrecedence + precedenceBonus;
             
-            currentIndex++;
+            if (combinedPrecedence > leastPrecedence || tokenPrecedence < 0) continue;
+            leastPrecedence = combinedPrecedence;
+            leastPrecedenceIndex = i;
         }
         
         return leastPrecedenceIndex;
@@ -126,7 +151,7 @@ public class AstGenerator : IAstGenerator
         };
     }
     
-    private static AstNode ParseOperation(Token[] tokens, int currentIndex, int expressionStartIndex)
+    private static AstNode ParseOperation(Token[] tokens, int currentIndex)
     {
         return tokens[currentIndex] switch
         {
@@ -157,9 +182,9 @@ public class AstGenerator : IAstGenerator
             _ => GetLhs()
         };
 
-        AstNode GetRhs() => ParseExpression(tokens, currentIndex + 1, expressionStartIndex);
+        AstNode GetLhs() => ParseExpression(tokens.Take(currentIndex).ToArray());
 
-        AstNode GetLhs() => ParseExpression(tokens, expressionStartIndex, currentIndex);
+        AstNode GetRhs() => ParseExpression(tokens.Skip(currentIndex + 1).ToArray());
     }
 
     private static T ConvertOrThrow<T>(Token token)
