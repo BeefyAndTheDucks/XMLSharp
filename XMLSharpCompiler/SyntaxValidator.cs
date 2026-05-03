@@ -53,7 +53,7 @@ public class SyntaxValidator
                 if (error is not null)
                     yield return error;
             }
-            else if (rule is ITokenRule tokenRule)
+            if (rule is ITokenRule tokenRule)
             {
                 for (int i = 0; i < statement.Length; i++)
                 {
