@@ -7,12 +7,17 @@ namespace Client.Commands;
 
 public class CompileCommand : CommandBase
 {
-    private readonly Option<FileInfo> _fileOption = new("--file", "file", "-f", "--input", "-i", "input");
-    
+    private readonly Argument<FileInfo> _fileArg = new("file");
+
     protected override void Invoke(ParseResult parseResult)
     {
-        FileInfo file = parseResult.GetRequiredValue(_fileOption);
-        
+        FileInfo? file = parseResult.GetValue(_fileArg);
+        if (file is null)
+        {
+            Console.WriteLine("No file specified for compilation.");
+            return;
+        } 
+
         Console.WriteLine($"Compiling {file.FullName}...");
         
         Stopwatch sw = Stopwatch.StartNew();
@@ -35,7 +40,7 @@ public class CompileCommand : CommandBase
     {
         return new Command("compile", "Compile a XMLSharp file to IR which can be executed by the interpreter")
         {
-            _fileOption
+            _fileArg
         };
     }
 }
