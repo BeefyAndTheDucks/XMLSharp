@@ -9,6 +9,8 @@ public abstract record AstNode
 
 public abstract record AstNodeWithLeftRight(AstNode LeftNode, AstNode RightNode) : AstNode;
 
+public abstract record AstNodeWithSingleChild(AstNode Child) : AstNode;
+
 #region Numbers
 public record AddNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode);
 public record SubtractNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode);
@@ -28,7 +30,7 @@ public record GetVariableNode(string Name) : AstNode;
 #endregion
 
 #region Boolean
-public record NotNode(AstNode Node) : AstNode;
+public record NotNode(AstNode Node) : AstNodeWithSingleChild(Node);
 
 public record BooleanNode(bool Value) : AstNode;
 
@@ -59,6 +61,10 @@ public record TextNode(string Value) : AstNode;
 public record ConcatNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode);
 #endregion
 
+#region Functions
+public record PrintNode(AstNode Value) : AstNodeWithSingleChild(Value);
+#endregion
+
 public static class AstNodeExtensions
 {
     public static string GetTextForPrettyPrint(this AstNode node, bool[]? indentation = null)
@@ -66,10 +72,10 @@ public static class AstNodeExtensions
         return node switch
         {
             AstNodeWithLeftRight leftRightNode => leftRightNode.GetTextForPrettyPrint(indentation),
+            AstNodeWithSingleChild singleChildNode => singleChildNode.GetTextForPrettyPrint(indentation),
             BooleanNode booleanNode => booleanNode.Value ? "true" : "false",
             CreateVariableNode createVariableNode => createVariableNode.GetTextForPrettyPrint(indentation),
             GetVariableNode getVariableNode => $"{nameof(GetVariableNode)} \"{getVariableNode.Name}\"",
-            NotNode notNode => notNode.GetTextForPrettyPrint(indentation),
             NumberNode numberNode => numberNode.Value.ToString(),
             SetVariableNode setVariableNode => setVariableNode.GetTextForPrettyPrint(indentation),
             TextNode textNode => $"\"{textNode.Value}\"",
@@ -77,7 +83,7 @@ public static class AstNodeExtensions
         };
     }
     
-    private static string GetTextForPrettyPrint(this NotNode node, bool[]? indentation = null)
+    private static string GetTextForPrettyPrint(this AstNodeWithSingleChild node, bool[]? indentation = null)
     {
         indentation ??= [];
         var myIndentation = new List<bool>(indentation);
@@ -93,7 +99,7 @@ public static class AstNodeExtensions
         myIndentation.Add(false);
 
         builder.Append("└── ");
-        builder.Append(node.Node.GetTextForPrettyPrint(myIndentation.ToArray()));
+        builder.Append(node.Child.GetTextForPrettyPrint(myIndentation.ToArray()));
 
         return builder.ToString();
     }

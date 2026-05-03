@@ -43,6 +43,13 @@ public class AstGenerator : IAstGenerator
                 ConvertOrThrow<AssignmentToken>(tokens[currentIndex++]);
                 return new SetVariableNode(identifierToken.Name, ParseExpression(tokens.Skip(currentIndex).ToArray()));
             }
+            
+            // Functions
+            case PrintToken:
+            {
+                currentIndex++;
+                return new PrintNode(ParseExpression(tokens.Skip(currentIndex).ToArray()));
+            }
         }
         
         throw new UnexpectedTokenException(currentToken);
@@ -179,7 +186,7 @@ public class AstGenerator : IAstGenerator
             // Text
             ConcatToken => new ConcatNode(GetLhs(), GetRhs()),
             
-            _ => GetLhs()
+            _ => throw new InvalidOperationException("Cannot parse operation: " + tokens[currentIndex] + ".")
         };
 
         AstNode GetLhs() => ParseExpression(tokens.Take(currentIndex).ToArray());

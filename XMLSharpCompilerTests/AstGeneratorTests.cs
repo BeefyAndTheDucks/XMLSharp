@@ -451,4 +451,17 @@ public class AstGeneratorTests
             )
         ));
     }
+
+    [Test]
+    public void TestPrintFunction()
+    {
+        Token[] tokenInput =
+        [
+            new PrintToken(), new NumberToken(1), new SemicolonToken(), new EOFToken()
+        ];
+        
+        var ast = new AstGenerator().Generate(tokenInput);
+        
+        Assert.That(ast, Is.EqualTo([new PrintNode(new NumberNode(1))]));
+    }
 }
