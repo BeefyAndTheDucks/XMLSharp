@@ -87,10 +87,10 @@ public class Lexer : ILexer
             // string handling
             if (input[i] == '"')
             {
+                int startCol = col;
                 i++;
                 col++;
                 string word = "";
-                int startCol = col;
 
                 while (i < input.Length && input[i] != '"')
                 {

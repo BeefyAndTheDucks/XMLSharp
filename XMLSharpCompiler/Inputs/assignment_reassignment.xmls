@@ -6,5 +6,5 @@ $ String reassignment
 text bar = "One";
 bar = "Two";
 
-number foo = 1 + 2
-number bar = foo + 2;
+number = 1
+bar = 3;

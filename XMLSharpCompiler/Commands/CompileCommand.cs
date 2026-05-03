@@ -23,8 +23,18 @@ public class CompileCommand : CommandBase
         Stopwatch sw = Stopwatch.StartNew();
         ILexer lexer = new Lexer();
         IAstGenerator astGenerator = new AstGenerator();
+        SyntaxValidator validator = new();
 
         Token[] tokens = lexer.Lex(File.ReadAllText(file.FullName));
+        SyntaxError[] errors = validator.Validate(tokens);
+        if (errors.Length > 0)
+        {
+            foreach (SyntaxError error in errors)
+            {
+                Console.WriteLine($"Syntax error at {error.Line}:{error.Col} — {error.Message}");
+            }
+            return;
+        }
         
         AstNode[] ast = astGenerator.Generate(tokens);
         
