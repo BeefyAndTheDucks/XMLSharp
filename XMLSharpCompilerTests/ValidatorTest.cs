@@ -66,4 +66,20 @@ public class SyntaxValidatorTest
             Assert.That(errors[1].Col, Is.EqualTo(12));
         }
     }
+    
+    [Test]
+    public void TestPrintFunction()
+    {
+        Token[] tokens = [
+            new PrintToken(1, 1),
+            new TextToken("foo", 1, 7),
+            new ConcatToken(1, 11),
+            new TextToken("bar", 1, 13),
+            new SemicolonToken(1, 16),
+            new EOFToken()
+        ];
+        
+        var errors = _validator.Validate(tokens);
+        Assert.That(errors, Is.Empty);
+    }
 }

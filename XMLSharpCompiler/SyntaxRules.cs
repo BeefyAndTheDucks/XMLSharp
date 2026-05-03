@@ -49,6 +49,11 @@ public class UnexpectedTokenRule : ITokenRule
         typeof(XorToken),
         typeof(ConcatToken),
         typeof(AssignmentToken),
+        
+        typeof(TextToken),
+        typeof(NumberToken),
+        typeof(YesToken),
+        typeof(NoToken),
     };
 
     private static readonly HashSet<Type> ValueTokens = new()
@@ -58,6 +63,9 @@ public class UnexpectedTokenRule : ITokenRule
         typeof(YesToken),
         typeof(NoToken),
         typeof(TextToken),
+        
+        // Functions
+        typeof(PrintToken),
     };
 
     public SyntaxError? Validate(Token[] statement, int index)

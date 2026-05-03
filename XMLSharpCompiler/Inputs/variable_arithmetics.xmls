@@ -15,3 +15,5 @@ yesno and = eq & yes;
 yesno or = eq ? no;
 yesno not = ~eq;
 yesno xor = eq ! yes;
+
+write "Hello, " # "world!";

@@ -9,5 +9,6 @@ public static class Keywords
         { "number", () => new VariableDefinitionToken(XMLSType.Number) },
         { "yesno",  () => new VariableDefinitionToken(XMLSType.Bool) },
         { "text", () => new VariableDefinitionToken(XMLSType.Text)},
+        { "write", () => new PrintToken() }
     };
 }
