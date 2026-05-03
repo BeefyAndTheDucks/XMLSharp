@@ -19,5 +19,8 @@
     <ItemGroup>
         <Using Include="NUnit.Framework"/>
     </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\XMLSharpInterpreter\XMLSharpInterpreter.csproj" />
+    </ItemGroup>
 
 </Project>

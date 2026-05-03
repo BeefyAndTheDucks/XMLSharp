@@ -9,7 +9,22 @@ public class RunCommand : CommandBase
     
     protected override void Invoke(ParseResult parseResult)
     {
-        throw new NotImplementedException();
+        FileInfo inputFile = parseResult.GetRequiredValue(_fileArg);
+        if (!inputFile.Exists)
+        {
+            Console.Error.WriteLine($"File {inputFile.FullName} does not exist.");
+            Environment.Exit(1);
+        }
+        IR ir = new();
+        IRInstruction[]? instructions = ir.ReadFromFile(inputFile);
+        if (instructions is null)
+        {
+            Console.Error.WriteLine($"Failed to read from file {inputFile.FullName}");
+            Environment.Exit(1);
+        }
+
+        Interpreter interpreter = new();
+        interpreter.Run(instructions);
     }
 
     protected override Command GetCommand()
