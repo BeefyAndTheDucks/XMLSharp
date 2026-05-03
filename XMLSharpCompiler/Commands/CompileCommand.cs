@@ -40,10 +40,7 @@ public class CompileCommand : CommandBase
         
         Console.WriteLine($"Compilation completed in {sw.ElapsedMilliseconds}ms. Printing results...");
 
-        for (int i = 0; i < ast.Length; i++)
-        {
-            Console.WriteLine($"ast[{i}] = {ast[i]}");
-        }
+        ast.PrettyPrint();
     }
 
     protected override Command GetCommand()

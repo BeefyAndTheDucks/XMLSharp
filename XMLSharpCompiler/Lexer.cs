@@ -9,7 +9,7 @@ public class Lexer : ILexer
         List<Token> tokens = [];
 
         var keywords = Keywords.Map;
-        var definitions = Definitions.Map;
+        var definitions = Definitions.MatchingMap;
 
         int line = 1;
         int col = 1;

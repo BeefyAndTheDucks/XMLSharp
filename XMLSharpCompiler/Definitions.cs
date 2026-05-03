@@ -2,9 +2,8 @@ namespace XMLSharpCompiler;
 
 public static class Definitions
 {
-
     // sort longest first or the lexer wont lex
-    public static readonly (string Pattern, Func<Token> Create)[] Map = [
+    private static readonly (string Pattern, Func<Token> Create)[] Map = [
         // Boolean
         ("====", () => new EqualsToken()),
         ("!===", () => new NotEqualsToken()),
@@ -31,6 +30,19 @@ public static class Definitions
         
         // Other
         ("="   , () => new AssignmentToken()),
+        ("("   , () => new OpenParenToken()),
+        (")"   , () => new CloseParenToken()),
         (";"   , () => new SemicolonToken()),
     ];
+
+    public static (string Pattern, Func<Token> Create)[] MatchingMap
+    {
+        get
+        {
+            if (field is not null) return field;
+            field = Map;
+            field.Sort((a, b) => b.Pattern.Length.CompareTo(a.Pattern.Length));
+            return field;
+        }
+    }
 }

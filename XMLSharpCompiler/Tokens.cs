@@ -36,6 +36,9 @@ public record NoToken(int Line = 0, int Col = 0) : Token(Line, Col);
 
 public record ConcatToken(int Line = 0, int Col = 0) : Token(Line, Col);
 
+public record OpenParenToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record CloseParenToken(int Line = 0, int Col = 0) : Token(Line, Col);
+
 public record SemicolonToken(int Line = 0, int Col = 0) : Token(Line, Col);
 
 // special
