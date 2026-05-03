@@ -26,6 +26,9 @@ public static class Definitions
         ("/"   , () => new DivideToken()),
         ("%"   , () => new ModuloToken()),
         
+        // Text
+        ("#"   , () => new ConcatToken()),
+        
         // Other
         ("="   , () => new AssignmentToken()),
         (";"   , () => new SemicolonToken()),

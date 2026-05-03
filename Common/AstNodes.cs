@@ -45,3 +45,9 @@ public record LessThanNode(AstNode LeftNode, AstNode RightNode) : AstNode;
 
 public record LessThanOrEqualNode(AstNode LeftNode, AstNode RightNode) : AstNode;
 #endregion
+
+#region Text
+public record TextNode(string Value) : AstNode;
+
+public record ConcatNode(AstNode LeftNode, AstNode RightNode) : AstNode;
+#endregion

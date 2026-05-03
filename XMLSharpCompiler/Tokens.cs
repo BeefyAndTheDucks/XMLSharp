@@ -24,8 +24,6 @@ public record LessToken : Token;
 public record EqualsToken : Token;
 public record NotEqualsToken : Token;
 
-public record SemicolonToken : Token;
-
 public record AndToken : Token;
 public record OrToken : Token;
 public record NotToken : Token;
@@ -33,6 +31,10 @@ public record XorToken : Token;
 
 public record YesToken : Token;
 public record NoToken : Token;
+
+public record ConcatToken : Token;
+
+public record SemicolonToken : Token;
 
 // special
 public record EOFToken : Token;
