@@ -33,99 +33,131 @@ public class AstGenerator : IAstGenerator
                 currentIndex++;
                 IdentifierToken identifierToken = ConvertOrThrow<IdentifierToken>(tokens[currentIndex++]);
                 ConvertOrThrow<AssignmentToken>(tokens[currentIndex++]);
-                return new CreateVariableNode(identifierToken.Name, variableDefinitionToken.Type, Parse(tokens, currentIndex));
-            }
-            case NumberToken numberToken:
-            {
-                return ParseNext(tokens, new NumberNode(numberToken.Value), currentIndex);
+                return new CreateVariableNode(identifierToken.Name, variableDefinitionToken.Type, ParseExpression(tokens, currentIndex));
             }
             case IdentifierToken identifierToken:
             {
-                Token nextToken = tokens[currentIndex + 1];
-                
-                if (nextToken is AssignmentToken)
-                    return new SetVariableNode(identifierToken.Name, Parse(tokens, currentIndex + 2));
-                
-                // Identifier (variables) can be a lot... we must check for them all.
-                return ParseNext(tokens, new GetVariableNode(identifierToken.Name), currentIndex);
-            }
-            case NotToken:
-            {
                 currentIndex++;
-                return new NotNode(Parse(tokens, currentIndex));
+                ConvertOrThrow<AssignmentToken>(tokens[currentIndex++]);
+                return new SetVariableNode(identifierToken.Name, ParseExpression(tokens, currentIndex));
             }
-            case YesToken:
-                return ParseNext(tokens, new BooleanNode(true), currentIndex);
-            case NoToken:
-                return ParseNext(tokens, new BooleanNode(false), currentIndex);
-            case TextToken textToken:
-                return ParseNext(tokens, new TextNode(textToken.Text), currentIndex);
         }
         
         throw new UnexpectedTokenException(currentToken);
     }
 
-    private static AstNode ParseNext(Token[] tokens, AstNode self, int currentIndex)
+    internal static AstNode ParseExpression(Token[] tokens, int startIndex, int? stopIndex = null)
     {
-        currentIndex++;
-        Token nextToken = tokens[currentIndex];
-        switch (nextToken)
+        int leastPrecedence = GetLeastPrecedenceNodeIndex(tokens, startIndex, stopIndex);
+        
+        return leastPrecedence == -1
+            ? NodeFromToken(tokens[startIndex])
+            : ParseOperation(tokens, leastPrecedence, startIndex);
+    }
+
+    private static AstNode NodeFromToken(Token token)
+    {
+        return token switch
+        {
+            NumberToken number => new NumberNode(number.Value),
+            IdentifierToken identifier => new GetVariableNode(identifier.Name),
+            TextToken text => new TextNode(text.Text),
+            YesToken => new BooleanNode(true),
+            NoToken => new BooleanNode(false),
+            
+            _ => throw new InvalidOperationException("Cannot create node from token: " + token + ".")
+        };
+    }
+
+    private static int GetLeastPrecedenceNodeIndex(Token[] tokens, int currentIndex, int? stopIndex = null)
+    {
+        int leastPrecedence = int.MaxValue;
+        int leastPrecedenceIndex = -1;
+        while (tokens[currentIndex] is not SemicolonToken)
+        {
+            if (currentIndex >= stopIndex)
+                break;
+            
+            Token token = tokens[currentIndex];
+            int precedence = GetPrecedence(token);
+            if (precedence <= leastPrecedence && precedence > 0)
+            {
+                leastPrecedence = precedence;
+                leastPrecedenceIndex = currentIndex;
+            }
+            
+            currentIndex++;
+        }
+        
+        return leastPrecedenceIndex;
+    }
+
+    private static int GetPrecedence(Token token)
+    {
+        return token switch
         {
             // Numbers
-            case AddToken:
-                currentIndex++;
-                return new AddNode(self, Parse(tokens, currentIndex));
-            case SubtractToken:
-                currentIndex++;
-                return new SubtractNode(self, Parse(tokens, currentIndex));
-            case MultiplyToken:
-                currentIndex++;
-                return new MultiplyNode(self, Parse(tokens, currentIndex));
-            case DivideToken:
-                currentIndex++;
-                return new DivideNode(self, Parse(tokens, currentIndex));
-            case ModuloToken:
-                currentIndex++;
-                return new ModuloNode(self, Parse(tokens, currentIndex));
-            
-            // Comparisons
-            case GreaterToken:
-                currentIndex++;
-                return new GreaterThanNode(self, Parse(tokens, currentIndex));
-            case GreaterOrEqualsToken:
-                currentIndex++;
-                return new GreaterThanOrEqualNode(self, Parse(tokens, currentIndex));
-            case LessToken:
-                currentIndex++;
-                return new LessThanNode(self, Parse(tokens, currentIndex));
-            case LessOrEqualsToken:
-                currentIndex++;
-                return new LessThanOrEqualNode(self, Parse(tokens, currentIndex));
-            case EqualsToken:
-                currentIndex++;
-                return new EqualNode(self, Parse(tokens, currentIndex));
-            case NotEqualsToken:
-                currentIndex++;
-                return new NotEqualNode(self, Parse(tokens, currentIndex));
+            AddToken => 10,
+            SubtractToken => 10,
+            MultiplyToken => 20,
+            DivideToken => 20,
+            ModuloToken => 20, // according to https://www.calc-tools.com/formulas/order-of-operations-understanding-modulo, modulo has the same OOO as Mult and Divide.
             
             // Boolean
-            case AndToken:
-                currentIndex++;
-                return new AndNode(self, Parse(tokens, currentIndex));
-            case OrToken:
-                currentIndex++;
-                return new OrNode(self, Parse(tokens, currentIndex));
-            case XorToken:
-                currentIndex++;
-                return new XorNode(self, Parse(tokens, currentIndex));
+            AndToken => 10,
+            OrToken => 10,
+            XorToken => 10,
+            NotToken => 20,
             
             // Text
-            case ConcatToken:
-                currentIndex++;
-                return new ConcatNode(self, Parse(tokens, currentIndex));
-        }
+            ConcatToken => 10,
+            
+            // Comparisons
+            EqualsToken => 1,
+            NotEqualsToken => 1,
+            GreaterToken => 1,
+            GreaterOrEqualsToken => 1,
+            LessToken => 1,
+            LessOrEqualsToken => 1,
+            
+            _ => -1,
+        };
+    }
+    
+    private static AstNode ParseOperation(Token[] tokens, int currentIndex, int expressionStartIndex)
+    {
+        return tokens[currentIndex] switch
+        {
+            // Numbers
+            AddToken => new AddNode(GetLhs(), GetRhs()),
+            SubtractToken => new SubtractNode(GetLhs(), GetRhs()),
+            MultiplyToken => new MultiplyNode(GetLhs(), GetRhs()),
+            DivideToken => new DivideNode(GetLhs(), GetRhs()),
+            ModuloToken => new ModuloNode(GetLhs(), GetRhs()),
+            
+            // Comparisons
+            GreaterToken => new GreaterThanNode(GetLhs(), GetRhs()),
+            GreaterOrEqualsToken => new GreaterThanOrEqualNode(GetLhs(), GetRhs()),
+            LessToken => new LessThanNode(GetLhs(), GetRhs()),
+            LessOrEqualsToken => new LessThanOrEqualNode(GetLhs(), GetRhs()),
+            EqualsToken => new EqualNode(GetLhs(), GetRhs()),
+            NotEqualsToken => new NotEqualNode(GetLhs(), GetRhs()),
+            
+            // Boolean
+            AndToken => new AndNode(GetLhs(), GetRhs()),
+            OrToken => new OrNode(GetLhs(), GetRhs()),
+            XorToken => new XorNode(GetLhs(), GetRhs()),
+            NotToken => new NotNode(GetRhs()),
+            
+            // Text
+            ConcatToken => new ConcatNode(GetLhs(), GetRhs()),
+            
+            _ => GetLhs()
+        };
 
-        return self;
+        AstNode GetRhs() => ParseExpression(tokens, currentIndex + 1, expressionStartIndex);
+
+        AstNode GetLhs() => ParseExpression(tokens, expressionStartIndex, currentIndex);
     }
 
     private static T ConvertOrThrow<T>(Token token)
