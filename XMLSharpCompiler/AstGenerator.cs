@@ -58,6 +58,8 @@ public class AstGenerator : IAstGenerator
                 return ParseNext(tokens, new BooleanNode(true), currentIndex);
             case NoToken:
                 return ParseNext(tokens, new BooleanNode(false), currentIndex);
+            case TextToken textToken:
+                return ParseNext(tokens, new TextNode(textToken.Text), currentIndex);
         }
         
         throw new UnexpectedTokenException(currentToken);
@@ -116,6 +118,11 @@ public class AstGenerator : IAstGenerator
             case XorToken:
                 currentIndex++;
                 return new XorNode(self, Parse(tokens, currentIndex));
+            
+            // Text
+            case ConcatToken:
+                currentIndex++;
+                return new ConcatNode(self, Parse(tokens, currentIndex));
         }
 
         return self;

@@ -15,7 +15,7 @@ public class AstGeneratorTests
             new NumberToken(2), new AddToken(), new NumberToken(2), new SemicolonToken(), new EOFToken()
         ];
         
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
 
         AstNode expected = new CreateVariableNode
         (
@@ -39,7 +39,7 @@ public class AstGeneratorTests
             new NumberToken(2), new AddToken(), new IdentifierToken("bar"), new SemicolonToken(), new EOFToken()
         ];
         
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         AstNode expected = new AddNode
         (
@@ -58,7 +58,7 @@ public class AstGeneratorTests
             new IdentifierToken("foo"), new AssignmentToken(), new NumberToken(2), new SemicolonToken(), new EOFToken()
         ];
         
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         AstNode expected = new SetVariableNode("foo", new NumberNode(2));
         
@@ -74,7 +74,7 @@ public class AstGeneratorTests
             new SemicolonToken(), new EOFToken()
         ];
         
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         AstNode expected = new SetVariableNode("foo", new AddNode(new NumberNode(2), new NumberNode(2)));
         
@@ -90,7 +90,7 @@ public class AstGeneratorTests
             new IdentifierToken("bar"), new SemicolonToken(), new EOFToken()
         ];
         
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         AstNode expected = new SetVariableNode("foo", new AddNode(new NumberNode(2), new GetVariableNode("bar")));
         
@@ -107,7 +107,7 @@ public class AstGeneratorTests
             new IdentifierToken("bar"), new AddToken(), new NumberToken(3), new SemicolonToken(), new EOFToken()
         ];
         
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         // foo = 1 + (bar + 3);
         AstNode expected = new SetVariableNode("foo",
@@ -127,7 +127,7 @@ public class AstGeneratorTests
             new AddToken(), new NumberToken(3), new SemicolonToken(), new EOFToken()
         ];
         
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         // foo = a + (bar + (2 + (baz + 3)))
         AstNode expected = new SetVariableNode("foo",
@@ -144,7 +144,7 @@ public class AstGeneratorTests
             new IdentifierToken("foo"), new SemicolonToken(), new EOFToken()
         ];
         
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         Assert.That(ast, Is.EqualTo([new GetVariableNode("foo")]));
     }
@@ -157,7 +157,7 @@ public class AstGeneratorTests
             new NotToken(), new YesToken(), new SemicolonToken(), new EOFToken()
         ];
 
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         Assert.That(ast, Is.EqualTo([new NotNode(new BooleanNode(true))]));
     }
@@ -170,7 +170,7 @@ public class AstGeneratorTests
             new NoToken(), new AndToken(), new YesToken(), new SemicolonToken(), new EOFToken()
         ];
 
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         Assert.That(ast, Is.EqualTo([new AndNode(new BooleanNode(false), new BooleanNode(true))]));
     }
@@ -183,7 +183,7 @@ public class AstGeneratorTests
             new NoToken(), new OrToken(), new YesToken(), new SemicolonToken(), new EOFToken()
         ];
 
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         Assert.That(ast, Is.EqualTo([new OrNode(new BooleanNode(false), new BooleanNode(true))]));
     }
@@ -196,7 +196,7 @@ public class AstGeneratorTests
             new NoToken(), new XorToken(), new YesToken(), new SemicolonToken(), new EOFToken()
         ];
 
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         Assert.That(ast, Is.EqualTo([new XorNode(new BooleanNode(false), new BooleanNode(true))]));
     }
@@ -209,7 +209,7 @@ public class AstGeneratorTests
             new NoToken(), new EqualsToken(), new YesToken(), new SemicolonToken(), new EOFToken()
         ];
 
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         Assert.That(ast, Is.EqualTo([new EqualNode(new BooleanNode(false), new BooleanNode(true))]));
     }
@@ -222,7 +222,7 @@ public class AstGeneratorTests
             new NumberToken(5), new EqualsToken(), new NumberToken(7), new SemicolonToken(), new EOFToken()
         ];
 
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         Assert.That(ast, Is.EqualTo([new EqualNode(new NumberNode(5), new NumberNode(7))]));
     }
@@ -235,7 +235,7 @@ public class AstGeneratorTests
             new NoToken(), new NotEqualsToken(), new YesToken(), new SemicolonToken(), new EOFToken()
         ];
 
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         Assert.That(ast, Is.EqualTo([new NotEqualNode(new BooleanNode(false), new BooleanNode(true))]));
     }
@@ -248,7 +248,7 @@ public class AstGeneratorTests
             new NumberToken(5), new NotEqualsToken(), new NumberToken(7), new SemicolonToken(), new EOFToken()
         ];
 
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         Assert.That(ast, Is.EqualTo([new NotEqualNode(new NumberNode(5), new NumberNode(7))]));
     }
@@ -262,7 +262,7 @@ public class AstGeneratorTests
             new NumberToken(5), new GreaterToken(), new NumberToken(7), new SemicolonToken(), new EOFToken()
         ];
 
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         Assert.That(ast, Is.EqualTo([new GreaterThanNode(new NumberNode(5), new NumberNode(7))]));
     }
@@ -275,7 +275,7 @@ public class AstGeneratorTests
             new NumberToken(5), new LessToken(), new NumberToken(7), new SemicolonToken(), new EOFToken()
         ];
 
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         Assert.That(ast, Is.EqualTo([new LessThanNode(new NumberNode(5), new NumberNode(7))]));
     }
@@ -288,7 +288,7 @@ public class AstGeneratorTests
             new NumberToken(5), new GreaterOrEqualsToken(), new NumberToken(7), new SemicolonToken(), new EOFToken()
         ];
 
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         Assert.That(ast, Is.EqualTo([new GreaterThanOrEqualNode(new NumberNode(5), new NumberNode(7))]));
     }
@@ -301,7 +301,7 @@ public class AstGeneratorTests
             new NumberToken(5), new LessOrEqualsToken(), new NumberToken(7), new SemicolonToken(), new EOFToken()
         ];
 
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         Assert.That(ast, Is.EqualTo([new LessThanOrEqualNode(new NumberNode(5), new NumberNode(7))]));
     }
@@ -314,7 +314,7 @@ public class AstGeneratorTests
             new NumberToken(5), new SubtractToken(), new NumberToken(7), new SemicolonToken(), new EOFToken()
         ];
         
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         Assert.That(ast, Is.EqualTo([new SubtractNode(new NumberNode(5), new NumberNode(7))]));
     }
@@ -327,7 +327,7 @@ public class AstGeneratorTests
             new NumberToken(5), new MultiplyToken(), new NumberToken(7), new SemicolonToken(), new EOFToken()
         ];
         
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         Assert.That(ast, Is.EqualTo([new MultiplyNode(new NumberNode(5), new NumberNode(7))]));
     }
@@ -340,7 +340,7 @@ public class AstGeneratorTests
             new NumberToken(5), new DivideToken(), new NumberToken(7), new SemicolonToken(), new EOFToken()
         ];
         
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         Assert.That(ast, Is.EqualTo([new DivideNode(new NumberNode(5), new NumberNode(7))]));   
     }
@@ -353,8 +353,34 @@ public class AstGeneratorTests
             new NumberToken(5), new ModuloToken(), new NumberToken(7), new SemicolonToken(), new EOFToken()
         ];
         
-        AstNode[] ast = new AstGenerator().Generate(tokenInput);
+        var ast = new AstGenerator().Generate(tokenInput);
         
         Assert.That(ast, Is.EqualTo([new ModuloNode(new NumberNode(5), new NumberNode(7))]));  
+    }
+    
+    [Test]
+    public void TestText()
+    {
+        Token[] tokenInput =
+        [
+            new TextToken("Hello, world!"), new SemicolonToken(), new EOFToken()
+        ];
+        
+        var ast = new AstGenerator().Generate(tokenInput);
+        
+        Assert.That(ast, Is.EqualTo([new TextNode("Hello, world!")])); 
+    }
+    
+    [Test]
+    public void TestConcat()
+    {
+        Token[] tokenInput =
+        [
+            new TextToken("Hello, "), new ConcatToken(), new IdentifierToken("world"), new ConcatToken(), new TextToken("!"), new SemicolonToken(), new EOFToken()
+        ];
+        
+        var ast = new AstGenerator().Generate(tokenInput);
+        
+        Assert.That(ast, Is.EqualTo([new ConcatNode(new TextNode("Hello, "), new ConcatNode(new GetVariableNode("world"), new TextNode("!")))]));
     }
 }
