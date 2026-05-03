@@ -29,10 +29,12 @@ public class CompileCommand : CommandBase
         SyntaxError[] errors = validator.Validate(tokens);
         if (errors.Length > 0)
         {
+            Console.ForegroundColor = ConsoleColor.Red;
             foreach (SyntaxError error in errors)
             {
                 Console.WriteLine($"Syntax error at {error.Line}:{error.Col} — {error.Message}");
             }
+            Console.ResetColor();
             return;
         }
         
