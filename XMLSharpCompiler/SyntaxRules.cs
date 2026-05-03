@@ -26,12 +26,12 @@ public class VariableDeclarationRule : ITokenRule
     }
 }
 
-// rule for semicolon 
+// rule for semicolon and unexpected tokens 
 public class UnexpectedTokenRule : ITokenRule
 {
     private static readonly HashSet<Type> ValidFollowers = new()
     {
-        // after a number/identifier/yes/no/text, these are valid next tokens
+        // valid followers for tokens in ValueTokens
         typeof(SemicolonToken),
         typeof(AddToken),
         typeof(SubtractToken),
