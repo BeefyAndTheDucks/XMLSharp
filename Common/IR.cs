@@ -86,7 +86,13 @@ public class IR : IIR
     }
 }
 
-public record IRInstruction(IROperation Operation, int Operand1, int Operand2, int Result, object? Data = null);
+public record IRInstruction(
+    [property: JsonPropertyName("O")] IROperation Operation,
+    [property: JsonPropertyName("1")] int Operand1,
+    [property: JsonPropertyName("2")] int Operand2,
+    [property: JsonPropertyName("R")] int Result,
+    [property: JsonPropertyName("D")] object? Data = null
+);
 
 public enum IROperation
 {
