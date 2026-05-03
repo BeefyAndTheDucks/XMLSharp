@@ -16,7 +16,8 @@ public class CompileCommand : CommandBase
         if (!inputFile.Exists)
             Console.Error.WriteLine($"File {inputFile.FullName} does not exist.");
         
-        FileInfo outputFile = parseResult.GetValue(_outputFileArg) ?? new FileInfo(Path.Combine(inputFile.Directory!.FullName, inputFile.Name.Replace(".xmls", ".ir")));
+        FileInfo outputFile = parseResult.GetValue(_outputFileArg) ?? new FileInfo(
+            Path.Combine(inputFile.Directory!.FullName, Path.GetFileNameWithoutExtension(inputFile.Name) + ".ir"));
 
         Console.WriteLine($"Compiling {inputFile.FullName}...");
         
