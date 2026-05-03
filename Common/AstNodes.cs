@@ -2,67 +2,67 @@ using System.Text;
 
 namespace Common;
 
-public abstract record AstNode
+public abstract record AstNode(IROperation IrOperation)
 {
     public sealed override string ToString() => this.GetTextForPrettyPrint();
 }
 
-public abstract record AstNodeWithLeftRight(AstNode LeftNode, AstNode RightNode) : AstNode;
+public abstract record AstNodeWithLeftRight(AstNode LeftNode, AstNode RightNode, IROperation IrOperation) : AstNode(IrOperation);
 
-public abstract record AstNodeWithSingleChild(AstNode Child) : AstNode;
+public abstract record AstNodeWithSingleChild(AstNode Child, IROperation IrOperation) : AstNode(IrOperation);
 
 #region Numbers
-public record AddNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode);
-public record SubtractNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode);
-public record MultiplyNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode);
-public record DivideNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode);
-public record ModuloNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode);
+public record AddNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.Add);
+public record SubtractNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.Sub);
+public record MultiplyNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.Mul);
+public record DivideNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.Div);
+public record ModuloNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.Mod);
 
-public record NumberNode(int Value) : AstNode;
+public record NumberNode(int Value) : AstNode(IROperation.Constant);
 #endregion
 
 #region Variables
-public record CreateVariableNode(string Name, XMLSType Type, AstNode ValueNode) : AstNode;
+public record CreateVariableNode(string Name, XMLSType Type, AstNode ValueNode) : AstNode(IROperation.CreateVar);
 
-public record SetVariableNode(string Name, AstNode ValueNode) : AstNode;
+public record SetVariableNode(string Name, AstNode ValueNode) : AstNode(IROperation.SetVar);
 
-public record GetVariableNode(string Name) : AstNode;
+public record GetVariableNode(string Name) : AstNode(IROperation.GetVar);
 #endregion
 
 #region Boolean
-public record NotNode(AstNode Node) : AstNodeWithSingleChild(Node);
+public record NotNode(AstNode Node) : AstNodeWithSingleChild(Node, IROperation.Not);
 
-public record BooleanNode(bool Value) : AstNode;
+public record BooleanNode(bool Value) : AstNode(IROperation.Constant);
 
-public record AndNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode);
+public record AndNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.And);
 
-public record OrNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode);
+public record OrNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.Or);
 
-public record XorNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode);
+public record XorNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.Xor);
 #endregion
 
 #region Comparisons
-public record EqualNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode);
+public record EqualNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.Equal);
 
-public record NotEqualNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode);
+public record NotEqualNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.NotEqual);
 
-public record GreaterThanNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode);
+public record GreaterThanNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.GreaterThan);
 
-public record GreaterThanOrEqualNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode);
+public record GreaterThanOrEqualNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.GreaterThanOrEqual);
 
-public record LessThanNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode);
+public record LessThanNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.LessThan);
 
-public record LessThanOrEqualNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode);
+public record LessThanOrEqualNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.LessThanOrEqual);
 #endregion
 
 #region Text
-public record TextNode(string Value) : AstNode;
+public record TextNode(string Value) : AstNode(IROperation.Constant);
 
-public record ConcatNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode);
+public record ConcatNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.Concat);
 #endregion
 
 #region Functions
-public record PrintNode(AstNode Value) : AstNodeWithSingleChild(Value);
+public record PrintNode(AstNode Value) : AstNodeWithSingleChild(Value, IROperation.Print);
 #endregion
 
 public static class AstNodeExtensions

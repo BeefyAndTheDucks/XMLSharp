@@ -46,10 +46,13 @@ public class CompileCommand : CommandBase
         }
         
         AstNode[] ast = astGenerator.Generate(tokens);
+
+        IIR irGenerator = new IR();
+        IRInstruction[] instructions = irGenerator.FromAst(ast);
         
         Console.WriteLine($"Compilation completed in {sw.ElapsedMilliseconds}ms. Printing results...");
 
-        ast.PrettyPrint();
+        instructions.PrettyPrint();
     }
 
     protected override Command GetCommand()
