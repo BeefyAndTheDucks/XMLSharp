@@ -27,15 +27,22 @@ public class CompileCommand : CommandBase
 
         Token[] tokens = lexer.Lex(File.ReadAllText(file.FullName));
         SyntaxError[] errors = validator.Validate(tokens);
+
+        int errorCount = 0;
         if (errors.Length > 0)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
             foreach (SyntaxError error in errors)
             {
+                errorCount++;
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"Syntax error at {error.Line}:{error.Col} — {error.Message}");
+                Console.ResetColor();
             }
+            string s = (errorCount != 0) ? "s" : "";
+            Console.BackgroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine($"{errorCount} syntax error{s} found. Compilation aborted.");
             Console.ResetColor();
-            return;
+            Environment.Exit(1);
         }
         
         AstNode[] ast = astGenerator.Generate(tokens);
