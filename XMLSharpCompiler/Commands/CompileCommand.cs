@@ -40,20 +40,20 @@ public class CompileCommand : CommandBase
         
         SyntaxError[] errors = validator.Validate(tokens);
 
-        int errorCount = 0;
         if (errors.Length > 0)
         {
             foreach (SyntaxError error in errors)
             {
-                errorCount++;
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.Error.WriteLine($"Syntax error at {error.Line}:{error.Col} — {error.Message}");
+                Console.Error.Write($"Syntax error at {error.Line}:{error.Col} — {error.Message}");
                 Console.ResetColor();
+                Console.Error.WriteLine();
             }
-            string s = (errorCount != 0) ? "s" : "";
+            string s = errors.Length != 0 ? "s" : "";
             Console.BackgroundColor = ConsoleColor.DarkRed;
-            Console.Error.WriteLine($"{errorCount} syntax error{s} found. Compilation aborted.");
+            Console.Error.Write($"{errors.Length} syntax error{s} found. Compilation aborted.");
             Console.ResetColor();
+            Console.Error.WriteLine();
             Environment.Exit(1);
         }
         
