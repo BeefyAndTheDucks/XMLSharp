@@ -11,7 +11,7 @@ public class Interpreter
     public void Run(IRInstruction[] instructions)
     {
         int ip = 0;
-        while (ip < instructions.Count() - 1)
+        while (ip < instructions.Length - 1)
         {
             IRInstruction instruction = instructions[ip];
             IOperationHandler handler = _handlers[instruction.Operation];

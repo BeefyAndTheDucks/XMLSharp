@@ -105,18 +105,21 @@ public class IR : IIR
              * and the Jump to FalseBlock. Currently, I don't have the energy to do such optimization.
              */ 
             case IfNode ifNode:
+                bool hasIfFalse = ifNode.IfFalse != null;
+                
                 instructions.AddRange(GenInstructions(ifNode.Condition));
                 instructions.Add(new IRInstruction(IROperation.If, _temporaryValueIndex++, 0, 0));
-                instructions.Add(new IRInstruction(IROperation.Jump, 2, 0, 0)); // Jump 2 steps ahead, that's where the IfTrue block starts.
+                instructions.Add(new IRInstruction(IROperation.Jump, hasIfFalse ? 2 : 1, 0, 0)); // Jump 2 steps ahead, that's where the IfTrue block starts.
                 IRInstruction[] ifTrue = GenInstructions(ifNode.IfTrue);
                 IRInstruction[] ifFalse = [];
-                if (ifNode.IfFalse != null)
-                    ifFalse = GenInstructions(ifNode.IfFalse);
+                if (hasIfFalse)
+                    ifFalse = GenInstructions(ifNode.IfFalse!);
                 
-                instructions.Add(new IRInstruction(IROperation.Jump, ifTrue.Length + 2, 0, 0)); // Jump to after the IfTrue block.
+                if (hasIfFalse)
+                    instructions.Add(new IRInstruction(IROperation.Jump, ifTrue.Length + 2, 0, 0)); // Jump to after the IfTrue block.
                 
                 instructions.AddRange(ifTrue);
-                if (ifFalse.Length > 0)
+                if (hasIfFalse)
                     instructions.Add(new IRInstruction(IROperation.Jump, ifFalse.Length + 1, 0, 0));
                 
                 instructions.AddRange(ifFalse);

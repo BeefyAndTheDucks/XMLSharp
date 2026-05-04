@@ -30,9 +30,9 @@ public class RunCommand : CommandBase
             }
             Interpreter interpreter = new();
             interpreter.Run(instructions);
-        } catch (Exception)
+        } catch (Exception e)
         {
-            Console.Error.WriteLine($"{inputFile.Name} is not valid IR JSON.");
+            Console.Error.WriteLine($"An error occured while running {inputFile.Name}: {e.Message}.");
         }
     }
 

@@ -9,8 +9,9 @@ public class Desugarer : IDesugarer
         List<Token> desugaredTokens = [];
         int currentDepth = 0;
         
-        foreach (Token token in tokens)
+        for (int i = 0; i < tokens.Length; i++)
         {
+            Token token = tokens[i];
             switch (token)
             {
                 case BeginBlockToken:
@@ -20,7 +21,8 @@ public class Desugarer : IDesugarer
                 case EndBlockToken:
                     currentDepth--;
                     desugaredTokens.Add(token);
-                    if (elifDepths.Contains(currentDepth))
+                    Token nextToken = tokens[i + 1];
+                    if (elifDepths.Contains(currentDepth) && nextToken is not ElseToken)
                     {
                         desugaredTokens.Add(new EndBlockToken());
                         currentDepth--;
