@@ -9,71 +9,70 @@ public class IR : IIR
     private int _temporaryIndex;
     private int _variableIndex;
     
-    private Dictionary<string, int> _variableNameToVariableIndexTable = new();
+    private readonly Dictionary<string, int> _variableNameToVariableIndexTable = new();
 
     private readonly JsonSerializerOptions _options = new()
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
     };
     
-    public IRInstruction[] FromAst(AstNode[] ast)
+    public IRInstruction[] FromAst(AstNode ast)
     {
         _variableNameToVariableIndexTable.Clear();
         
         _temporaryIndex = 0;
         _variableIndex = 0;
         
-        List<IRInstruction> instructions = [];
-        
-        foreach (AstNode rootNode in ast)
-        {
-            instructions.AddRange(FromAst(rootNode));
-        }
-
-        return instructions.ToArray();
+        return GenInstructions(ast).ToArray();
     }
 
-    private IRInstruction[] FromAst(AstNode node)
+    private IRInstruction[] GenInstructions(AstNode node)
     {
         List<IRInstruction> instructions = [];
 
         switch (node)
         {
-            // Variables
-            case CreateVariableNode createVariableNode:
-                instructions.AddRange(FromAst(createVariableNode.ValueNode));
-                _variableNameToVariableIndexTable.Add(createVariableNode.Name, _variableIndex++);
-                instructions.Add(new IRInstruction(node.IrOperation, _variableNameToVariableIndexTable[createVariableNode.Name], _temporaryIndex++, 0));
-                break;
-            case GetVariableNode getVariableNode:
-                instructions.Add(new IRInstruction(node.IrOperation, _variableNameToVariableIndexTable[getVariableNode.Name], 0, _temporaryIndex));
-                break;
-            case SetVariableNode setVariableNode:
-                instructions.AddRange(FromAst(setVariableNode.ValueNode));
-                instructions.Add(new IRInstruction(node.IrOperation, _variableNameToVariableIndexTable[setVariableNode.Name], _temporaryIndex++, 0));
+            // Blocks
+            case BlockNode blockNode:
+                foreach (AstNode subNode in blockNode.Nodes)
+                    instructions.AddRange(GenInstructions(subNode));
                 break;
             
-            // Datatypes
+            // Variables
+            case CreateVariableNode createVariableNode:
+                instructions.AddRange(GenInstructions(createVariableNode.ValueNode));
+                _variableNameToVariableIndexTable.Add(createVariableNode.Name, _variableIndex++);
+                instructions.Add(new IRInstruction(IROperation.CreateVar, _variableNameToVariableIndexTable[createVariableNode.Name], _temporaryIndex++, 0));
+                break;
+            case GetVariableNode getVariableNode:
+                instructions.Add(new IRInstruction(IROperation.GetVar, _variableNameToVariableIndexTable[getVariableNode.Name], 0, _temporaryIndex));
+                break;
+            case SetVariableNode setVariableNode:
+                instructions.AddRange(GenInstructions(setVariableNode.ValueNode));
+                instructions.Add(new IRInstruction(IROperation.SetVar, _variableNameToVariableIndexTable[setVariableNode.Name], _temporaryIndex++, 0));
+                break;
+            
+            // Datatypes/Constants
             case NumberNode numberNode:
-                instructions.Add(new IRInstruction(node.IrOperation, 0, 0, _temporaryIndex, numberNode.Value));
+                instructions.Add(new IRInstruction(IROperation.Constant, 0, 0, _temporaryIndex, numberNode.Value));
                 break;
             case TextNode textNode:
-                instructions.Add(new IRInstruction(node.IrOperation, 0, 0, _temporaryIndex, textNode.Value));
+                instructions.Add(new IRInstruction(IROperation.Constant, 0, 0, _temporaryIndex, textNode.Value));
                 break;
             case BooleanNode booleanNode:
-                instructions.Add(new IRInstruction(node.IrOperation, 0, 0, _temporaryIndex, booleanNode.Value));
+                instructions.Add(new IRInstruction(IROperation.Constant, 0, 0, _temporaryIndex, booleanNode.Value));
                 break;
             
             // Arithmetics
             case AstNodeWithLeftRight lrNode:
-                instructions.AddRange(FromAst(lrNode.LeftNode));
+                instructions.AddRange(GenInstructions(lrNode.LeftNode));
                 _temporaryIndex++;
-                instructions.AddRange(FromAst(lrNode.RightNode));
+                instructions.AddRange(GenInstructions(lrNode.RightNode));
                 instructions.Add(new IRInstruction(lrNode.IrOperation, _temporaryIndex - 1, _temporaryIndex++, _temporaryIndex));
                 break;
             
             case AstNodeWithSingleChild singleChildNode:
-                instructions.AddRange(FromAst(singleChildNode.Child));
+                instructions.AddRange(GenInstructions(singleChildNode.Child));
                 instructions.Add(new IRInstruction(singleChildNode.IrOperation, _temporaryIndex++, 0, _temporaryIndex));
                 break;
         }

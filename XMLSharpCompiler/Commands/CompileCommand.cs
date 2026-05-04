@@ -9,6 +9,8 @@ public class CompileCommand : CommandBase
 {
     private readonly Argument<FileInfo> _fileArg = new("file");
     private readonly Option<FileInfo> _outputFileArg = new("output");
+    
+    private readonly Option<bool> _verboseArg = new("--verbose", "-v");
 
     protected override void Invoke(ParseResult parseResult)
     {
@@ -22,6 +24,8 @@ public class CompileCommand : CommandBase
         FileInfo outputFile = parseResult.GetValue(_outputFileArg) ?? new FileInfo(
             Path.Combine(inputFile.Directory!.FullName, Path.GetFileNameWithoutExtension(inputFile.Name) + ".ir"));
 
+        bool verbose = parseResult.GetValue(_verboseArg);
+
         Console.WriteLine($"Compiling {inputFile.FullName}...");
         
         Stopwatch sw = Stopwatch.StartNew();
@@ -30,6 +34,10 @@ public class CompileCommand : CommandBase
         SyntaxValidator validator = new();
 
         Token[] tokens = lexer.Lex(File.ReadAllText(inputFile.FullName));
+        
+        if (verbose)
+            tokens.PrettyPrint();
+        
         SyntaxError[] errors = validator.Validate(tokens);
 
         int errorCount = 0;
@@ -49,10 +57,16 @@ public class CompileCommand : CommandBase
             Environment.Exit(1);
         }
         
-        AstNode[] ast = astGenerator.Generate(tokens);
+        AstNode ast = astGenerator.Generate(tokens);
+        
+        if (verbose)
+            Console.WriteLine(ast);
         
         IIR irGenerator = new IR();
         IRInstruction[] instructions = irGenerator.FromAst(ast);
+
+        if (verbose)
+            instructions.PrettyPrint();
         
         long compileTime = sw.ElapsedMilliseconds;
         
@@ -70,7 +84,8 @@ public class CompileCommand : CommandBase
         return new Command("compile", "Compile a XMLSharp file to IR which can be executed by the interpreter")
         {
             _fileArg,
-            _outputFileArg
+            _outputFileArg,
+            _verboseArg
         };
     }
 }
