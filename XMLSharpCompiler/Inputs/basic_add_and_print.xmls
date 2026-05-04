@@ -1,0 +1,3 @@
+number foo = 10;
+number bar = foo + 20;
+write bar;

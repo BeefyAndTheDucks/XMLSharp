@@ -17,13 +17,8 @@ public class RunCommand : CommandBase
         }
 
         // ir.ReadFromFile will need to return an actual error at some point
-        IR ir = new();
-        IRInstruction[]? instructions = ir.ReadFromFile(inputFile);
-        if (instructions is null)
-        {
-            Console.Error.WriteLine($"Failed to read from file {inputFile.FullName}");
-            Environment.Exit(1);
-        }
+        IIR ir = new IR();
+        IRInstruction[] instructions = ir.ReadFromFile(inputFile);
 
         Interpreter interpreter = new();
         interpreter.Run(instructions);

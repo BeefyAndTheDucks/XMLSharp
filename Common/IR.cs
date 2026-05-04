@@ -7,6 +7,9 @@ namespace Common;
 public class IR : IIR
 {
     private int _temporaryIndex;
+    private int _variableIndex;
+    
+    private Dictionary<string, int> _variableNameToVariableIndexTable = new();
 
     private readonly JsonSerializerOptions _options = new()
     {
@@ -15,7 +18,10 @@ public class IR : IIR
     
     public IRInstruction[] FromAst(AstNode[] ast)
     {
+        _variableNameToVariableIndexTable.Clear();
+        
         _temporaryIndex = 0;
+        _variableIndex = 0;
         
         List<IRInstruction> instructions = [];
         
@@ -36,14 +42,15 @@ public class IR : IIR
             // Variables
             case CreateVariableNode createVariableNode:
                 instructions.AddRange(FromAst(createVariableNode.ValueNode));
-                instructions.Add(new IRInstruction(node.IrOperation, _temporaryIndex++, 0, 0));
+                _variableNameToVariableIndexTable.Add(createVariableNode.Name, _variableIndex++);
+                instructions.Add(new IRInstruction(node.IrOperation, _variableNameToVariableIndexTable[createVariableNode.Name], _temporaryIndex++, 0));
                 break;
-            case GetVariableNode:
-                instructions.Add(new IRInstruction(node.IrOperation, 0, 0, _temporaryIndex));
+            case GetVariableNode getVariableNode:
+                instructions.Add(new IRInstruction(node.IrOperation, _variableNameToVariableIndexTable[getVariableNode.Name], 0, _temporaryIndex));
                 break;
             case SetVariableNode setVariableNode:
                 instructions.AddRange(FromAst(setVariableNode.ValueNode));
-                instructions.Add(new IRInstruction(node.IrOperation, _temporaryIndex++, 0, 0));
+                instructions.Add(new IRInstruction(node.IrOperation, _variableNameToVariableIndexTable[setVariableNode.Name], _temporaryIndex++, 0));
                 break;
             
             // Datatypes
@@ -96,30 +103,30 @@ public record IRInstruction(
 
 public enum IROperation
 {
-    Add,
-    Sub,
-    Mul,
-    Div,
-    Mod,
+    Add, // Result = Value(Operand1) + Value(Operand2)
+    Sub, // Result = Value(Operand1) - Value(Operand2)
+    Mul, // Result = Value(Operand1) * Value(Operand2)
+    Div, // Result = Value(Operand1) / Value(Operand2)
+    Mod, // Result = Value(Operand1) % Value(Operand2)
     
-    GetVar,
-    SetVar,
-    CreateVar,
+    GetVar, // Result = Variable(Operand1)
+    SetVar, // Variable(Operand1) = Value(Operand2)
+    CreateVar, // Variable(Operand1) = Value(Operand2)
     
-    Not,
-    And,
-    Or,
-    Xor,
+    Not, // Result = !Value(Operand1)
+    And, // Result = Value(Operand1) && Value(Operand2)
+    Or, // Result = Value(Operand1) || Value(Operand2)
+    Xor, // Result = Value(Operand1) ^ Value(Operand2)
     
-    Equal,
-    NotEqual,
-    GreaterThan,
-    GreaterThanOrEqual,
-    LessThan,
-    LessThanOrEqual,
+    Equal, // Result = Value(Operand1) == Value(Operand2)
+    NotEqual, // Result = Value(Operand1) != Value(Operand2)
+    GreaterThan, // Result = Value(Operand1) > Value(Operand2)
+    GreaterThanOrEqual, // Result = Value(Operand1) >= Value(Operand2)
+    LessThan, // Result = Value(Operand1) < Value(Operand2)
+    LessThanOrEqual, // Result = Value(Operand1) <= Value(Operand2)
     
-    Concat,
+    Concat, // Result = Value(Operand1) + Value(Operand2)
     
-    Constant,
-    Print
+    Constant, // Result = Data
+    Print // Print(Value(Operand1))
 }

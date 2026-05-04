@@ -24,112 +24,127 @@ public static class OperationHandlers
 
 
 // handle consts
-class ConstantHandler : IOperationHandler
+internal class ConstantHandler : IOperationHandler
 {
-    public IROperation Operation { get; } = IROperation.Constant;
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, Dictionary<string, int>? symbolTable)
+    public IROperation Operation => IROperation.Constant;
+
+    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
+        Dictionary<int, object>? variables)
     {
         registers[instruction.Result] = RequireData(instruction);
     }
 }
 
 // handle print
-class PrintHandler : IOperationHandler
+internal class PrintHandler : IOperationHandler
 {
-    public IROperation Operation { get; } = IROperation.Print;
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, Dictionary<string, int>? symbolTable)
+    public IROperation Operation => IROperation.Print;
+
+    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
+        Dictionary<int, object>? variables)
     {
         Console.WriteLine(registers[instruction.Operand1]);
     }
 }
 
 // handle add
-class AddHandler : IOperationHandler
+internal class AddHandler : IOperationHandler
 {
-    public IROperation Operation { get; } = IROperation.Add;
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, Dictionary<string, int>? symbolTable)
+    public IROperation Operation => IROperation.Add;
+
+    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
+        Dictionary<int, object>? variables)
     {
         registers[instruction.Result] = (int)registers[instruction.Operand1] + (int)registers[instruction.Operand2];
     }
 }
 
 // handle sub
-class SubHandler : IOperationHandler
+internal class SubHandler : IOperationHandler
 {
-    public IROperation Operation { get; } = IROperation.Sub;
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, Dictionary<string, int>? symbolTable)
+    public IROperation Operation => IROperation.Sub;
+
+    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
+        Dictionary<int, object>? variables)
     {
         registers[instruction.Result] = (int)registers[instruction.Operand1] - (int)registers[instruction.Operand2];
     }
 }
 
 // handle mul
-class MulHandler : IOperationHandler
+internal class MulHandler : IOperationHandler
 {
-    public IROperation Operation { get; } = IROperation.Mul;
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, Dictionary<string, int>? symbolTable)
+    public IROperation Operation => IROperation.Mul;
+
+    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
+        Dictionary<int, object>? variables)
     {
         registers[instruction.Result] = (int)registers[instruction.Operand1] * (int)registers[instruction.Operand2];
     }
 }
 
 // handle div
-class DivHandler : IOperationHandler
+internal class DivHandler : IOperationHandler
 {
-    public IROperation Operation { get; } = IROperation.Div;
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, Dictionary<string, int>? symbolTable)
+    public IROperation Operation => IROperation.Div;
+
+    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
+        Dictionary<int, object>? variables)
     {
         registers[instruction.Result] = (int)registers[instruction.Operand1] / (int)registers[instruction.Operand2];
     }
 }
 
 // handle mod
-class ModHandler : IOperationHandler
+internal class ModHandler : IOperationHandler
 {
-    public IROperation Operation { get; } = IROperation.Mod;
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, Dictionary<string, int>? symbolTable)
+    public IROperation Operation => IROperation.Mod;
+
+    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
+        Dictionary<int, object>? variables)
     {
         registers[instruction.Result] = (int)registers[instruction.Operand1] % (int)registers[instruction.Operand2];
     }
 }
 
 // handle creating variables
-class CreateVarHandler : IOperationHandler
+internal class CreateVarHandler : IOperationHandler
 {
-    public IROperation Operation { get; } = IROperation.CreateVar;
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, Dictionary<string, int>? symbolTable)
-    {
-        if (symbolTable is null) throw new InvalidOperationException("Symbol table is required for variable operations.");
+    public IROperation Operation => IROperation.CreateVar;
 
-        var name = (string)RequireData(instruction);
-        symbolTable[name] = instruction.Operand1;
+    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
+        Dictionary<int, object>? variables)
+    {
+        if (variables is null) throw new InvalidOperationException("Variables table is required for variable operations.");
+
+        variables[instruction.Operand1] = registers[instruction.Operand2];
     }
 }
 
 // handle setting variables
-class SetVarHandler : IOperationHandler
+internal class SetVarHandler : IOperationHandler
 {
-    public IROperation Operation { get; } = IROperation.SetVar;
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, Dictionary<string, int>? symbolTable)
-    {
-        if (symbolTable is null) throw new InvalidOperationException("Symbol table is required for variable operations.");
+    public IROperation Operation => IROperation.SetVar;
 
-        var name = (string)RequireData(instruction);
-        int slot = symbolTable[name];
-        registers[slot] = registers[instruction.Operand1];
+    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
+        Dictionary<int, object>? variables)
+    {
+        if (variables is null) throw new InvalidOperationException("Variables table is required for variable operations.");
+
+        variables[instruction.Operand1] = registers[instruction.Operand2];
     }
 }
 
 // handle getting variables
-class GetVarHandler : IOperationHandler
+internal class GetVarHandler : IOperationHandler
 {
-    public IROperation Operation { get; } = IROperation.GetVar;
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, Dictionary<string, int>? symbolTable)
-    {
-        if (symbolTable is null) throw new InvalidOperationException("Symbol table is required for variable operations.");
+    public IROperation Operation => IROperation.GetVar;
 
-        var name = (string)RequireData(instruction);
-        int slot = symbolTable[name];
-        registers[instruction.Result] = registers[slot];
+    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
+        Dictionary<int, object>? variables)
+    {
+        if (variables is null) throw new InvalidOperationException("Variables table is required for variable operations.");
+
+        registers[instruction.Result] = variables[instruction.Operand1];
     }
 }
