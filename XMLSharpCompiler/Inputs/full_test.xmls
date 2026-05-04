@@ -50,3 +50,11 @@ if (two_pi > 5) {
     write "Meh...";
     write "Pi is less than 5!";
 }
+
+if (less) {
+    write "Less!";
+}
+
+if (greater) {
+    write "Greater!";
+}

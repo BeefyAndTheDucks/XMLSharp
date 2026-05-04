@@ -9,7 +9,7 @@ public class AstGenerator : IAstGenerator
         int index = 0;
         List<AstNode> nodes = [];
 
-        while (tokens[Math.Max(index - 1, 0)] is not EOFToken)
+        while (tokens[index] is not EOFToken)
         {
             nodes.Add(Parse(tokens, out index, index));
             
@@ -79,7 +79,7 @@ public class AstGenerator : IAstGenerator
 
                 if (tokens[blockEnd + 1] is not ElseToken)
                 {
-                    endIndex = blockEnd + 1;
+                    endIndex = blockEnd;
                     return new IfNode(condition, block, null);
                 }
                 
@@ -87,7 +87,7 @@ public class AstGenerator : IAstGenerator
                 int elseBlockEnd = FindBlockEndIndex(tokens, elseBlockBeginning - 1);
                 AstNode elseBlock = ParseBlock(tokens.Skip(elseBlockBeginning + 1).Take(elseBlockEnd - elseBlockBeginning).ToArray());
 
-                endIndex = elseBlockEnd + 1;
+                endIndex = elseBlockEnd;
                 
                 return new IfNode(condition, block, elseBlock);
             }
