@@ -37,10 +37,13 @@ public class SyntaxValidatorTest
         SyntaxError[] errors = _validator.Validate(tokens);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(errors, Has.Length.EqualTo(1));
+            Assert.That(errors, Has.Length.EqualTo(2), errors.GetTextForPrettyPrint());
             Assert.That(errors[0].Message, Is.EqualTo("Expected identifier after type."));
             Assert.That(errors[0].Line, Is.EqualTo(1));
             Assert.That(errors[0].Col, Is.EqualTo(1));
+            Assert.That(errors[1].Message, Is.EqualTo("Missing ';' after statement."));
+            Assert.That(errors[1].Line, Is.EqualTo(1));
+            Assert.That(errors[1].Col, Is.EqualTo(8));
         }
     }
 
@@ -48,16 +51,17 @@ public class SyntaxValidatorTest
     public void TestMissingAssignmentAfterIdentifier()
     {
         Token[] tokens = [
-            new VariableDefinitionToken(XMLSType.Number, 1, 1),
-        new IdentifierToken("foo", 1, 8),
-        new NumberToken(10, 1, 12),
-        new EOFToken()
+            new VariableDefinitionToken(XMLSType.Number, 1, 1, 6),
+            new IdentifierToken("foo", 1, 8, 3),
+            new NumberToken(10, 1, 12, 2),
+            new SemicolonToken(1, 14, 1),
+            new EOFToken()
         ];
 
         SyntaxError[] errors = _validator.Validate(tokens);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(errors, Has.Length.EqualTo(2));
+            Assert.That(errors, Has.Length.EqualTo(2), errors.GetTextForPrettyPrint());
             Assert.That(errors[0].Message, Is.EqualTo("Expected '=' after 'foo'."));
             Assert.That(errors[0].Line, Is.EqualTo(1));
             Assert.That(errors[0].Col, Is.EqualTo(8));

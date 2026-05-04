@@ -14,12 +14,12 @@ public class LexerTest
         Token[] tokens = lexer.Lex("number foo = 2;");
         Assert.That(tokens, Is.EqualTo(new Token[]
         {
-        new VariableDefinitionToken(XMLSType.Number, 1, 1),
-        new IdentifierToken("foo", 1, 8),
-        new AssignmentToken(1, 12),
-        new NumberToken(2, 1, 14),
-        new SemicolonToken(1, 15),
-        new EOFToken()
+            new VariableDefinitionToken(XMLSType.Number, 1, 1, 6),
+            new IdentifierToken("foo", 1, 8, 3),
+            new AssignmentToken(1, 12, 1),
+            new NumberToken(2, 1, 14, 1),
+            new SemicolonToken(1, 15, 1),
+            new EOFToken()
         }));
     }
 
@@ -30,12 +30,12 @@ public class LexerTest
         Token[] tokens = lexer.Lex("text foo = \"hello\";");
         Assert.That(tokens, Is.EqualTo(new Token[]
         {
-        new VariableDefinitionToken(XMLSType.Text, 1, 1),
-        new IdentifierToken("foo", 1, 6),
-        new AssignmentToken(1, 10),
-        new TextToken("hello", 1, 12),
-        new SemicolonToken(1, 19),
-        new EOFToken()
+            new VariableDefinitionToken(XMLSType.Text, 1, 1, 4),
+            new IdentifierToken("foo", 1, 6, 3),
+            new AssignmentToken(1, 10, 1),
+            new TextToken("hello", 1, 12, 7),
+            new SemicolonToken(1, 19, 1),
+            new EOFToken()
         }));
     }
 

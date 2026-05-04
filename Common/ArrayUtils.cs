@@ -1,16 +1,32 @@
+using System.Text;
+
 namespace Common;
 
 public static class ArrayUtils
 {
-    public static void PrettyPrint<T>(this T[] array, Func<T, string>? formatter = null)
+    extension<T>(T[] array)
     {
-        int lengthNumDigits = array.Length.ToString().Length;
-        
-        for (int i = 0; i < array.Length; i++)
+        public string GetTextForPrettyPrint(Func<T, string>? formatter = null)
         {
-            string number = i.ToString().PadLeft(lengthNumDigits);
-            string value = formatter?.Invoke(array[i]) ?? array[i]?.ToString() ?? "null";
-            Console.WriteLine($"[{number}] = {value}");
+            StringBuilder sb = new StringBuilder();
+            int lengthNumDigits = array.Length.ToString().Length;
+        
+            for (int i = 0; i < array.Length; i++)
+            {
+                string number = i.ToString().PadLeft(lengthNumDigits);
+                string value = formatter?.Invoke(array[i]) ?? array[i]?.ToString() ?? "null";
+                sb.Append('[');
+                sb.Append(number);
+                sb.Append("] = ");
+                sb.Append(value);
+                sb.Append('\n');
+            }
+            return sb.ToString();
+        }
+
+        public void PrettyPrint(Func<T, string>? formatter = null)
+        {
+            Console.WriteLine(array.GetTextForPrettyPrint(formatter));
         }
     }
 }
