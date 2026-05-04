@@ -24,7 +24,10 @@ public static class OperationHandlers
         new GreaterHandler(),
         new GreaterOrEqualHandler(),
         new LessHandler(),
-        new LessOrEqualHandler()
+        new LessOrEqualHandler(),
+        new AndHandler(),
+        new OrHandler(),
+        new XorHandler(),
     ];
 }
 
