@@ -12,5 +12,7 @@ public static class Keywords
         { "write", () => new PrintToken() },
         { "yes", () => new YesToken() },
         { "no", () => new NoToken() },
+        
+        { "if", () => new IfToken() }
     };
 }

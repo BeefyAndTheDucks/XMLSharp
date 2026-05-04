@@ -10,6 +10,8 @@ public record TextToken(string Text, int Line = 0, int Col = 0) : Token(Line, Co
 public record IdentifierToken(string Name, int Line = 0, int Col = 0) : Token(Line, Col);
 public record VariableDefinitionToken(XMLSType Type, int Line = 0, int Col = 0) : Token(Line, Col);
 
+public record IfToken(int Line = 0, int Col = 0) : Token(Line, Col);
+
 // matched by pattern
 public record AssignmentToken(int Line = 0, int Col = 0) : Token(Line, Col);
 
@@ -40,6 +42,9 @@ public record OpenParenToken(int Line = 0, int Col = 0) : Token(Line, Col);
 public record CloseParenToken(int Line = 0, int Col = 0) : Token(Line, Col);
 
 public record SemicolonToken(int Line = 0, int Col = 0) : Token(Line, Col);
+
+public record BeginBlockToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record EndBlockToken(int Line = 0, int Col = 0) : Token(Line, Col);
 
 public record PrintToken(int Line = 0, int Col = 0) : Token(Line, Col);
 
