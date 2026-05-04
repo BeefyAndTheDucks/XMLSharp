@@ -65,11 +65,12 @@ public class Lexer : ILexer
                     i++;
                     col++;
                 }
+                int length = col - startCol;
 
                 if (hasDot)
-                    tokens.Add(new DecimalToken(float.Parse(word), line, startCol));
+                    tokens.Add(new DecimalToken(float.Parse(word), line, startCol, length));
                 else
-                    tokens.Add(new NumberToken(int.Parse(word), line, startCol));
+                    tokens.Add(new NumberToken(int.Parse(word), line, startCol, length));
 
                 continue;
             }
@@ -85,15 +86,17 @@ public class Lexer : ILexer
                     i++;
                     col++;
                 }
+                int length = col - startCol;
+
                 if (keywords.TryGetValue(word, out var create))
                 {
                     Token token = create();
-                    token = token with { Line = line, Col = startCol };
+                    token = token with { Line = line, Col = startCol, Length = length };
                     tokens.Add(token);
                 }
                 else
                 {
-                    tokens.Add(new IdentifierToken(word, line, startCol));
+                    tokens.Add(new IdentifierToken(word, line, startCol, length));
                 }
                 continue;
             }
@@ -114,7 +117,8 @@ public class Lexer : ILexer
                 }
                 i++;
                 col++;
-                tokens.Add(new TextToken(word, line, startCol));
+                int length = col - startCol;
+                tokens.Add(new TextToken(word, line, startCol, length));
                 continue;
             }
 
@@ -126,7 +130,7 @@ public class Lexer : ILexer
                 if (i + length <= input.Length && input.Substring(i, length) == definition.Pattern)
                 {
                     Token token = definition.Create();
-                    token = token with { Line = line, Col = col };
+                    token = token with { Line = line, Col = col, Length = length };
                     tokens.Add(token);
                     i += length;
                     col += length;
