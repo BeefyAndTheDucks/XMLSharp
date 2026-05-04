@@ -46,7 +46,8 @@ internal class ConstantHandler : IOperationHandler
     {
         registers[instruction.Result] = RequireData(instruction);
         
-        Console.Write($"{registers[instruction.Result]}");
+        if (verboseMode)
+            Console.Write($"{registers[instruction.Result]}");
         
         return 1;
     }
