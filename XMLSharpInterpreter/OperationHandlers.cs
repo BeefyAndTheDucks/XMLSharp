@@ -34,8 +34,8 @@ internal class ConstantHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Constant;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
-        Dictionary<int, object>? variables)
+    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic>? variables)
     {
         registers[instruction.Result] = RequireData(instruction);
     }
@@ -46,8 +46,8 @@ internal class PrintHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Print;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
-        Dictionary<int, object>? variables)
+    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic>? variables)
     {
         Console.WriteLine(registers[instruction.Operand1]);
     }
@@ -58,10 +58,10 @@ internal class AddHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Add;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
-        Dictionary<int, object>? variables)
+    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic>? variables)
     {
-        registers[instruction.Result] = (int)registers[instruction.Operand1] + (int)registers[instruction.Operand2];
+        registers[instruction.Result] = registers[instruction.Operand1] + registers[instruction.Operand2];
     }
 }
 
@@ -70,10 +70,10 @@ internal class SubHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Sub;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
-        Dictionary<int, object>? variables)
+    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic>? variables)
     {
-        registers[instruction.Result] = (int)registers[instruction.Operand1] - (int)registers[instruction.Operand2];
+        registers[instruction.Result] = registers[instruction.Operand1] - registers[instruction.Operand2];
     }
 }
 
@@ -82,10 +82,10 @@ internal class MulHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Mul;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
-        Dictionary<int, object>? variables)
+    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic>? variables)
     {
-        registers[instruction.Result] = (int)registers[instruction.Operand1] * (int)registers[instruction.Operand2];
+        registers[instruction.Result] = registers[instruction.Operand1] * registers[instruction.Operand2];
     }
 }
 
@@ -94,10 +94,10 @@ internal class DivHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Div;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
-        Dictionary<int, object>? variables)
+    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic>? variables)
     {
-        registers[instruction.Result] = (int)registers[instruction.Operand1] / (int)registers[instruction.Operand2];
+        registers[instruction.Result] = registers[instruction.Operand1] / registers[instruction.Operand2];
     }
 }
 
@@ -106,10 +106,10 @@ internal class ModHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Mod;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
-        Dictionary<int, object>? variables)
+    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic>? variables)
     {
-        registers[instruction.Result] = (int)registers[instruction.Operand1] % (int)registers[instruction.Operand2];
+        registers[instruction.Result] = registers[instruction.Operand1] % registers[instruction.Operand2];
     }
 }
 
@@ -118,8 +118,8 @@ internal class CreateVarHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.CreateVar;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
-        Dictionary<int, object>? variables)
+    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic>? variables)
     {
         if (variables is null) throw new InvalidOperationException("Variables table is required for variable operations.");
 
@@ -132,8 +132,8 @@ internal class SetVarHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.SetVar;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
-        Dictionary<int, object>? variables)
+    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic>? variables)
     {
         if (variables is null) throw new InvalidOperationException("Variables table is required for variable operations.");
 
@@ -146,8 +146,8 @@ internal class GetVarHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.GetVar;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
-        Dictionary<int, object>? variables)
+    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic>? variables)
     {
         if (variables is null) throw new InvalidOperationException("Variables table is required for variable operations.");
 
@@ -158,55 +158,60 @@ internal class GetVarHandler : IOperationHandler
 internal class EqualHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Equal;
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
-        Dictionary<int, object>? variables)
+    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic>? variables)
     {
-        registers[instruction.Result] = registers[instruction.Operand1].Equals(registers[instruction.Operand2]);
+        registers[instruction.Result] = registers[instruction.Operand1] == registers[instruction.Operand2];
     }
 }
 
 internal class NotEqualHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.NotEqual;
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, Dictionary<int, object>? variables = null)
+    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic>? variables = null)
     {
-        registers[instruction.Result] = !registers[instruction.Operand1].Equals(registers[instruction.Operand2]);
+        registers[instruction.Result] = registers[instruction.Operand1] != registers[instruction.Operand2];
     }
 }
 
 internal class GreaterHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.GreaterThan;
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, Dictionary<int, object>? variables = null)
+    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic>? variables = null)
     {
-        registers[instruction.Result] = (int)registers[instruction.Operand1] > (int)registers[instruction.Operand2];
+        registers[instruction.Result] = registers[instruction.Operand1] > registers[instruction.Operand2];
     }
 }
 
 internal class GreaterOrEqualHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.GreaterThanOrEqual;
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, Dictionary<int, object>? variables = null)
+    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic>? variables = null)
     {
-        registers[instruction.Result] = (int)registers[instruction.Operand1] >= (int)registers[instruction.Operand2];
+        registers[instruction.Result] = registers[instruction.Operand1] >= registers[instruction.Operand2];
     }
 }
 
 internal class LessHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.LessThan;
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, Dictionary<int, object>? variables = null)
+    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic>? variables = null)
     {
-        registers[instruction.Result] = (int)registers[instruction.Operand1] < (int)registers[instruction.Operand2];
+        registers[instruction.Result] = registers[instruction.Operand1] < registers[instruction.Operand2];
     }
 }
 
 internal class LessOrEqualHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.LessThanOrEqual;
-    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, Dictionary<int, object>? variables = null)
+    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic>? variables = null)
     {
-        registers[instruction.Result] = (int)registers[instruction.Operand1] <= (int)registers[instruction.Operand2];
+        registers[instruction.Result] = registers[instruction.Operand1] <= registers[instruction.Operand2];
     }
 }
 // handle AND

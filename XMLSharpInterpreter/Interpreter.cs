@@ -5,8 +5,8 @@ namespace XMLSharpInterpreter;
 public class Interpreter
 {
     private readonly Dictionary<IROperation, IOperationHandler> _handlers = OperationHandlers.All.ToDictionary(h => h.Operation);
-    public Dictionary<int, object> Registers { get; } = [];
-    public Dictionary<int, object> Variables { get; } = [];
+    public Dictionary<int, dynamic> Registers { get; } = [];
+    public Dictionary<int, dynamic> Variables { get; } = [];
 
     public void Run(IRInstruction[] instructions)
     {
