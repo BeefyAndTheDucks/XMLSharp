@@ -10,10 +10,15 @@ public class Interpreter
 
     public void Run(IRInstruction[] instructions)
     {
-        foreach (IRInstruction instruction in instructions)
+        int ip = 0;
+        while (ip < instructions.Count() - 1)
         {
+            IRInstruction instruction = instructions[ip];
             IOperationHandler handler = _handlers[instruction.Operation];
-            handler.Execute(instruction, Registers, Variables);
+
+            int delta = handler.Execute(instruction, Registers, Variables);
+
+            ip += delta;
         }
     } 
 }
