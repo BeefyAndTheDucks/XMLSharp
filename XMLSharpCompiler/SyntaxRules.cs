@@ -40,7 +40,6 @@ public class UnexpectedTokenRule : ITokenRule
         Token current = statement[index];
         Token next = statement[index + 1];
 
-        Console.WriteLine(next.GetType());
         if (!ValidFollowers.TryGetValue(current.GetType(), out HashSet<Type>? followers)) return null;
         if (followers.Contains(next.GetType())) return null;
         if (next is IdentifierToken or VariableDefinitionToken or EOFToken)
