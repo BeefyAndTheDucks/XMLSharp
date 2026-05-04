@@ -12,6 +12,7 @@ public record VariableDefinitionToken(XMLSType Type, int Line = 0, int Col = 0) 
 public record DecimalToken(float Value, int Line = 0, int Col = 0) : Token(Line, Col);
 
 public record IfToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record ElseToken(int Line = 0, int Col = 0) : Token(Line, Col);
 
 // matched by pattern
 public record AssignmentToken(int Line = 0, int Col = 0) : Token(Line, Col);

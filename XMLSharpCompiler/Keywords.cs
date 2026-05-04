@@ -14,6 +14,7 @@ public static class Keywords
         { "yes", () => new YesToken() },
         { "no", () => new NoToken() },
         
-        { "if", () => new IfToken() }
+        { "if", () => new IfToken() },
+        { "else", () => new ElseToken() },
     };
 }
