@@ -80,6 +80,30 @@ public class IR : IIR
                 break;
             
             // Control flow
+            
+            /*
+             * If statements are handled a bit weird. To avoid using operands we jump to the next instruction if true, or the one after if false. To allow for big blocks, we insert
+             * Jump statements to jump to the correct block.
+             * Here's the pseudocode:
+             * If
+             *   True -> Jump to TrueBlock
+             *   False -> Jump to FalseBlock
+             *
+             *   TrueBlock:
+             *     Whatever Instructions
+             *     Jump to FinishedBlock
+             *
+             *   FalseBlock:
+             *     Whatever Instructions (can even be empty)
+             *     (implicit jump to FinishedBlock)
+             *
+             *   FinishedBlock:
+             *     Whatever Instructions
+             *
+             * A possible optimization would be to use the Operand2 and Result to store the TrueBlock and FalseBlock, but it could be messy in case there's no FalseBlock.
+             * Another idea is to place FalseBlock instead of the jump to FalseBlock and then jumping to FinishedBlock. This removes the Jump to FinishedBlock in TrueBlock,
+             * and the Jump to FalseBlock. Currently, I don't have the energy to do such optimization.
+             */ 
             case IfNode ifNode:
                 instructions.AddRange(GenInstructions(ifNode.Condition));
                 instructions.Add(new IRInstruction(IROperation.If, _temporaryValueIndex++, 0, 0));
@@ -92,7 +116,8 @@ public class IR : IIR
                 instructions.Add(new IRInstruction(IROperation.Jump, ifTrue.Length + 2, 0, 0)); // Jump to after the IfTrue block.
                 
                 instructions.AddRange(ifTrue);
-                instructions.Add(new IRInstruction(IROperation.Jump, ifFalse.Length + 1, 0, 0));
+                if (ifFalse.Length > 0)
+                    instructions.Add(new IRInstruction(IROperation.Jump, ifFalse.Length + 1, 0, 0));
                 
                 instructions.AddRange(ifFalse);
                 
