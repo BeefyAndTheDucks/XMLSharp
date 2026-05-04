@@ -1,3 +1,17 @@
 number foo = 10;
-number bar = foo + 20;
+number bar = foo + 10;
+
+yesno equal = bar ==== 20;
+yesno nequal = bar !=== 20;
+yesno greater = bar > 20;
+yesno greatereq = bar => 20;
+yesno less = bar < 20;
+yesno lesseq = bar =< 20;
 write bar;
+
+write equal;
+write nequal;
+write greater;
+write greatereq;
+write less;
+write lesseq;

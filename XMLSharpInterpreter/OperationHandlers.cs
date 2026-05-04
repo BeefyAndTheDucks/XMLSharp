@@ -19,6 +19,12 @@ public static class OperationHandlers
         new CreateVarHandler(),
         new SetVarHandler(),
         new GetVarHandler(),
+        new EqualHandler(),
+        new NotEqualHandler(),
+        new GreaterHandler(),
+        new GreaterOrEqualHandler(),
+        new LessHandler(),
+        new LessOrEqualHandler()
     ];
 }
 
@@ -146,5 +152,60 @@ internal class GetVarHandler : IOperationHandler
         if (variables is null) throw new InvalidOperationException("Variables table is required for variable operations.");
 
         registers[instruction.Result] = variables[instruction.Operand1];
+    }
+}
+
+internal class EqualHandler : IOperationHandler
+{
+    public IROperation Operation => IROperation.Equal;
+    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
+        Dictionary<int, object>? variables)
+    {
+        registers[instruction.Result] = registers[instruction.Operand1].Equals(registers[instruction.Operand2]);
+    }
+}
+
+internal class NotEqualHandler : IOperationHandler
+{
+    public IROperation Operation => IROperation.NotEqual;
+    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, Dictionary<int, object>? variables = null)
+    {
+        registers[instruction.Result] = !registers[instruction.Operand1].Equals(registers[instruction.Operand2]);
+    }
+}
+
+internal class GreaterHandler : IOperationHandler
+{
+    public IROperation Operation => IROperation.GreaterThan;
+    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, Dictionary<int, object>? variables = null)
+    {
+        registers[instruction.Result] = (int)registers[instruction.Operand1] > (int)registers[instruction.Operand2];
+    }
+}
+
+internal class GreaterOrEqualHandler : IOperationHandler
+{
+    public IROperation Operation => IROperation.GreaterThanOrEqual;
+    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, Dictionary<int, object>? variables = null)
+    {
+        registers[instruction.Result] = (int)registers[instruction.Operand1] >= (int)registers[instruction.Operand2];
+    }
+}
+
+internal class LessHandler : IOperationHandler
+{
+    public IROperation Operation => IROperation.LessThan;
+    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, Dictionary<int, object>? variables = null)
+    {
+        registers[instruction.Result] = (int)registers[instruction.Operand1] < (int)registers[instruction.Operand2];
+    }
+}
+
+internal class LessOrEqualHandler : IOperationHandler
+{
+    public IROperation Operation => IROperation.LessThanOrEqual;
+    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, Dictionary<int, object>? variables = null)
+    {
+        registers[instruction.Result] = (int)registers[instruction.Operand1] <= (int)registers[instruction.Operand2];
     }
 }
