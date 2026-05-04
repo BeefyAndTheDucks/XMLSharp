@@ -48,15 +48,15 @@ public static class TokenFollowers
     ];
 
     // logical operators
-    private static readonly Type[] LogicalOps = [typeof(AndToken), typeof(OrToken), typeof(XorToken)];
+    private static readonly Type[] LogicalOps = [typeof(AndToken), typeof(OrToken), typeof(XorToken), .. AfterAnything];
 
     // valid followers map
     public static readonly Dictionary<Type, HashSet<Type>> ValidFollowers = new()
     {
         // valid followers for values.
-        [typeof(NumberToken)] = [typeof(SemicolonToken), .. MathOps, .. ComparisonOps],
-        [typeof(DecimalToken)] = [typeof(SemicolonToken), .. MathOps, .. ComparisonOps],
-        [typeof(TextToken)] = [typeof(SemicolonToken), typeof(ConcatToken), typeof(EqualsToken), typeof(NotEqualsToken)],
+        [typeof(NumberToken)] = [typeof(SemicolonToken), .. MathOps, .. ComparisonOps, .. AfterAnything],
+        [typeof(DecimalToken)] = [typeof(SemicolonToken), .. MathOps, .. ComparisonOps, .. AfterAnything],
+        [typeof(TextToken)] = [typeof(SemicolonToken), typeof(ConcatToken), typeof(EqualsToken), typeof(NotEqualsToken), .. AfterAnything],
 
         [typeof(IdentifierToken)] =
         [
@@ -65,11 +65,12 @@ public static class TokenFollowers
             ..MathOps,
             ..ComparisonOps,
             ..LogicalOps,
-            typeof(ConcatToken)
+            typeof(ConcatToken),
+            ..AfterAnything
         ],
 
-        [typeof(YesToken)] = [typeof(SemicolonToken), .. LogicalOps, typeof(EqualsToken), typeof(NotEqualsToken)],
-        [typeof(NoToken)] = [typeof(SemicolonToken), .. LogicalOps, typeof(EqualsToken), typeof(NotEqualsToken)],
+        [typeof(YesToken)] = [typeof(SemicolonToken), .. LogicalOps, typeof(EqualsToken), typeof(NotEqualsToken), .. AfterAnything],
+        [typeof(NoToken)] = [typeof(SemicolonToken), .. LogicalOps, typeof(EqualsToken), typeof(NotEqualsToken), .. AfterAnything],
 
         // valid followers for operators
         [typeof(AddToken)] = [.. Numeric, typeof(IdentifierToken), typeof(OpenParenToken)],
