@@ -5,13 +5,13 @@ namespace XMLSharpInterpreter;
 public class Interpreter
 {
     private readonly Dictionary<IROperation, IOperationHandler> _handlers = OperationHandlers.All.ToDictionary(h => h.Operation);
-    public Dictionary<int, dynamic> Registers { get; } = [];
-    public Dictionary<int, dynamic> Variables { get; } = [];
+    internal Dictionary<int, dynamic> Registers { get; } = [];
+    internal Dictionary<int, dynamic> Variables { get; } = [];
 
     public void Run(IRInstruction[] instructions, bool verboseMode)
     {
         int ip = 0;
-        while (ip < instructions.Length - 1)
+        while (ip < instructions.Length)
         {
             IRInstruction instruction = instructions[ip];
             IOperationHandler handler = _handlers[instruction.Operation];
