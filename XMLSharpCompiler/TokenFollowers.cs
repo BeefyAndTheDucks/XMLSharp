@@ -2,210 +2,106 @@ namespace XMLSharpCompiler;
 
 public static class TokenFollowers
 {
+    // token groups for your sanity
+    // numbers
+    private static readonly Type[] Numeric = [typeof(NumberToken), typeof(DecimalToken)];
+
+    // truthiness
+    private static readonly Type[] Boolean = [typeof(YesToken), typeof(NoToken)];
+
+    // value in expressions
+    private static readonly Type[] AllValues =
+    [
+        ..Numeric,
+        ..Boolean,
+        typeof(TextToken),
+        typeof(IdentifierToken),
+        typeof(OpenParenToken)
+    ];
+
+    // maths operators
+    private static readonly Type[] MathOps =
+    [
+        typeof(AddToken),
+        typeof(SubtractToken),
+        typeof(MultiplyToken),
+        typeof(DivideToken),
+        typeof(ModuloToken)
+    ];
+
+    // comparison operators
+    private static readonly Type[] ComparisonOps =
+    [
+        typeof(EqualsToken),
+        typeof(NotEqualsToken),
+        typeof(GreaterToken),
+        typeof(LessToken),
+        typeof(GreaterOrEqualsToken),
+        typeof(LessOrEqualsToken)
+    ];
+
+    // logical operators
+    private static readonly Type[] LogicalOps = [typeof(AndToken), typeof(OrToken), typeof(XorToken)];
+
+    // valid followers map
     public static readonly Dictionary<Type, HashSet<Type>> ValidFollowers = new()
     {
-        // values
-        [typeof(NumberToken)] = [
-           typeof(SemicolonToken),
-            typeof(AddToken),
-            typeof(SubtractToken),
-            typeof(MultiplyToken),
-            typeof(DivideToken),
-            typeof(ModuloToken),
-            typeof(EqualsToken),
-            typeof(NotEqualsToken),
-            typeof(GreaterToken),
-            typeof(LessToken),
-            typeof(GreaterOrEqualsToken),
-            typeof(LessOrEqualsToken),
-        ],
-        [typeof(TextToken)] = [
-           typeof(SemicolonToken),
-            typeof(ConcatToken),
-            typeof(EqualsToken),
-            typeof(NotEqualsToken),
-        ],
-        [typeof(IdentifierToken)] = [
-           typeof(SemicolonToken),
+        // valid followers for values.
+        [typeof(NumberToken)] = [typeof(SemicolonToken), .. MathOps, .. ComparisonOps],
+        [typeof(DecimalToken)] = [typeof(SemicolonToken), .. MathOps, .. ComparisonOps],
+        [typeof(TextToken)] = [typeof(SemicolonToken), typeof(ConcatToken), typeof(EqualsToken), typeof(NotEqualsToken)],
+
+        [typeof(IdentifierToken)] =
+        [
+            typeof(SemicolonToken),
             typeof(AssignmentToken),
-            typeof(AddToken),
-            typeof(SubtractToken),
-            typeof(MultiplyToken),
-            typeof(DivideToken),
-            typeof(ModuloToken),
-            typeof(EqualsToken),
-            typeof(NotEqualsToken),
-            typeof(GreaterToken),
-            typeof(LessToken),
-            typeof(GreaterOrEqualsToken),
-            typeof(LessOrEqualsToken),
-            typeof(AndToken),
-            typeof(OrToken),
-            typeof(XorToken),
-            typeof(ConcatToken),
+            ..MathOps,
+            ..ComparisonOps,
+            ..LogicalOps,
+            typeof(ConcatToken)
         ],
-        [typeof(YesToken)] = [
-           typeof(SemicolonToken),
-            typeof(AndToken),
-            typeof(OrToken),
-            typeof(XorToken),
-            typeof(EqualsToken),
-            typeof(NotEqualsToken),
-        ],
-        [typeof(NoToken)] = [
-           typeof(SemicolonToken),
-            typeof(AndToken),
-            typeof(OrToken),
-            typeof(XorToken),
-            typeof(EqualsToken),
-            typeof(NotEqualsToken),
-        ],
-        // operators - must be followed by a value
-        [typeof(AddToken)] = [
-           typeof(NumberToken),
-            typeof(IdentifierToken),
-            typeof(OpenParenToken),
-        ],
-        [typeof(SubtractToken)] = [
-           typeof(NumberToken),
-            typeof(IdentifierToken),
-            typeof(OpenParenToken),
-        ],
-        [typeof(MultiplyToken)] = [
-           typeof(NumberToken),
-            typeof(IdentifierToken),
-            typeof(OpenParenToken),
-        ],
-        [typeof(DivideToken)] = [
-           typeof(NumberToken),
-            typeof(IdentifierToken),
-            typeof(OpenParenToken),
-        ],
-        [typeof(ModuloToken)] = [
-           typeof(NumberToken),
-            typeof(IdentifierToken),
-            typeof(OpenParenToken),
-        ],
-        [typeof(ConcatToken)] = [
-           typeof(TextToken),
-            typeof(IdentifierToken),
-            typeof(OpenParenToken),
-        ],
-        [typeof(AssignmentToken)] = [
-           typeof(NumberToken),
-            typeof(TextToken),
-            typeof(YesToken),
-            typeof(NoToken),
-            typeof(IdentifierToken),
-            typeof(OpenParenToken),
-            typeof(NotToken),
-        ],
-        [typeof(EqualsToken)] = [
-           typeof(NumberToken),
-            typeof(TextToken),
-            typeof(YesToken),
-            typeof(NoToken),
-            typeof(IdentifierToken),
-            typeof(OpenParenToken),
-            typeof(NotToken),
-        ],
-        [typeof(NotEqualsToken)] = [
-           typeof(NumberToken),
-            typeof(TextToken),
-            typeof(YesToken),
-            typeof(NoToken),
-            typeof(IdentifierToken),
-            typeof(OpenParenToken),
-            typeof(NotToken),
-        ],
-        [typeof(GreaterToken)] = [
-           typeof(NumberToken),
-            typeof(IdentifierToken),
-            typeof(OpenParenToken),
-        ],
-        [typeof(LessToken)] = [
-           typeof(NumberToken),
-            typeof(IdentifierToken),
-            typeof(OpenParenToken),
-        ],
-        [typeof(GreaterOrEqualsToken)] = [
-           typeof(NumberToken),
-            typeof(IdentifierToken),
-            typeof(OpenParenToken),
-        ],
-        [typeof(LessOrEqualsToken)] = [
-           typeof(NumberToken),
-            typeof(IdentifierToken),
-            typeof(OpenParenToken),
-        ],
-        [typeof(AndToken)] = [
-           typeof(YesToken),
-            typeof(NoToken),
-            typeof(IdentifierToken),
-            typeof(OpenParenToken),
-            typeof(NotToken),
-        ],
-        [typeof(OrToken)] = [
-           typeof(YesToken),
-            typeof(NoToken),
-            typeof(IdentifierToken),
-            typeof(OpenParenToken),
-            typeof(NotToken),
-        ],
-        [typeof(XorToken)] = [
-           typeof(YesToken),
-            typeof(NoToken),
-            typeof(IdentifierToken),
-            typeof(OpenParenToken),
-            typeof(NotToken),
-        ],
-        [typeof(NotToken)] = [
-           typeof(YesToken),
-            typeof(NoToken),
-            typeof(IdentifierToken),
-            typeof(OpenParenToken),
-        ],
+
+        [typeof(YesToken)] = [typeof(SemicolonToken), .. LogicalOps, typeof(EqualsToken), typeof(NotEqualsToken)],
+        [typeof(NoToken)] = [typeof(SemicolonToken), .. LogicalOps, typeof(EqualsToken), typeof(NotEqualsToken)],
+
+        // valid followers for operators
+        [typeof(AddToken)] = [.. Numeric, typeof(IdentifierToken), typeof(OpenParenToken)],
+        [typeof(SubtractToken)] = [.. Numeric, typeof(IdentifierToken), typeof(OpenParenToken)],
+        [typeof(MultiplyToken)] = [.. Numeric, typeof(IdentifierToken), typeof(OpenParenToken)],
+        [typeof(DivideToken)] = [.. Numeric, typeof(IdentifierToken), typeof(OpenParenToken)],
+        [typeof(ModuloToken)] = [.. Numeric, typeof(IdentifierToken), typeof(OpenParenToken)],
+
+        [typeof(ConcatToken)] = [typeof(TextToken), typeof(IdentifierToken), typeof(OpenParenToken)],
+
+        [typeof(AssignmentToken)] = [.. AllValues, typeof(NotToken)],
+        [typeof(EqualsToken)] = [.. AllValues, typeof(NotToken)],
+        [typeof(NotEqualsToken)] = [.. AllValues, typeof(NotToken)],
+
+        [typeof(GreaterToken)] = [.. Numeric, typeof(IdentifierToken), typeof(OpenParenToken)],
+        [typeof(LessToken)] = [.. Numeric, typeof(IdentifierToken), typeof(OpenParenToken)],
+        [typeof(GreaterOrEqualsToken)] = [.. Numeric, typeof(IdentifierToken), typeof(OpenParenToken)],
+        [typeof(LessOrEqualsToken)] = [.. Numeric, typeof(IdentifierToken), typeof(OpenParenToken)],
+
+        [typeof(AndToken)] = [.. Boolean, typeof(IdentifierToken), typeof(OpenParenToken), typeof(NotToken)],
+        [typeof(OrToken)] = [.. Boolean, typeof(IdentifierToken), typeof(OpenParenToken), typeof(NotToken)],
+        [typeof(XorToken)] = [.. Boolean, typeof(IdentifierToken), typeof(OpenParenToken), typeof(NotToken)],
+
+        [typeof(NotToken)] = [.. Boolean, typeof(IdentifierToken), typeof(OpenParenToken)],
+
         // parens
-        [typeof(OpenParenToken)] = [
-           typeof(NumberToken),
-            typeof(TextToken),
-            typeof(YesToken),
-            typeof(NoToken),
-            typeof(IdentifierToken),
-            typeof(NotToken),
-            typeof(OpenParenToken),
+        [typeof(OpenParenToken)] = [.. AllValues, typeof(NotToken), typeof(OpenParenToken)],
+        [typeof(CloseParenToken)] =
+        [
+            typeof(SemicolonToken),
+            ..MathOps,
+            ..ComparisonOps,
+            ..LogicalOps,
+            typeof(CloseParenToken)
         ],
-        [typeof(CloseParenToken)] = [
-           typeof(SemicolonToken),
-            typeof(AddToken),
-            typeof(SubtractToken),
-            typeof(MultiplyToken),
-            typeof(DivideToken),
-            typeof(ModuloToken),
-            typeof(EqualsToken),
-            typeof(NotEqualsToken),
-            typeof(GreaterToken),
-            typeof(LessToken),
-            typeof(GreaterOrEqualsToken),
-            typeof(LessOrEqualsToken),
-            typeof(AndToken),
-            typeof(OrToken),
-            typeof(XorToken),
-            typeof(CloseParenToken),
-        ],
-        // print
-        [typeof(PrintToken)] = [
-           typeof(NumberToken),
-            typeof(TextToken),
-            typeof(YesToken),
-            typeof(NoToken),
-            typeof(IdentifierToken),
-            typeof(OpenParenToken),
-            typeof(NotToken),
-        ],
-        // variable definition - already handled by VariableDeclarationRule
-        [typeof(VariableDefinitionToken)] = [
-           typeof(IdentifierToken),
-        ],
+
+        // keywords
+        [typeof(PrintToken)] = [.. AllValues, typeof(NotToken)],
+
+        [typeof(VariableDefinitionToken)] = [typeof(IdentifierToken)],
     };
 }

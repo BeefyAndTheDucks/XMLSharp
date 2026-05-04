@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 
 namespace Common;
@@ -21,6 +22,8 @@ public record DivideNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftR
 public record ModuloNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.Mod);
 
 public record NumberNode(int Value) : AstNode;
+public record DecimalNode(float Value) : AstNode;
+
 #endregion
 
 #region Variables
@@ -80,6 +83,7 @@ public static class AstNodeExtensions
             CreateVariableNode createVariableNode => createVariableNode.GetTextForPrettyPrint(indentation),
             GetVariableNode getVariableNode => $"{nameof(GetVariableNode)} \"{getVariableNode.Name}\"",
             NumberNode numberNode => numberNode.Value.ToString(),
+            DecimalNode decimalNode => decimalNode.Value.ToString(CultureInfo.InvariantCulture),
             SetVariableNode setVariableNode => setVariableNode.GetTextForPrettyPrint(indentation),
             TextNode textNode => $"\"{textNode.Value}\"",
             _ => throw new ArgumentOutOfRangeException(nameof(node))

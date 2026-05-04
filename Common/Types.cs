@@ -4,5 +4,6 @@ public enum XMLSType
 {
     Number,
     Bool,
-    Text
+    Text,
+    Float
 }

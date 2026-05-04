@@ -5,6 +5,9 @@ number qux = 10 * 20;
 number quux = 10 / 20;
 number corge = 10 % 20;
 
+decimal pi = 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679;
+decimal two_pi = pi * 2;
+
 yesno greater = 10 > 20;
 yesno less = 10 < 20;
 yesno greater_eq = 10 => 20;
@@ -37,3 +40,5 @@ write "Not Equal: " # neq;
 write "And: " # and;
 write "Or: " # or;
 write "Not: " # not;
+
+write "Two Pi: " # two_pi;

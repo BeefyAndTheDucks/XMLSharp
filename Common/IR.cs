@@ -56,6 +56,9 @@ public class IR : IIR
             case NumberNode numberNode:
                 instructions.Add(new IRInstruction(IROperation.Constant, 0, 0, _temporaryIndex, numberNode.Value));
                 break;
+            case DecimalNode decimalNode:
+                instructions.Add(new IRInstruction(IROperation.Constant, 0, 0, _temporaryIndex, decimalNode.Value));
+                break;
             case TextNode textNode:
                 instructions.Add(new IRInstruction(IROperation.Constant, 0, 0, _temporaryIndex, textNode.Value));
                 break;

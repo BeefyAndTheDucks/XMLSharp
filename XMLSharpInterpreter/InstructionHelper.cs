@@ -5,18 +5,32 @@ using Common;
 
 public static class InstructionHelper
 {
-    public static object RequireData(IRInstruction instruction)
+    public static dynamic RequireData(IRInstruction instruction)
     {
-        var data = instruction.Data ?? throw new InvalidOperationException("Instruction has no data.");
-        return data is JsonElement element
-            ? element.ValueKind switch
-            {
-                JsonValueKind.Number => element.GetInt32(),
-                JsonValueKind.String => element.GetString()!,
-                JsonValueKind.True => true,
-                JsonValueKind.False => false,
-                _ => throw new InvalidOperationException($"Unsupported JSON value kind: {element.ValueKind}")
-            }
-            : data;
+        dynamic data = instruction.Data ?? throw new InvalidOperationException("Instruction has no data.");
+
+        if (data is not JsonElement element)
+            return data;
+
+        switch (element.ValueKind)
+        {
+            case JsonValueKind.Number:
+                try
+                {
+                    return element.GetInt32();
+                }
+                catch (FormatException)
+                {
+                    return element.GetSingle();
+                }
+            case JsonValueKind.String:
+                return element.GetString()!;
+            case JsonValueKind.True:
+                return true;
+            case JsonValueKind.False:
+                return false;
+            default:
+                throw new InvalidOperationException($"Unsupported JSON value kind: {element.ValueKind}");
+        }
     }
 }

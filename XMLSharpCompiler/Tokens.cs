@@ -9,6 +9,7 @@ public record NumberToken(int Value, int Line = 0, int Col = 0) : Token(Line, Co
 public record TextToken(string Text, int Line = 0, int Col = 0) : Token(Line, Col);
 public record IdentifierToken(string Name, int Line = 0, int Col = 0) : Token(Line, Col);
 public record VariableDefinitionToken(XMLSType Type, int Line = 0, int Col = 0) : Token(Line, Col);
+public record DecimalToken(float Value, int Line = 0, int Col = 0) : Token(Line, Col);
 
 public record IfToken(int Line = 0, int Col = 0) : Token(Line, Col);
 

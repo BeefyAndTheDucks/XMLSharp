@@ -81,6 +81,7 @@ public class AstGenerator : IAstGenerator
         return token switch
         {
             NumberToken number => new NumberNode(number.Value),
+            DecimalToken dec => new DecimalNode(dec.Value),
             IdentifierToken identifier => new GetVariableNode(identifier.Name),
             TextToken text => new TextNode(text.Text),
             YesToken => new BooleanNode(true),

@@ -46,17 +46,31 @@ public class Lexer : ILexer
             }
 
             // digit handling
-            if (char.IsDigit(input[i]))
+            if (char.IsDigit(input[i]) || input[i] == '.')
             {
                 string word = "";
                 int startCol = col;
-                while (i < input.Length && char.IsDigit(input[i]))
+
+                bool hasDot = false;
+
+                while (i < input.Length && (char.IsDigit(input[i]) || input[i] == '.'))
                 {
+                    if (input[i] == '.')
+                    {
+                        if (hasDot) break;
+                        hasDot = true;
+                    }
+
                     word += input[i];
                     i++;
                     col++;
                 }
-                tokens.Add(new NumberToken(int.Parse(word), line, startCol));
+
+                if (hasDot)
+                    tokens.Add(new DecimalToken(float.Parse(word), line, startCol));
+                else
+                    tokens.Add(new NumberToken(int.Parse(word), line, startCol));
+
                 continue;
             }
 
