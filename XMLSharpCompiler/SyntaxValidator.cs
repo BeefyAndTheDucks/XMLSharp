@@ -39,9 +39,12 @@ public class SyntaxValidator
             }
             else if (token is EOFToken)
             {
-                if (current.Count > 0)
+                if (current.Count > 0) 
+                {
                     current.Add(token);
                     statements.Add(current.ToArray());
+                    current = [];
+                }
                 break;
             }
             else
