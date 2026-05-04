@@ -9,7 +9,7 @@ public class AstGenerator : IAstGenerator
         int index = 0;
         List<AstNode> nodes = [];
 
-        while (tokens[index] is not EOFToken)
+        while (tokens[Math.Max(index - 1, 0)] is not EOFToken)
         {
             nodes.Add(Parse(tokens, out index, index));
             

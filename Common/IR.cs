@@ -6,7 +6,7 @@ namespace Common;
 // IR stands for Intermediate Representation. We convert our AST nodes to an IR representation, which we then write to a file to let an interpreter/compiler use.
 public class IR : IIR
 {
-    private int _temporaryIndex;
+    private int _temporaryValueIndex;
     private int _variableIndex;
     
     private readonly Dictionary<string, int> _variableNameToVariableIndexTable = new();
@@ -20,7 +20,7 @@ public class IR : IIR
     {
         _variableNameToVariableIndexTable.Clear();
         
-        _temporaryIndex = 0;
+        _temporaryValueIndex = 0;
         _variableIndex = 0;
         
         return GenInstructions(ast).ToArray();
@@ -42,47 +42,60 @@ public class IR : IIR
             case CreateVariableNode createVariableNode:
                 instructions.AddRange(GenInstructions(createVariableNode.ValueNode));
                 _variableNameToVariableIndexTable.Add(createVariableNode.Name, _variableIndex++);
-                instructions.Add(new IRInstruction(IROperation.CreateVar, _variableNameToVariableIndexTable[createVariableNode.Name], _temporaryIndex++, 0));
+                instructions.Add(new IRInstruction(IROperation.CreateVar, _variableNameToVariableIndexTable[createVariableNode.Name], _temporaryValueIndex++, 0));
                 break;
             case GetVariableNode getVariableNode:
-                instructions.Add(new IRInstruction(IROperation.GetVar, _variableNameToVariableIndexTable[getVariableNode.Name], 0, _temporaryIndex));
+                instructions.Add(new IRInstruction(IROperation.GetVar, _variableNameToVariableIndexTable[getVariableNode.Name], 0, _temporaryValueIndex));
                 break;
             case SetVariableNode setVariableNode:
                 instructions.AddRange(GenInstructions(setVariableNode.ValueNode));
-                instructions.Add(new IRInstruction(IROperation.SetVar, _variableNameToVariableIndexTable[setVariableNode.Name], _temporaryIndex++, 0));
+                instructions.Add(new IRInstruction(IROperation.SetVar, _variableNameToVariableIndexTable[setVariableNode.Name], _temporaryValueIndex++, 0));
                 break;
             
             // Datatypes/Constants
             case NumberNode numberNode:
-                instructions.Add(new IRInstruction(IROperation.Constant, 0, 0, _temporaryIndex, numberNode.Value));
+                instructions.Add(new IRInstruction(IROperation.Constant, 0, 0, _temporaryValueIndex, numberNode.Value));
                 break;
             case DecimalNode decimalNode:
-                instructions.Add(new IRInstruction(IROperation.Constant, 0, 0, _temporaryIndex, decimalNode.Value));
+                instructions.Add(new IRInstruction(IROperation.Constant, 0, 0, _temporaryValueIndex, decimalNode.Value));
                 break;
             case TextNode textNode:
-                instructions.Add(new IRInstruction(IROperation.Constant, 0, 0, _temporaryIndex, textNode.Value));
+                instructions.Add(new IRInstruction(IROperation.Constant, 0, 0, _temporaryValueIndex, textNode.Value));
                 break;
             case BooleanNode booleanNode:
-                instructions.Add(new IRInstruction(IROperation.Constant, 0, 0, _temporaryIndex, booleanNode.Value));
+                instructions.Add(new IRInstruction(IROperation.Constant, 0, 0, _temporaryValueIndex, booleanNode.Value));
                 break;
             
             // Arithmetics
             case AstNodeWithLeftRight lrNode:
                 instructions.AddRange(GenInstructions(lrNode.LeftNode));
-                _temporaryIndex++;
+                _temporaryValueIndex++;
                 instructions.AddRange(GenInstructions(lrNode.RightNode));
-                instructions.Add(new IRInstruction(lrNode.IrOperation, _temporaryIndex - 1, _temporaryIndex++, _temporaryIndex));
+                instructions.Add(new IRInstruction(lrNode.IrOperation, _temporaryValueIndex - 1, _temporaryValueIndex++, _temporaryValueIndex));
                 break;
             
             case AstNodeWithSingleChild singleChildNode:
                 instructions.AddRange(GenInstructions(singleChildNode.Child));
-                instructions.Add(new IRInstruction(singleChildNode.IrOperation, _temporaryIndex++, 0, _temporaryIndex));
+                instructions.Add(new IRInstruction(singleChildNode.IrOperation, _temporaryValueIndex++, 0, _temporaryValueIndex));
                 break;
             
             // Control flow
             case IfNode ifNode:
                 instructions.AddRange(GenInstructions(ifNode.Condition));
+                instructions.Add(new IRInstruction(IROperation.If, _temporaryValueIndex++, 0, 0));
+                instructions.Add(new IRInstruction(IROperation.Jump, 2, 0, 0)); // Jump 2 steps ahead, that's where the IfTrue block starts.
                 IRInstruction[] ifTrue = GenInstructions(ifNode.IfTrue);
+                IRInstruction[] ifFalse = [];
+                if (ifNode.IfFalse != null)
+                    ifFalse = GenInstructions(ifNode.IfFalse);
+                
+                instructions.Add(new IRInstruction(IROperation.Jump, ifTrue.Length + 2, 0, 0)); // Jump to after the IfTrue block.
+                
+                instructions.AddRange(ifTrue);
+                instructions.Add(new IRInstruction(IROperation.Jump, ifFalse.Length + 1, 0, 0));
+                
+                instructions.AddRange(ifFalse);
+                
                 break;
         }
         
@@ -138,7 +151,7 @@ public enum IROperation
     Constant, // Result = Data
     Print, // Print(Value(Operand1))
     
-    Jump, // OperationIndex = Operand1
+    Jump, // OperationIndex += Operand1
     
     If, // If(Value(Operand1)) Jump(OperationIndex + 1) else Jump(OperationIndex + 2)     (If Value(Operand1) is number, it should be Value(Operand1) != 0, text should be !string.IsNullOrEmpty(Value(Operand1)))
 }
