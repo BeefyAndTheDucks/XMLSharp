@@ -35,7 +35,6 @@ public class UnexpectedTokenRule : ITokenRule
 {
     public SyntaxError? Validate(Token[] statement, int index)
     {   
-        Console.WriteLine(string.Join(", ", statement));
         if (index + 1 >= statement.Length) return null;
         Token current = statement[index];
         Token next = statement[index + 1];
