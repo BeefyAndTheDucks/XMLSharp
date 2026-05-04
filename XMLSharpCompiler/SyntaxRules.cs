@@ -1,3 +1,5 @@
+using static XMLSharpCompiler.TokenFollowers;
+
 namespace XMLSharpCompiler;
 
 // remember to add new rules to SyntaxRules!
@@ -26,60 +28,21 @@ public class VariableDeclarationRule : ITokenRule
     }
 }
 
-// rule for semicolon and unexpected tokens 
+// rule for unexpected tokens
 public class UnexpectedTokenRule : ITokenRule
 {
-    private static readonly HashSet<Type> ValidFollowers = new()
-    {
-        // valid followers for tokens in ValueTokens
-        typeof(SemicolonToken),
-        typeof(AddToken),
-        typeof(SubtractToken),
-        typeof(MultiplyToken),
-        typeof(DivideToken),
-        typeof(ModuloToken),
-        typeof(EqualsToken),
-        typeof(NotEqualsToken),
-        typeof(GreaterToken),
-        typeof(LessToken),
-        typeof(GreaterOrEqualsToken),
-        typeof(LessOrEqualsToken),
-        typeof(AndToken),
-        typeof(OrToken),
-        typeof(XorToken),
-        typeof(ConcatToken),
-        typeof(AssignmentToken),
-        
-        typeof(TextToken),
-        typeof(NumberToken),
-        typeof(YesToken),
-        typeof(NoToken),
-    };
-
-    private static readonly HashSet<Type> ValueTokens = new()
-    {
-        typeof(NumberToken),
-        typeof(IdentifierToken),
-        typeof(YesToken),
-        typeof(NoToken),
-        typeof(TextToken),
-        
-        // Functions
-        typeof(PrintToken),
-    };
-
     public SyntaxError? Validate(Token[] statement, int index)
-    {
-        if (!ValueTokens.Contains(statement[index].GetType())) return null;
+    {   
+
+        Token current = statement[index];
+        if (!ValidFollowers.TryGetValue(current.GetType(), out HashSet<Type>? followers)) return null;
         if (index + 1 >= statement.Length) return null;
 
         Token next = statement[index + 1];
-        if (ValidFollowers.Contains(next.GetType())) return null;
+        if (followers.Contains(next.GetType())) return null;
 
         if (next is IdentifierToken or VariableDefinitionToken)
-        {
-            return new SyntaxError("Missing ';' after statement.", statement[index].Line, statement[index].Col);
-        }
+            return new SyntaxError("Missing ';' after statement.", current.Line, current.Col);
 
         return new SyntaxError($"Unexpected token '{next.GetType().Name}'.", next.Line, next.Col);
     }

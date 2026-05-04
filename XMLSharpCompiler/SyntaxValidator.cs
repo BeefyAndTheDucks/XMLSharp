@@ -45,6 +45,8 @@ public class SyntaxValidator
 
     private static IEnumerable<SyntaxError> ValidateStatement(Token[] statement)
     {
+        HashSet<int> flagged = [];
+
         foreach (ISyntaxRule rule in SyntaxRules.All)
         {
             if (rule is IStatementRule statementRule)
@@ -57,9 +59,13 @@ public class SyntaxValidator
             {
                 for (int i = 0; i < statement.Length; i++)
                 {
+                    if (flagged.Contains(i)) continue;
+
                     SyntaxError? error = tokenRule.Validate(statement, i);
-                    if (error is not null)
+                    if (error is not null) {
+                        flagged.Add(i);
                         yield return error;
+                    }
                 }
             }
         }

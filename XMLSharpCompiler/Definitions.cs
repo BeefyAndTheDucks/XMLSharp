@@ -15,8 +15,6 @@ public static class Definitions
         ("?"   , () => new OrToken()),
         ("~"   , () => new NotToken()),
         ("!"   , () => new XorToken()),
-        ("yes" , () => new YesToken()),
-        ("no"  , () => new NoToken()),
         
         // Numbers
         ("+"   , () => new AddToken()),
@@ -40,7 +38,7 @@ public static class Definitions
         get
         {
             if (field is not null) return field;
-            field = [..Map];
+            field = [.. Map];
             field.Sort((a, b) => b.Pattern.Length.CompareTo(a.Pattern.Length));
             return field;
         }

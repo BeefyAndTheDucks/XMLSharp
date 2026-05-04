@@ -15,6 +15,8 @@ public class RunCommand : CommandBase
             Console.Error.WriteLine($"File {inputFile.FullName} does not exist.");
             Environment.Exit(1);
         }
+
+        // ir.ReadFromFile will need to return an actual error at some point
         IR ir = new();
         IRInstruction[]? instructions = ir.ReadFromFile(inputFile);
         if (instructions is null)
