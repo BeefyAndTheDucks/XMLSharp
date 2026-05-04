@@ -65,11 +65,14 @@ public class CompileCommand : CommandBase
         
         IDesugarer desugarer = new Desugarer();
         Token[] desugaredTokens = desugarer.Desugar(tokens);
-
+        
         if (verbose)
         {
             Console.WriteLine("Desugared Tokens:");
             desugaredTokens.PrettyPrint();
+            
+            Console.WriteLine("Desugared source:");
+            Console.WriteLine(Detokeniser.ToSource(desugaredTokens));
         }
         
         AstNode ast = astGenerator.Generate(desugaredTokens);

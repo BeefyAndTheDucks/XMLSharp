@@ -23,6 +23,14 @@ public static class Definitions
         ("/"   , () => new DivideToken()),
         ("%"   , () => new ModuloToken()),
         
+        ("+="  , () => new IncrementByToken()),
+        ("++"  , () => new IncrementToken()),
+        ("-="  , () => new DecrementByToken()),
+        ("--"  , () => new DecrementToken()),
+        ("*="  , () => new MultiplyByToken()),
+        ("/="  , () => new DivideByToken()),
+        ("%="  , () => new ModuloByToken()),
+        
         // Text
         ("#"   , () => new ConcatToken()),
         

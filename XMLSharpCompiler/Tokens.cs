@@ -51,5 +51,13 @@ public record EndBlockToken(int Line = 0, int Col = 0, int Length = 0) : Token(L
 
 public record PrintToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
 
+public record IncrementByToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record DecrementByToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record MultiplyByToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record DivideByToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record ModuloByToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record IncrementToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record DecrementToken(int Line = 0, int Col = 0) : Token(Line, Col);
+
 // special
 public record EOFToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
