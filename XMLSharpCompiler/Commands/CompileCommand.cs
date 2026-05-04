@@ -10,7 +10,8 @@ public class CompileCommand : CommandBase
     private readonly Argument<FileInfo> _fileArg = new("file");
     private readonly Option<FileInfo> _outputFileArg = new("output");
     
-    private readonly Option<bool> _verboseArg = new("--verbose", "-v");
+    private readonly Option<bool> _verboseArg = new("--verbose", "-verbose", "-v", "--v");
+    private readonly Option<bool> _ignoreErrorsArg = new("--ignore-errors", "-i", "-ignore-errs", "-ierr");
 
     protected override void Invoke(ParseResult parseResult)
     {
@@ -34,39 +35,59 @@ public class CompileCommand : CommandBase
         SyntaxValidator validator = new();
 
         Token[] tokens = lexer.Lex(File.ReadAllText(inputFile.FullName));
-        
-        if (verbose)
-            tokens.PrettyPrint();
-        
-        SyntaxError[] errors = validator.Validate(tokens);
 
-        int errorCount = 0;
+        if (verbose)
+        {
+            Console.WriteLine("Tokens:");
+            tokens.PrettyPrint();
+        }
+
+        SyntaxError[] errors = [];
+        if (!parseResult.GetValue(_ignoreErrorsArg))
+            errors = validator.Validate(tokens);
+
         if (errors.Length > 0)
         {
             foreach (SyntaxError error in errors)
             {
-                errorCount++;
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.Error.WriteLine($"Syntax error at {error.Line}:{error.Col} — {error.Message}");
+                Console.Error.Write($"Syntax error at {error.Line}:{error.Col} — {error.Message}");
                 Console.ResetColor();
+                Console.Error.WriteLine();
             }
-            string s = (errorCount != 0) ? "s" : "";
+            string s = errors.Length != 0 ? "s" : "";
             Console.BackgroundColor = ConsoleColor.DarkRed;
-            Console.Error.WriteLine($"{errorCount} syntax error{s} found. Compilation aborted.");
+            Console.Error.Write($"{errors.Length} syntax error{s} found. Compilation aborted.");
             Console.ResetColor();
+            Console.Error.WriteLine();
             Environment.Exit(1);
         }
         
-        AstNode ast = astGenerator.Generate(tokens);
-        
+        IDesugarer desugarer = new Desugarer();
+        Token[] desugaredTokens = desugarer.Desugar(tokens);
+
         if (verbose)
-            Console.WriteLine(ast);
+        {
+            Console.WriteLine("Desugared Tokens:");
+            desugaredTokens.PrettyPrint();
+        }
+        
+        AstNode ast = astGenerator.Generate(desugaredTokens);
+
+        if (verbose)
+        {
+            Console.WriteLine("AST:");
+            ast.PrettyPrint();
+        }
         
         IIR irGenerator = new IR();
         IRInstruction[] instructions = irGenerator.FromAst(ast);
 
         if (verbose)
+        {
+            Console.WriteLine("IR:");
             instructions.PrettyPrint();
+        }
         
         long compileTime = sw.ElapsedMilliseconds;
         
@@ -85,7 +106,8 @@ public class CompileCommand : CommandBase
         {
             _fileArg,
             _outputFileArg,
-            _verboseArg
+            _verboseArg,
+            _ignoreErrorsArg
         };
     }
 }

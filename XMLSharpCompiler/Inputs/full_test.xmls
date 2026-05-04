@@ -42,3 +42,27 @@ write "Or: " # or;
 write "Not: " # not;
 
 write "Two Pi: " # two_pi;
+
+if (two_pi > 5) {
+    write "Awesome!";
+    write "2 Pi is greater than 5!";
+} else {
+    write "Meh...";
+    write "Pi is less than 5!";
+}
+
+if (less) {
+    write "Less!";
+}
+
+if (greater) {
+    write "Greater!";
+}
+
+if (greater) {
+    write "Greater!";
+} elif (less){
+    write "Less!";
+} else {
+    write "Equal!";
+}

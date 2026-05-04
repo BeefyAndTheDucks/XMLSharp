@@ -1,4 +1,5 @@
 using System.CommandLine;
+using System.Text.Json;
 using Common;
 
 namespace XMLSharpInterpreter.Commands;
@@ -6,6 +7,7 @@ namespace XMLSharpInterpreter.Commands;
 public class RunCommand : CommandBase
 {
     private readonly Argument<FileInfo> _fileArg = new("file");
+    private readonly Option<bool> _verboseArg = new("--verbose", "-verbose", "-v", "--v");
     
     protected override void Invoke(ParseResult parseResult)
     {
@@ -18,17 +20,29 @@ public class RunCommand : CommandBase
 
         // ir.ReadFromFile will need to return an actual error at some point
         IIR ir = new IR();
-        IRInstruction[] instructions = ir.ReadFromFile(inputFile);
 
-        Interpreter interpreter = new();
-        interpreter.Run(instructions);
+        try {
+            IRInstruction[]? instructions = ir.ReadFromFile(inputFile);
+
+            if (instructions is null || instructions.Length == 0)
+            {
+                Console.Error.WriteLine($"{inputFile.Name} is empty or malformed.");
+                Environment.Exit(1);
+            }
+            Interpreter interpreter = new();
+            interpreter.Run(instructions, parseResult.GetValue(_verboseArg));
+        } catch (Exception e)
+        {
+            Console.Error.WriteLine($"An error occured while running {inputFile.Name}: {e.Message}.");
+        }
     }
 
     protected override Command GetCommand()
     {
         return new Command("run", "Run a compiled XMLSharp file")
         {
-            _fileArg
+            _fileArg,
+            _verboseArg
         };
     }
 }

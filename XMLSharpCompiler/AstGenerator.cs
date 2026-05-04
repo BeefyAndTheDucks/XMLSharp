@@ -11,20 +11,34 @@ public class AstGenerator : IAstGenerator
 
         while (tokens[index] is not EOFToken)
         {
-            nodes.Add(Parse(tokens, index));
+            nodes.Add(Parse(tokens, out index, index));
+            
+            index++;
+        }
 
-            do
-            {
-                index++;
-            } while (tokens[index] is not SemicolonToken or EOFToken);
+        if (nodes.Count == 1)
+            return nodes[0];
+        return new BlockNode(nodes.ToArray());
+    }
+    
+    private static AstNode ParseBlock(Token[] tokens)
+    {
+        int index = 0;
+        List<AstNode> nodes = [];
+
+        while (tokens[index] is not EndBlockToken)
+        {
+            nodes.Add(Parse(tokens, out index, index));
 
             index++;
         }
 
+        if (nodes.Count == 1)
+            return nodes[0];
         return new BlockNode(nodes.ToArray());
     }
     
-    private static AstNode Parse(Token[] tokens, int currentIndex = 0)
+    private static AstNode Parse(Token[] tokens, out int endIndex, int currentIndex)
     {
         Token currentToken = tokens[currentIndex];
 
@@ -35,12 +49,14 @@ public class AstGenerator : IAstGenerator
                 currentIndex++;
                 IdentifierToken identifierToken = ConvertOrThrow<IdentifierToken>(tokens[currentIndex++]);
                 ConvertOrThrow<AssignmentToken>(tokens[currentIndex++]);
+                endIndex = NextSemicolonIndex(tokens, currentIndex);
                 return new CreateVariableNode(identifierToken.Name, variableDefinitionToken.Type, ParseExpression(tokens.Skip(currentIndex).ToArray()));
             }
             case IdentifierToken identifierToken:
             {
                 currentIndex++;
                 ConvertOrThrow<AssignmentToken>(tokens[currentIndex++]);
+                endIndex = NextSemicolonIndex(tokens, currentIndex);
                 return new SetVariableNode(identifierToken.Name, ParseExpression(tokens.Skip(currentIndex).ToArray()));
             }
             
@@ -48,7 +64,32 @@ public class AstGenerator : IAstGenerator
             case PrintToken:
             {
                 currentIndex++;
+                endIndex = NextSemicolonIndex(tokens, currentIndex);
                 return new PrintNode(ParseExpression(tokens.Skip(currentIndex).ToArray()));
+            }
+            
+            // Control-flow
+            case IfToken:
+            {
+                int blockBeginning = FindBlockBeginningIndex(tokens, currentIndex);
+                AstNode condition = ParseExpression(tokens.Skip(currentIndex + 1).Take(blockBeginning - currentIndex - 1).ToArray());
+                
+                int blockEnd = FindBlockEndIndex(tokens, blockBeginning - 1);
+                AstNode block = ParseBlock(tokens.Skip(blockBeginning + 1).Take(blockEnd - blockBeginning).ToArray());
+                
+                if (tokens[blockEnd + 1] is not ElseToken)
+                {
+                    endIndex = blockEnd;
+                    return new IfNode(condition, block, null);
+                }
+                
+                int elseBlockBeginning = FindBlockBeginningIndex(tokens, blockEnd + 1);
+                int elseBlockEnd = FindBlockEndIndex(tokens, elseBlockBeginning - 1);
+                AstNode elseBlock = ParseBlock(tokens.Skip(elseBlockBeginning + 1).Take(elseBlockEnd - elseBlockBeginning).ToArray());
+
+                endIndex = elseBlockEnd;
+                
+                return new IfNode(condition, block, elseBlock);
             }
         }
         
@@ -62,6 +103,54 @@ public class AstGenerator : IAstGenerator
         return leastPrecedence == -1
             ? FirstPossibleNode(tokens)
             : ParseOperation(tokens, leastPrecedence);
+    }
+
+    internal static int FindBlockBeginningIndex(Token[] tokens, int startIndex)
+    {
+        int index = startIndex;
+        while (index < tokens.Length && tokens[index] is not EOFToken)
+        {
+            if (tokens[index] is BeginBlockToken)
+                return index;
+            index++;
+        }
+        return -1;
+    }
+    
+    internal static int FindBlockEndIndex(Token[] tokens, int startIndex)
+    {
+        int index = startIndex;
+        int blockDepth = 0;
+        while (index < tokens.Length && tokens[index] is not EOFToken)
+        {
+            if (tokens[index] is BeginBlockToken)
+                blockDepth++;
+            if (tokens[index] is EndBlockToken)
+            {
+                blockDepth--;
+                switch (blockDepth)
+                {
+                    case 0:
+                        return index;
+                    case < 0:
+                        throw new InvalidOperationException("Block depth cannot be negative.");
+                }
+            }
+            index++;
+        }
+        return -1;
+    }
+
+    internal static int NextSemicolonIndex(Token[] tokens, int startIndex)
+    {
+        int index = startIndex;
+        while (index < tokens.Length && tokens[index] is not EOFToken)
+        {
+            if (tokens[index] is SemicolonToken)
+                return index;
+            index++;
+        }
+        return -1;
     }
 
     private static AstNode FirstPossibleNode(Token[] tokens)

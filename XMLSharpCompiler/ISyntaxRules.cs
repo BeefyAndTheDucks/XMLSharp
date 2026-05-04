@@ -11,3 +11,8 @@ public interface IStatementRule : ISyntaxRule
 {
     SyntaxError? Validate(Token[] statement);
 }
+
+public interface IBlockRule : ISyntaxRule
+{
+    SyntaxError[] Validate(Token[] tokens);
+}

@@ -30,6 +30,8 @@ public static class OperationHandlers
         new XorHandler(),
         new ConcatHandler(),
         new NotHandler(),
+        new JumpHandler(),
+        new IfHandler()
     ];
 }
 
@@ -39,10 +41,15 @@ internal class ConstantHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Constant;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic>? variables)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
         registers[instruction.Result] = RequireData(instruction);
+        
+        if (verboseMode)
+            Console.Write($"{registers[instruction.Result]}");
+        
+        return 1;
     }
 }
 
@@ -51,10 +58,15 @@ internal class PrintHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Print;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic>? variables)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
-        Console.WriteLine(registers[instruction.Operand1]);
+        if (verboseMode)
+            Console.Write(registers[instruction.Operand1]);
+        else
+            Console.WriteLine(registers[instruction.Operand1]);
+        
+        return 1;
     }
 }
 
@@ -63,10 +75,15 @@ internal class AddHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Add;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic>? variables)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
         registers[instruction.Result] = registers[instruction.Operand1] + registers[instruction.Operand2];
+        
+        if (verboseMode)
+            Console.Write($"{registers[instruction.Result]}");
+
+        return 1;
     }
 }
 
@@ -75,10 +92,15 @@ internal class SubHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Sub;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic>? variables)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
         registers[instruction.Result] = registers[instruction.Operand1] - registers[instruction.Operand2];
+        
+        if (verboseMode)
+            Console.Write($"{registers[instruction.Result]}");
+
+        return 1;
     }
 }
 
@@ -87,10 +109,15 @@ internal class MulHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Mul;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic>? variables)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
         registers[instruction.Result] = registers[instruction.Operand1] * registers[instruction.Operand2];
+        
+        if (verboseMode)
+            Console.Write($"{registers[instruction.Result]}");
+
+        return 1;
     }
 }
 
@@ -99,10 +126,15 @@ internal class DivHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Div;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic>? variables)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
         registers[instruction.Result] = registers[instruction.Operand1] / registers[instruction.Operand2];
+        
+        if (verboseMode)
+            Console.Write($"{registers[instruction.Result]}");
+
+        return 1;
     }
 }
 
@@ -111,10 +143,15 @@ internal class ModHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Mod;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic>? variables)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
         registers[instruction.Result] = registers[instruction.Operand1] % registers[instruction.Operand2];
+        
+        if (verboseMode)
+            Console.Write($"{registers[instruction.Result]}");
+        
+        return 1;
     }
 }
 
@@ -123,12 +160,17 @@ internal class CreateVarHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.CreateVar;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic>? variables)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
         if (variables is null) throw new InvalidOperationException("Variables table is required for variable operations.");
 
         variables[instruction.Operand1] = registers[instruction.Operand2];
+        
+        if (verboseMode)
+            Console.Write($"{variables[instruction.Operand1]}");
+        
+        return 1;
     }
 }
 
@@ -137,12 +179,17 @@ internal class SetVarHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.SetVar;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic>? variables)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
         if (variables is null) throw new InvalidOperationException("Variables table is required for variable operations.");
 
         variables[instruction.Operand1] = registers[instruction.Operand2];
+        
+        if (verboseMode)
+            Console.Write($"{variables[instruction.Operand1]}");
+        
+        return 1;
     }
 }
 
@@ -151,72 +198,107 @@ internal class GetVarHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.GetVar;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic>? variables)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
         if (variables is null) throw new InvalidOperationException("Variables table is required for variable operations.");
 
         registers[instruction.Result] = variables[instruction.Operand1];
+        
+        if (verboseMode)
+            Console.Write($"{registers[instruction.Result]}");
+        
+        return 1;
     }
 }
 
 internal class EqualHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Equal;
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic>? variables)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
         registers[instruction.Result] = registers[instruction.Operand1] == registers[instruction.Operand2];
+        
+        if (verboseMode)
+            Console.Write($"{registers[instruction.Result]}");
+        
+        return 1;
     }
 }
 
 internal class NotEqualHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.NotEqual;
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic>? variables = null)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
         registers[instruction.Result] = registers[instruction.Operand1] != registers[instruction.Operand2];
+        
+        if (verboseMode)
+            Console.Write($"{registers[instruction.Result]}");
+        
+        return 1;
     }
 }
 
 internal class GreaterHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.GreaterThan;
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic>? variables = null)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
         registers[instruction.Result] = registers[instruction.Operand1] > registers[instruction.Operand2];
+        
+        if (verboseMode)
+            Console.Write($"{registers[instruction.Result]}");
+        
+        return 1;
     }
 }
 
 internal class GreaterOrEqualHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.GreaterThanOrEqual;
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic>? variables = null)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
         registers[instruction.Result] = registers[instruction.Operand1] >= registers[instruction.Operand2];
+        
+        if (verboseMode)
+            Console.Write($"{registers[instruction.Result]}");
+        
+        return 1;
     }
 }
 
 internal class LessHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.LessThan;
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic>? variables = null)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
         registers[instruction.Result] = registers[instruction.Operand1] < registers[instruction.Operand2];
+        
+        if (verboseMode)
+            Console.Write($"{registers[instruction.Result]}");
+        
+        return 1;
     }
 }
 
 internal class LessOrEqualHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.LessThanOrEqual;
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic>? variables = null)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
         registers[instruction.Result] = registers[instruction.Operand1] <= registers[instruction.Operand2];
+        
+        if (verboseMode)
+            Console.Write($"{registers[instruction.Result]}");
+        
+        return 1;
     }
 }
 // handle AND
@@ -224,10 +306,15 @@ internal class AndHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.And;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers, 
-        Dictionary<int, dynamic>? variables)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
         registers[instruction.Result] = registers[instruction.Operand1] && registers[instruction.Operand2];
+        
+        if (verboseMode)
+            Console.Write($"{registers[instruction.Result]}");
+        
+        return 1;
     }
 }
 
@@ -236,10 +323,15 @@ internal class OrHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Or;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic>? variables)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
         registers[instruction.Result] = registers[instruction.Operand1] || registers[instruction.Operand2];
+        
+        if (verboseMode)
+            Console.Write($"{registers[instruction.Result]}");
+        
+        return 1;
     }
 }
 
@@ -248,29 +340,83 @@ internal class XorHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Xor;
 
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic>? variables)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
         registers[instruction.Result] = registers[instruction.Operand1] ^ registers[instruction.Operand2];
+        
+        if (verboseMode)
+            Console.Write($"{registers[instruction.Result]}");
+        
+        return 1;
     }
 }
 
 internal class ConcatHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Concat;
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic>? variables)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
         registers[instruction.Result] = registers[instruction.Operand1].ToString() + registers[instruction.Operand2].ToString();
+        
+        if (verboseMode)
+            Console.Write($"{registers[instruction.Result]}");
+        
+        return 1;
     }
 }
 
 internal class NotHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Not;
-    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic>? variables)
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
     {
+        if (verboseMode)
+            Console.Write($"{!registers[instruction.Operand1]}");
+        
         registers[instruction.Result] = !registers[instruction.Operand1];
+        return 1;
+    }
+}
+
+// jump handler
+internal class JumpHandler : IOperationHandler
+{
+    public IROperation Operation => IROperation.Jump;
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
+    {
+        if (verboseMode)
+            Console.Write($"{instruction.Operand1}");
+        
+        return instruction.Operand1;
+    }
+}
+
+
+// if handler
+internal class IfHandler : IOperationHandler
+{
+    public IROperation Operation => IROperation.If;
+    public int Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic> variables, bool verboseMode)
+    {
+        dynamic value = registers[instruction.Operand1];
+
+        bool condition = value switch
+        {
+            bool b => b,
+            int i => i != 0,
+            string s => !string.IsNullOrEmpty(s),
+            null => false,
+            _ => true
+        };
+        
+        if (verboseMode)
+            Console.Write(condition);
+
+        return condition ? 1 : 2;
     }
 }

@@ -31,6 +31,9 @@ public static class Definitions
         ("("   , () => new OpenParenToken()),
         (")"   , () => new CloseParenToken()),
         (";"   , () => new SemicolonToken()),
+        
+        ("{"   , () => new BeginBlockToken()),
+        ("}"   , () => new EndBlockToken()),
     ];
 
     public static (string Pattern, Func<Token> Create)[] MatchingMap
