@@ -1,0 +1,39 @@
+number foo = 10 + 20;
+number bar = 10 + foo;
+number baz = 10 - 20;
+number qux = 10 * 20;
+number quux = 10 / 20;
+number corge = 10 % 20;
+
+yesno greater = 10 > 20;
+yesno less = 10 < 20;
+yesno greater_eq = 10 => 20;
+yesno less_eq = 10 =< 20;
+yesno eq = 10 ==== 20;
+yesno neq = 10 !=== 20;
+yesno and = eq & yes;
+yesno or = eq ? no;
+yesno not = ~eq;
+yesno xor = eq ! yes;
+
+$ Print results
+write "Hello, " # "world!";
+
+write "Foo: " # foo;
+write "Bar: " # bar;
+write "Baz: " # baz;
+write "Qux: " # qux;
+write "Quux: " # quux;
+write "Corge: " # corge;
+
+write "";
+
+write "Greater: " # greater;
+write "Less: " # less;
+write "Greater or Equal: " # greater_eq;
+write "Less or Equal: " # less_eq;
+write "Equal: " # eq;
+write "Not Equal: " # neq;
+write "And: " # and;
+write "Or: " # or;
+write "Not: " # not;
