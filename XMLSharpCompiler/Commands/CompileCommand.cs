@@ -34,7 +34,8 @@ public class CompileCommand : CommandBase
         IAstGenerator astGenerator = new AstGenerator();
         SyntaxValidator validator = new();
 
-        Token[] tokens = lexer.Lex(File.ReadAllText(inputFile.FullName));
+        string fileContent = File.ReadAllText(inputFile.FullName);
+        Token[] tokens = lexer.Lex(fileContent);
 
         if (verbose)
         {
@@ -48,18 +49,8 @@ public class CompileCommand : CommandBase
 
         if (errors.Length > 0)
         {
-            foreach (SyntaxError error in errors)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Error.Write($"Syntax error at {error.Line}:{error.Col} — {error.Message}");
-                Console.ResetColor();
-                Console.Error.WriteLine();
-            }
-            string s = errors.Length != 0 ? "s" : "";
-            Console.BackgroundColor = ConsoleColor.DarkRed;
-            Console.Error.Write($"{errors.Length} syntax error{s} found. Compilation aborted.");
-            Console.ResetColor();
-            Console.Error.WriteLine();
+            ErrorReporter reporter = new();
+            reporter.Report(fileContent, errors);
             Environment.Exit(1);
         }
         

@@ -21,10 +21,20 @@ public class VariableDeclarationRule : ITokenRule
         if (tokens[index] is not VariableDefinitionToken) return null;
 
         if (index + 1 >= tokens.Length || tokens[index + 1] is not IdentifierToken identifierToken)
-            return new SyntaxError("Expected identifier after type.", tokens[index].Line, tokens[index].Col);
+            return new SyntaxError(
+                "Expected identifier after type.", 
+                tokens[index].Line, 
+                tokens[index].Col, 
+                tokens[index].Length
+                );
 
         if (index + 2 >= tokens.Length || tokens[index + 2] is not AssignmentToken)
-            return new SyntaxError($"Expected '=' after '{identifierToken.Name}'.", tokens[index + 1].Line, tokens[index + 1].Col);
+            return new SyntaxError(
+                $"Expected '=' after '{identifierToken.Name}'.", 
+                tokens[index + 1].Line, 
+                tokens[index + 1].Col, 
+                tokens[index + 1].Length
+            );
 
         return null;
     }
@@ -42,9 +52,9 @@ public class UnexpectedTokenRule : ITokenRule
         if (!ValidFollowers.TryGetValue(current.GetType(), out HashSet<Type>? followers)) return null;
         if (followers.Contains(next.GetType())) return null;
         if (next is IdentifierToken or VariableDefinitionToken or EOFToken)
-            return new SyntaxError("Missing ';' after statement.", current.Line, current.Col);
+            return new SyntaxError("Missing ';' after statement.", current.Line, current.Col, current.Length);
 
-        return new SyntaxError($"Unexpected token '{next.GetType().Name}'.", next.Line, next.Col);
+        return new SyntaxError($"Unexpected token '{next.GetType().Name}'.", next.Line, next.Col, next.Length);
     }
 }
 
@@ -68,7 +78,7 @@ public class ParenMatchRule : IBlockRule
             {
                 if (depth == 0)
                 {
-                    errors.Add(new SyntaxError("Unexpected ')'.", token.Line, token.Col));
+                    errors.Add(new SyntaxError("Unexpected ')'.", token.Line, token.Col, token.Length));
                 }
                 else
                 {
@@ -78,7 +88,7 @@ public class ParenMatchRule : IBlockRule
         }
 
         if (depth > 0)
-            errors.Add(new SyntaxError("Unclosed '('.", lastOpen!.Line, lastOpen.Col));
+            errors.Add(new SyntaxError("Unclosed '('.", lastOpen!.Line, lastOpen.Col, lastOpen.Length));
 
         return errors.ToArray();
     }
@@ -104,7 +114,7 @@ public class BraceMatchRule : IBlockRule
             {
                 if (depth == 0)
                 {
-                    errors.Add(new SyntaxError("Unexpected '}'.", token.Line, token.Col));
+                    errors.Add(new SyntaxError("Unexpected '}'.", token.Line, token.Col, token.Length));
                 }
                 else
                 {
@@ -114,7 +124,7 @@ public class BraceMatchRule : IBlockRule
         }
 
         if (depth > 0)
-            errors.Add(new SyntaxError("Unclosed '{'.", lastOpen!.Line, lastOpen.Col));
+            errors.Add(new SyntaxError("Unclosed '{'.", lastOpen!.Line, lastOpen.Col, lastOpen.Length));
 
         return errors.ToArray();
     }
