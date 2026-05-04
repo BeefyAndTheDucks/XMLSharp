@@ -97,19 +97,19 @@ public static class AstNodeExtensions
                 DecimalNode decimalNode => decimalNode.Value.ToString(CultureInfo.InvariantCulture),
                 SetVariableNode setVariableNode => setVariableNode.GetTextForPrettyPrint(indentation),
                 TextNode textNode => $"\"{textNode.Value}\"",
-                IfNode ifNode => new BlockNode([ifNode.Condition, ifNode.IfTrue, ifNode.IfFalse ?? new TextNode("No IfFalse.")]).GetTextForPrettyPrint(indentation),
+                IfNode ifNode => new BlockNode([ifNode.Condition, ifNode.IfTrue, ifNode.IfFalse ?? new TextNode("No IfFalse.")]).GetTextForPrettyPrint(indentation, nameof(IfNode)),
                 _ => throw new ArgumentOutOfRangeException(nameof(node))
             };
         }
     }
 
-    private static string GetTextForPrettyPrint(this BlockNode node, bool[]? indentation = null)
+    private static string GetTextForPrettyPrint(this BlockNode node, bool[]? indentation = null, string? overrideName = null)
     {
         indentation ??= [];
         var myIndentation = new List<bool>(indentation);
         
         StringBuilder builder = new();
-        builder.Append(node.GetType().Name);
+        builder.Append(overrideName ?? node.GetType().Name);
 
         for (int i = 0; i < node.Nodes.Length; i++)
         {
