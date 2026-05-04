@@ -78,6 +78,12 @@ public class IR : IIR
                 instructions.AddRange(GenInstructions(singleChildNode.Child));
                 instructions.Add(new IRInstruction(singleChildNode.IrOperation, _temporaryIndex++, 0, _temporaryIndex));
                 break;
+            
+            // Control flow
+            case IfNode ifNode:
+                instructions.AddRange(GenInstructions(ifNode.Condition));
+                IRInstruction[] ifTrue = GenInstructions(ifNode.IfTrue);
+                break;
         }
         
         return instructions.ToArray();
@@ -130,5 +136,9 @@ public enum IROperation
     Concat, // Result = Value(Operand1) + Value(Operand2)
     
     Constant, // Result = Data
-    Print // Print(Value(Operand1))
+    Print, // Print(Value(Operand1))
+    
+    Jump, // OperationIndex = Operand1
+    
+    If, // If(Value(Operand1)) Jump(OperationIndex + 1) else Jump(OperationIndex + 2)     (If Value(Operand1) is number, it should be Value(Operand1) != 0, text should be !string.IsNullOrEmpty(Value(Operand1)))
 }
