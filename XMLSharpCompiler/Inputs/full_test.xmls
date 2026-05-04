@@ -61,7 +61,7 @@ if (greater) {
 
 if (greater) {
     write "Greater!";
-} else if (less){
+} elif (less){
     write "Less!";
 } else {
     write "Equal!";

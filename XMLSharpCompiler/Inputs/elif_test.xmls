@@ -1,0 +1,5 @@
+if (yes) {
+    write "Yes #1";
+} elif (yes) {
+    write "Yes #2";
+}

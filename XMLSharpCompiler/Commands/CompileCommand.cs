@@ -35,9 +35,12 @@ public class CompileCommand : CommandBase
         SyntaxValidator validator = new();
 
         Token[] tokens = lexer.Lex(File.ReadAllText(inputFile.FullName));
-        
+
         if (verbose)
+        {
+            Console.WriteLine("Tokens:");
             tokens.PrettyPrint();
+        }
 
         SyntaxError[] errors = [];
         if (!parseResult.GetValue(_ignoreErrorsArg))
@@ -60,16 +63,31 @@ public class CompileCommand : CommandBase
             Environment.Exit(1);
         }
         
-        AstNode ast = astGenerator.Generate(tokens);
-        
+        IDesugarer desugarer = new Desugarer();
+        Token[] desugaredTokens = desugarer.Desugar(tokens);
+
         if (verbose)
+        {
+            Console.WriteLine("Desugared Tokens:");
+            desugaredTokens.PrettyPrint();
+        }
+        
+        AstNode ast = astGenerator.Generate(desugaredTokens);
+
+        if (verbose)
+        {
+            Console.WriteLine("AST:");
             ast.PrettyPrint();
+        }
         
         IIR irGenerator = new IR();
         IRInstruction[] instructions = irGenerator.FromAst(ast);
 
         if (verbose)
+        {
+            Console.WriteLine("IR:");
             instructions.PrettyPrint();
+        }
         
         long compileTime = sw.ElapsedMilliseconds;
         

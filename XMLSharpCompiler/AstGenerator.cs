@@ -76,7 +76,7 @@ public class AstGenerator : IAstGenerator
                 
                 int blockEnd = FindBlockEndIndex(tokens, blockBeginning - 1);
                 AstNode block = ParseBlock(tokens.Skip(blockBeginning + 1).Take(blockEnd - blockBeginning).ToArray());
-
+                
                 if (tokens[blockEnd + 1] is not ElseToken)
                 {
                     endIndex = blockEnd;
