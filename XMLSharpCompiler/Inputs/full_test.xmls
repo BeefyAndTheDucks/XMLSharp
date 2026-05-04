@@ -44,7 +44,9 @@ write "Not: " # not;
 write "Two Pi: " # two_pi;
 
 if (two_pi > 5) {
+    write "Awesome!";
     write "Pi is greater than 5!";
 } else {
+    write "Meh...";
     write "Pi is less than 5!";
 }
