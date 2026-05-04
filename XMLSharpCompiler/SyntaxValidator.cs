@@ -5,6 +5,15 @@ public class SyntaxValidator
     public SyntaxError[] Validate(Token[] tokens)
     {
         List<SyntaxError> errors = [];
+
+        foreach (ISyntaxRule rule in SyntaxRules.All)
+        {
+            if (rule is IBlockRule blockRule)
+            {
+                errors.AddRange(blockRule.Validate(tokens));
+            }
+        }
+
         List<Token[]> statements = SplitStatements(tokens);
 
         foreach (Token[] statement in statements)

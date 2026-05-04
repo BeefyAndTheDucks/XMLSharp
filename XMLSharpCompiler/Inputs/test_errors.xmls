@@ -6,5 +6,8 @@ $ String reassignment
 text bar = "One";
 bar = "Two";
 
-number = 1
-bar = 3;
+if (two_pi > 5) {
+    write "Pi is greater than 5!";
+} else {
+    write "Pi is less than 5!";
+}

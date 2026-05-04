@@ -8,6 +8,8 @@ public static class SyntaxRules
     public static readonly ISyntaxRule[] All = [
         new VariableDeclarationRule(),
         new UnexpectedTokenRule(),
+        new ParenMatchRule(),
+        new BraceMatchRule()
     ];
 }
 
@@ -45,5 +47,77 @@ public class UnexpectedTokenRule : ITokenRule
             return new SyntaxError("Missing ';' after statement.", current.Line, current.Col);
 
         return new SyntaxError($"Unexpected token '{next.GetType().Name}'.", next.Line, next.Col);
+    }
+}
+
+// rule for matching parens
+public class ParenMatchRule : IBlockRule
+{
+    public SyntaxError[] Validate(Token[] tokens)
+    {
+        List<SyntaxError> errors = [];
+        int depth = 0;
+        Token? lastOpen = null;
+
+        foreach (Token token in tokens)
+        {
+            if (token is OpenParenToken)
+            {
+                depth++;
+                lastOpen = token;
+            }
+            else if (token is CloseParenToken)
+            {
+                if (depth == 0)
+                {
+                    errors.Add(new SyntaxError("Unexpected ')'.", token.Line, token.Col));
+                }
+                else
+                {
+                    depth--;
+                }
+            }
+        }
+
+        if (depth > 0)
+            errors.Add(new SyntaxError("Unclosed '('.", lastOpen!.Line, lastOpen.Col));
+
+        return errors.ToArray();
+    }
+}
+
+// rule for matching braces.
+public class BraceMatchRule : IBlockRule
+{
+    public SyntaxError[] Validate(Token[] tokens)
+    {
+        List<SyntaxError> errors = [];
+        int depth = 0;
+        Token? lastOpen = null;
+
+        foreach (Token token in tokens)
+        {
+            if (token is BeginBlockToken)
+            {
+                depth++;
+                lastOpen = token;
+            }
+            else if (token is EndBlockToken)
+            {
+                if (depth == 0)
+                {
+                    errors.Add(new SyntaxError("Unexpected '}'.", token.Line, token.Col));
+                }
+                else
+                {
+                    depth--;
+                }
+            }
+        }
+
+        if (depth > 0)
+            errors.Add(new SyntaxError("Unclosed '{'.", lastOpen!.Line, lastOpen.Col));
+
+        return errors.ToArray();
     }
 }

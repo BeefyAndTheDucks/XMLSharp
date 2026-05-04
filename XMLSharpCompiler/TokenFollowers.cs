@@ -3,6 +3,10 @@ namespace XMLSharpCompiler;
 public static class TokenFollowers
 {
     // token groups for your sanity
+
+    // Anything
+    private static readonly Type[] AfterAnything = [typeof(CloseParenToken), typeof(EndBlockToken)];
+
     // numbers
     private static readonly Type[] Numeric = [typeof(NumberToken), typeof(DecimalToken)];
 
@@ -12,16 +16,18 @@ public static class TokenFollowers
     // value in expressions
     private static readonly Type[] AllValues =
     [
+        ..AfterAnything,
         ..Numeric,
         ..Boolean,
         typeof(TextToken),
         typeof(IdentifierToken),
-        typeof(OpenParenToken)
+        typeof(OpenParenToken),
     ];
 
     // maths operators
     private static readonly Type[] MathOps =
     [
+        ..AfterAnything,
         typeof(AddToken),
         typeof(SubtractToken),
         typeof(MultiplyToken),
@@ -32,6 +38,7 @@ public static class TokenFollowers
     // comparison operators
     private static readonly Type[] ComparisonOps =
     [
+        ..AfterAnything,
         typeof(EqualsToken),
         typeof(NotEqualsToken),
         typeof(GreaterToken),
@@ -89,14 +96,15 @@ public static class TokenFollowers
         [typeof(NotToken)] = [.. Boolean, typeof(IdentifierToken), typeof(OpenParenToken)],
 
         // parens
-        [typeof(OpenParenToken)] = [.. AllValues, typeof(NotToken), typeof(OpenParenToken)],
+        [typeof(OpenParenToken)] = [.. AllValues, typeof(NotToken), typeof(OpenParenToken), typeof(CloseParenToken)],
         [typeof(CloseParenToken)] =
         [
             typeof(SemicolonToken),
             ..MathOps,
             ..ComparisonOps,
             ..LogicalOps,
-            typeof(CloseParenToken)
+            typeof(CloseParenToken),
+            typeof(BeginBlockToken)
         ],
 
         // keywords
