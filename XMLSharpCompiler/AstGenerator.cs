@@ -4,7 +4,7 @@ namespace XMLSharpCompiler;
 
 public class AstGenerator : IAstGenerator
 {
-    public AstNode[] Generate(Token[] tokens)
+    public AstNode Generate(Token[] tokens)
     {
         int index = 0;
         List<AstNode> nodes = [];
@@ -21,7 +21,7 @@ public class AstGenerator : IAstGenerator
             index++;
         }
 
-        return nodes.ToArray();
+        return new BlockNode(nodes.ToArray());
     }
     
     private static AstNode Parse(Token[] tokens, int currentIndex = 0)

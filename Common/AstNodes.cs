@@ -2,14 +2,16 @@ using System.Text;
 
 namespace Common;
 
-public abstract record AstNode(IROperation IrOperation)
+public abstract record AstNode
 {
     public sealed override string ToString() => this.GetTextForPrettyPrint();
 }
 
-public abstract record AstNodeWithLeftRight(AstNode LeftNode, AstNode RightNode, IROperation IrOperation) : AstNode(IrOperation);
+public abstract record AstNodeWithLeftRight(AstNode LeftNode, AstNode RightNode, IROperation IrOperation) : AstNode;
 
-public abstract record AstNodeWithSingleChild(AstNode Child, IROperation IrOperation) : AstNode(IrOperation);
+public abstract record AstNodeWithSingleChild(AstNode Child, IROperation IrOperation) : AstNode;
+
+public record BlockNode(AstNode[] Nodes) : AstNode;
 
 #region Numbers
 public record AddNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.Add);
@@ -18,22 +20,23 @@ public record MultiplyNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLef
 public record DivideNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.Div);
 public record ModuloNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.Mod);
 
-public record NumberNode(int Value) : AstNode(IROperation.Constant);
-public record DecimalNode(float Value) : AstNode(IROperation.Constant);
+public record NumberNode(int Value) : AstNode;
+public record DecimalNode(float Value) : AstNode;
+
 #endregion
 
 #region Variables
-public record CreateVariableNode(string Name, XMLSType Type, AstNode ValueNode) : AstNode(IROperation.CreateVar);
+public record CreateVariableNode(string Name, XMLSType Type, AstNode ValueNode) : AstNode;
 
-public record SetVariableNode(string Name, AstNode ValueNode) : AstNode(IROperation.SetVar);
+public record SetVariableNode(string Name, AstNode ValueNode) : AstNode;
 
-public record GetVariableNode(string Name) : AstNode(IROperation.GetVar);
+public record GetVariableNode(string Name) : AstNode;
 #endregion
 
 #region Boolean
 public record NotNode(AstNode Node) : AstNodeWithSingleChild(Node, IROperation.Not);
 
-public record BooleanNode(bool Value) : AstNode(IROperation.Constant);
+public record BooleanNode(bool Value) : AstNode;
 
 public record AndNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.And);
 
@@ -57,7 +60,7 @@ public record LessThanOrEqualNode(AstNode LeftNode, AstNode RightNode) : AstNode
 #endregion
 
 #region Text
-public record TextNode(string Value) : AstNode(IROperation.Constant);
+public record TextNode(string Value) : AstNode;
 
 public record ConcatNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.Concat);
 #endregion
@@ -72,6 +75,7 @@ public static class AstNodeExtensions
     {
         return node switch
         {
+            BlockNode block => block.GetTextForPrettyPrint(indentation),
             AstNodeWithLeftRight leftRightNode => leftRightNode.GetTextForPrettyPrint(indentation),
             AstNodeWithSingleChild singleChildNode => singleChildNode.GetTextForPrettyPrint(indentation),
             BooleanNode booleanNode => booleanNode.Value ? "true" : "false",
@@ -82,6 +86,36 @@ public static class AstNodeExtensions
             TextNode textNode => $"\"{textNode.Value}\"",
             _ => throw new ArgumentOutOfRangeException(nameof(node))
         };
+    }
+    
+    private static string GetTextForPrettyPrint(this BlockNode node, bool[]? indentation = null)
+    {
+        indentation ??= [];
+        var myIndentation = new List<bool>(indentation);
+        
+        StringBuilder builder = new();
+        builder.Append(node.GetType().Name);
+
+        for (int i = 0; i < node.Nodes.Length; i++)
+        {
+            bool last = i >= node.Nodes.Length - 1;
+            bool first = i == 0;
+            AstNode currentNode = node.Nodes[i];
+            
+            builder.Append('\n');
+        
+            foreach (bool indent in indentation)
+                builder.Append(indent ? "│   " : "    ");
+        
+            if (!first)
+                myIndentation.RemoveAt(myIndentation.Count - 1);
+            myIndentation.Add(!last);
+
+            builder.Append(last ? "└── " : "├── ");
+            builder.Append(currentNode.GetTextForPrettyPrint(myIndentation.ToArray()));
+        }
+        
+        return builder.ToString();
     }
     
     private static string GetTextForPrettyPrint(this AstNodeWithSingleChild node, bool[]? indentation = null)

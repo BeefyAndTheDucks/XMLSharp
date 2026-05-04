@@ -28,6 +28,8 @@ public static class OperationHandlers
         new AndHandler(),
         new OrHandler(),
         new XorHandler(),
+        new ConcatHandler(),
+        new NotHandler(),
     ];
 }
 
@@ -250,5 +252,25 @@ internal class XorHandler : IOperationHandler
         Dictionary<int, dynamic>? variables)
     {
         registers[instruction.Result] = registers[instruction.Operand1] ^ registers[instruction.Operand2];
+    }
+}
+
+internal class ConcatHandler : IOperationHandler
+{
+    public IROperation Operation => IROperation.Concat;
+    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic>? variables)
+    {
+        registers[instruction.Result] = registers[instruction.Operand1].ToString() + registers[instruction.Operand2].ToString();
+    }
+}
+
+internal class NotHandler : IOperationHandler
+{
+    public IROperation Operation => IROperation.Not;
+    public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
+        Dictionary<int, dynamic>? variables)
+    {
+        registers[instruction.Result] = !registers[instruction.Operand1];
     }
 }
