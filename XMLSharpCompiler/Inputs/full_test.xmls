@@ -58,3 +58,11 @@ if (less) {
 if (greater) {
     write "Greater!";
 }
+
+if (greater) {
+    write "Greater!";
+} else if (less){
+    write "Less!";
+} else {
+    write "Equal!";
+}
