@@ -1,4 +1,5 @@
 using System.CommandLine;
+using System.Text.Json;
 using Common;
 
 namespace XMLSharpInterpreter.Commands;
@@ -18,10 +19,21 @@ public class RunCommand : CommandBase
 
         // ir.ReadFromFile will need to return an actual error at some point
         IIR ir = new IR();
-        IRInstruction[] instructions = ir.ReadFromFile(inputFile);
 
-        Interpreter interpreter = new();
-        interpreter.Run(instructions);
+        try {
+            IRInstruction[]? instructions = ir.ReadFromFile(inputFile);
+
+            if (instructions is null || instructions.Length == 0)
+            {
+                Console.Error.WriteLine($"{inputFile.Name} is empty or malformed.");
+                Environment.Exit(1);
+            }
+            Interpreter interpreter = new();
+            interpreter.Run(instructions);
+        } catch (Exception)
+        {
+            Console.Error.WriteLine($"{inputFile.Name} is not valid IR JSON.");
+        }
     }
 
     protected override Command GetCommand()
