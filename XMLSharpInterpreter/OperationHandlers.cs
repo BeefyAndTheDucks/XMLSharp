@@ -209,3 +209,38 @@ internal class LessOrEqualHandler : IOperationHandler
         registers[instruction.Result] = (int)registers[instruction.Operand1] <= (int)registers[instruction.Operand2];
     }
 }
+// handle AND
+internal class AndHandler : IOperationHandler
+{
+    public IROperation Operation => IROperation.And;
+
+    public void Execute(IRInstruction instruction, Dictionary<int, object> registers, 
+        Dictionary<int, object>? variables)
+    {
+        registers[instruction.Result] = (bool)registers[instruction.Operand1] && (bool)registers[instruction.Operand2];
+    }
+}
+
+// handle OR
+internal class OrHandler : IOperationHandler
+{
+    public IROperation Operation => IROperation.Or;
+
+    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
+        Dictionary<int, object>? variables)
+    {
+        registers[instruction.Result] = (bool)registers[instruction.Operand1] || (bool)registers[instruction.Operand2];
+    }
+}
+
+// handle XOR
+internal class XorHandler : IOperationHandler
+{
+    public IROperation Operation => IROperation.Xor;
+
+    public void Execute(IRInstruction instruction, Dictionary<int, object> registers,
+        Dictionary<int, object>? variables)
+    {
+        registers[instruction.Result] = (bool)registers[instruction.Operand1] ^ (bool)registers[instruction.Operand2];
+    }
+}
