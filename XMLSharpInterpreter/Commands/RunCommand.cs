@@ -7,6 +7,7 @@ namespace XMLSharpInterpreter.Commands;
 public class RunCommand : CommandBase
 {
     private readonly Argument<FileInfo> _fileArg = new("file");
+    private readonly Option<bool> _verboseArg = new("--verbose", "-verbose", "-v", "--v");
     
     protected override void Invoke(ParseResult parseResult)
     {
@@ -29,7 +30,7 @@ public class RunCommand : CommandBase
                 Environment.Exit(1);
             }
             Interpreter interpreter = new();
-            interpreter.Run(instructions);
+            interpreter.Run(instructions, parseResult.GetValue(_verboseArg));
         } catch (Exception e)
         {
             Console.Error.WriteLine($"An error occured while running {inputFile.Name}: {e.Message}.");
@@ -40,7 +41,8 @@ public class RunCommand : CommandBase
     {
         return new Command("run", "Run a compiled XMLSharp file")
         {
-            _fileArg
+            _fileArg,
+            _verboseArg
         };
     }
 }

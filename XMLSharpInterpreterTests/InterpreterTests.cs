@@ -9,25 +9,17 @@ namespace XMLSharpInterpreterTests;
 [TestOf(typeof(Interpreter))]
 public class InterpreterTest
 {
-    private static Dictionary<int, object> Run(IRInstruction[] instructions)
+    private static (Dictionary<int, dynamic> Registers, Dictionary<int, dynamic> Variables) Run(IRInstruction[] instructions)
     {
         Interpreter interpreter = new();
-        interpreter.Run(instructions);
-        return interpreter.Registers;
-    }
-
-    private Interpreter _interpreter;
-
-    [SetUp]
-    public void SetUp()
-    {
-        _interpreter = new Interpreter();
+        interpreter.Run(instructions, true);
+        return (interpreter.Registers, interpreter.Variables);
     }
 
     [Test]
     public void TestConstant()
     {
-        Dictionary<int, object> registers = Run([
+        var (registers, _) = Run([
             new IRInstruction(IROperation.Constant, 0, 0, 0, 42)
         ]);
         Assert.That(registers[0], Is.EqualTo(42));
@@ -37,7 +29,7 @@ public class InterpreterTest
     public void TestAdd()
     {
         // t0 = 5, t1 = 3, t2 = t0 + t1
-        Dictionary<int, object> registers = Run([
+        var (registers, _) = Run([
             new IRInstruction(IROperation.Constant, 0, 0, 0, 5),
             new IRInstruction(IROperation.Constant, 0, 0, 1, 3),
             new IRInstruction(IROperation.Add,      0, 1, 2)
@@ -48,7 +40,7 @@ public class InterpreterTest
     [Test]
     public void TestSub()
     {
-        Dictionary<int, object> registers = Run([
+        var (registers, _) = Run([
             new IRInstruction(IROperation.Constant, 0, 0, 0, 10),
             new IRInstruction(IROperation.Constant, 0, 0, 1, 4),
             new IRInstruction(IROperation.Sub,      0, 1, 2)
@@ -59,22 +51,22 @@ public class InterpreterTest
     [Test]
     public void TestCreateVar()
     {
-        _interpreter.Run([
+        var (registers, variables) = Run([
             new IRInstruction(IROperation.Constant, 0, 0, 0, 42),
             new IRInstruction(IROperation.CreateVar, 0, 0, 0)
         ]);
-        Assert.That(_interpreter.Variables[0], Is.EqualTo(42));
-        Assert.That(_interpreter.Registers[0], Is.EqualTo(42));
+        Assert.That(variables[0], Is.EqualTo(42));
+        Assert.That(registers[0], Is.EqualTo(42));
     }
 
     [Test]
     public void TestGetVar()
     {
-        _interpreter.Run([
+        var (registers, _) = Run([
             new IRInstruction(IROperation.Constant, 0, 0, 0, 42),
             new IRInstruction(IROperation.CreateVar, 0, 0, 0),
             new IRInstruction(IROperation.GetVar, 0, 0, 1)
         ]);
-        Assert.That(_interpreter.Registers[1], Is.EqualTo(42));
+        Assert.That(registers[1], Is.EqualTo(42));
     }
 }

@@ -109,14 +109,13 @@ public class IR : IIR
                 
                 instructions.AddRange(GenInstructions(ifNode.Condition));
                 instructions.Add(new IRInstruction(IROperation.If, _temporaryValueIndex++, 0, 0));
-                instructions.Add(new IRInstruction(IROperation.Jump, hasIfFalse ? 2 : 1, 0, 0)); // Jump 2 steps ahead, that's where the IfTrue block starts.
+                instructions.Add(new IRInstruction(IROperation.Jump, 2, 0, 0)); // Jump 2 steps ahead, that's where the IfTrue block starts.
                 IRInstruction[] ifTrue = GenInstructions(ifNode.IfTrue);
                 IRInstruction[] ifFalse = [];
                 if (hasIfFalse)
                     ifFalse = GenInstructions(ifNode.IfFalse!);
                 
-                if (hasIfFalse)
-                    instructions.Add(new IRInstruction(IROperation.Jump, ifTrue.Length + 2, 0, 0)); // Jump to after the IfTrue block.
+                instructions.Add(new IRInstruction(IROperation.Jump, ifTrue.Length + (hasIfFalse ? 2 : 1), 0, 0)); // Jump to after the IfTrue block.
                 
                 instructions.AddRange(ifTrue);
                 if (hasIfFalse)
