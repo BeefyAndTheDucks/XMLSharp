@@ -8,7 +8,7 @@ public interface IOperationHandler
     int Execute(
         IRInstruction instruction, 
         Dictionary<int, dynamic> registers, 
-        Dictionary<int, dynamic>? variables = null
-        );
+        Dictionary<int, dynamic> variables,
+        bool verboseMode);
 
 }

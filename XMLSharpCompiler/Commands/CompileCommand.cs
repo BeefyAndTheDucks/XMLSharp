@@ -10,7 +10,7 @@ public class CompileCommand : CommandBase
     private readonly Argument<FileInfo> _fileArg = new("file");
     private readonly Option<FileInfo> _outputFileArg = new("output");
     
-    private readonly Option<bool> _verboseArg = new("--verbose", "-v");
+    private readonly Option<bool> _verboseArg = new("--verbose", "-verbose", "-v", "--v");
     private readonly Option<bool> _ignoreErrorsArg = new("--ignore-errors", "-i", "-ignore-errs", "-ierr");
 
     protected override void Invoke(ParseResult parseResult)
