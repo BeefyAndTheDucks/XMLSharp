@@ -11,6 +11,7 @@ public class CompileCommand : CommandBase
     private readonly Option<FileInfo> _outputFileArg = new("output");
     
     private readonly Option<bool> _verboseArg = new("--verbose", "-v");
+    private readonly Option<bool> _ignoreErrorsArg = new("--ignore-errors", "-i", "-ignore-errs", "-ierr");
 
     protected override void Invoke(ParseResult parseResult)
     {
@@ -37,8 +38,10 @@ public class CompileCommand : CommandBase
         
         if (verbose)
             tokens.PrettyPrint();
-        
-        SyntaxError[] errors = validator.Validate(tokens);
+
+        SyntaxError[] errors = [];
+        if (!parseResult.GetValue(_ignoreErrorsArg))
+            errors = validator.Validate(tokens);
 
         if (errors.Length > 0)
         {
@@ -60,7 +63,7 @@ public class CompileCommand : CommandBase
         AstNode ast = astGenerator.Generate(tokens);
         
         if (verbose)
-            Console.WriteLine(ast);
+            ast.PrettyPrint();
         
         IIR irGenerator = new IR();
         IRInstruction[] instructions = irGenerator.FromAst(ast);
@@ -85,7 +88,8 @@ public class CompileCommand : CommandBase
         {
             _fileArg,
             _outputFileArg,
-            _verboseArg
+            _verboseArg,
+            _ignoreErrorsArg
         };
     }
 }

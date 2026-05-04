@@ -29,7 +29,7 @@ public class AstGeneratorTests
             )
         );
         
-        Assert.That(ast, Is.EqualTo([expected]));
+        Assert.That(ast, Is.EqualTo(expected));
     }
 
     [Test]
@@ -51,7 +51,7 @@ public class AstGeneratorTests
             )
         );
         
-        Assert.That(ast, Is.EqualTo([expected]));
+        Assert.That(ast, Is.EqualTo(expected));
     }
 
     [Test]
@@ -66,7 +66,7 @@ public class AstGeneratorTests
         
         AstNode expected = new SetVariableNode("foo", new NumberNode(2));
         
-        Assert.That(ast, Is.EqualTo([expected]));   
+        Assert.That(ast, Is.EqualTo(expected));   
     }
     
     [Test]
@@ -82,7 +82,7 @@ public class AstGeneratorTests
         
         AstNode expected = new SetVariableNode("foo", new AddNode(new NumberNode(2), new NumberNode(2)));
         
-        Assert.That(ast, Is.EqualTo([expected]));  
+        Assert.That(ast, Is.EqualTo(expected));  
     }
     
     [Test]
@@ -98,7 +98,7 @@ public class AstGeneratorTests
         
         AstNode expected = new SetVariableNode("foo", new AddNode(new NumberNode(2), new GetVariableNode("bar")));
         
-        Assert.That(ast, Is.EqualTo([expected])); 
+        Assert.That(ast, Is.EqualTo(expected)); 
     }
     
     [Test]
@@ -117,7 +117,7 @@ public class AstGeneratorTests
         AstNode expected = new SetVariableNode("foo",
             new AddNode(new AddNode(new NumberNode(1), new GetVariableNode("bar")), new NumberNode(3)));
         
-        Assert.That(ast, Is.EqualTo([expected]));
+        Assert.That(ast, Is.EqualTo(expected));
     }
 
     [Test]
@@ -150,7 +150,7 @@ public class AstGeneratorTests
             )
         );
         
-        Assert.That(ast, Is.EqualTo([expected]));
+        Assert.That(ast, Is.EqualTo(expected));
     }
     
     [Test]
@@ -163,7 +163,7 @@ public class AstGeneratorTests
         
         var ast = new AstGenerator().Generate(tokenInput);
         
-        Assert.That(ast, Is.EqualTo([new SetVariableNode("foo", new GetVariableNode("bar"))]));
+        Assert.That(ast, Is.EqualTo(new SetVariableNode("foo", new GetVariableNode("bar"))));
     }
 
     [Test]
@@ -176,7 +176,7 @@ public class AstGeneratorTests
 
         var ast = new AstGenerator().Generate(tokenInput);
         
-        Assert.That(ast, Is.EqualTo([new SetVariableNode("foo", new NotNode(new BooleanNode(true)))]));
+        Assert.That(ast, Is.EqualTo(new SetVariableNode("foo", new NotNode(new BooleanNode(true)))));
     }
 
     [Test]
@@ -189,7 +189,7 @@ public class AstGeneratorTests
 
         var ast = new AstGenerator().Generate(tokenInput);
         
-        Assert.That(ast, Is.EqualTo([new SetVariableNode("foo", new AndNode(new BooleanNode(false), new BooleanNode(true)))]));
+        Assert.That(ast, Is.EqualTo(new SetVariableNode("foo", new AndNode(new BooleanNode(false), new BooleanNode(true)))));
     }
 
     [Test]
@@ -202,7 +202,7 @@ public class AstGeneratorTests
 
         var ast = new AstGenerator().Generate(tokenInput);
         
-        Assert.That(ast, Is.EqualTo([new SetVariableNode("foo", new OrNode(new BooleanNode(false), new BooleanNode(true)))]));
+        Assert.That(ast, Is.EqualTo(new SetVariableNode("foo", new OrNode(new BooleanNode(false), new BooleanNode(true)))));
     }
 
     [Test]
@@ -215,7 +215,7 @@ public class AstGeneratorTests
 
         var ast = new AstGenerator().Generate(tokenInput);
         
-        Assert.That(ast, Is.EqualTo([new SetVariableNode("foo", new XorNode(new BooleanNode(false), new BooleanNode(true)))]));
+        Assert.That(ast, Is.EqualTo(new SetVariableNode("foo", new XorNode(new BooleanNode(false), new BooleanNode(true)))));
     }
 
     [Test]
@@ -228,7 +228,7 @@ public class AstGeneratorTests
 
         var ast = new AstGenerator().Generate(tokenInput);
         
-        Assert.That(ast, Is.EqualTo([new SetVariableNode("foo", new EqualNode(new BooleanNode(false), new BooleanNode(true)))]));
+        Assert.That(ast, Is.EqualTo(new SetVariableNode("foo", new EqualNode(new BooleanNode(false), new BooleanNode(true)))));
     }
 
     [Test]
@@ -241,7 +241,7 @@ public class AstGeneratorTests
 
         var ast = new AstGenerator().Generate(tokenInput);
         
-        Assert.That(ast, Is.EqualTo([new SetVariableNode("foo", new EqualNode(new NumberNode(5), new NumberNode(7)))]));
+        Assert.That(ast, Is.EqualTo(new SetVariableNode("foo", new EqualNode(new NumberNode(5), new NumberNode(7)))));
     }
 
     [Test]
@@ -254,7 +254,7 @@ public class AstGeneratorTests
 
         var ast = new AstGenerator().Generate(tokenInput);
         
-        Assert.That(ast, Is.EqualTo([new SetVariableNode("foo", new NotEqualNode(new BooleanNode(false), new BooleanNode(true)))]));
+        Assert.That(ast, Is.EqualTo(new SetVariableNode("foo", new NotEqualNode(new BooleanNode(false), new BooleanNode(true)))));
     }
 
     [Test]
@@ -267,7 +267,7 @@ public class AstGeneratorTests
 
         var ast = new AstGenerator().Generate(tokenInput);
         
-        Assert.That(ast, Is.EqualTo([new SetVariableNode("foo", new NotEqualNode(new NumberNode(5), new NumberNode(7)))]));
+        Assert.That(ast, Is.EqualTo(new SetVariableNode("foo", new NotEqualNode(new NumberNode(5), new NumberNode(7)))));
     }
     
     
@@ -281,7 +281,7 @@ public class AstGeneratorTests
 
         var ast = new AstGenerator().Generate(tokenInput);
         
-        Assert.That(ast, Is.EqualTo([new SetVariableNode("foo", new GreaterThanNode(new NumberNode(5), new NumberNode(7)))]));
+        Assert.That(ast, Is.EqualTo(new SetVariableNode("foo", new GreaterThanNode(new NumberNode(5), new NumberNode(7)))));
     }
     
     [Test]
@@ -294,7 +294,7 @@ public class AstGeneratorTests
 
         var ast = new AstGenerator().Generate(tokenInput);
         
-        Assert.That(ast, Is.EqualTo([new SetVariableNode("foo", new LessThanNode(new NumberNode(5), new NumberNode(7)))]));
+        Assert.That(ast, Is.EqualTo(new SetVariableNode("foo", new LessThanNode(new NumberNode(5), new NumberNode(7)))));
     }
     
     [Test]
@@ -307,7 +307,7 @@ public class AstGeneratorTests
 
         var ast = new AstGenerator().Generate(tokenInput);
         
-        Assert.That(ast, Is.EqualTo([new SetVariableNode("foo", new GreaterThanOrEqualNode(new NumberNode(5), new NumberNode(7)))]));
+        Assert.That(ast, Is.EqualTo(new SetVariableNode("foo", new GreaterThanOrEqualNode(new NumberNode(5), new NumberNode(7)))));
     }
     
     [Test]
@@ -320,7 +320,7 @@ public class AstGeneratorTests
 
         var ast = new AstGenerator().Generate(tokenInput);
         
-        Assert.That(ast, Is.EqualTo([new SetVariableNode("foo", new LessThanOrEqualNode(new NumberNode(5), new NumberNode(7)))]));
+        Assert.That(ast, Is.EqualTo(new SetVariableNode("foo", new LessThanOrEqualNode(new NumberNode(5), new NumberNode(7)))));
     }
 
     [Test]
@@ -333,7 +333,7 @@ public class AstGeneratorTests
         
         var ast = new AstGenerator().Generate(tokenInput);
         
-        Assert.That(ast, Is.EqualTo([new SetVariableNode("foo", new SubtractNode(new NumberNode(5), new NumberNode(7)))]));
+        Assert.That(ast, Is.EqualTo(new SetVariableNode("foo", new SubtractNode(new NumberNode(5), new NumberNode(7)))));
     }
     
     [Test]
@@ -346,7 +346,7 @@ public class AstGeneratorTests
         
         var ast = new AstGenerator().Generate(tokenInput);
         
-        Assert.That(ast, Is.EqualTo([new SetVariableNode("foo", new MultiplyNode(new NumberNode(5), new NumberNode(7)))]));
+        Assert.That(ast, Is.EqualTo(new SetVariableNode("foo", new MultiplyNode(new NumberNode(5), new NumberNode(7)))));
     }
 
     [Test]
@@ -359,7 +359,7 @@ public class AstGeneratorTests
         
         var ast = new AstGenerator().Generate(tokenInput);
         
-        Assert.That(ast, Is.EqualTo([new SetVariableNode("foo", new DivideNode(new NumberNode(5), new NumberNode(7)))]));   
+        Assert.That(ast, Is.EqualTo(new SetVariableNode("foo", new DivideNode(new NumberNode(5), new NumberNode(7)))));   
     }
     
     [Test]
@@ -372,7 +372,7 @@ public class AstGeneratorTests
         
         var ast = new AstGenerator().Generate(tokenInput);
         
-        Assert.That(ast, Is.EqualTo([new SetVariableNode("foo", new ModuloNode(new NumberNode(5), new NumberNode(7)))]));  
+        Assert.That(ast, Is.EqualTo(new SetVariableNode("foo", new ModuloNode(new NumberNode(5), new NumberNode(7)))));  
     }
     
     [Test]
@@ -385,7 +385,7 @@ public class AstGeneratorTests
         
         var ast = new AstGenerator().Generate(tokenInput);
         
-        Assert.That(ast, Is.EqualTo([new SetVariableNode("foo", new TextNode("Hello, world!"))])); 
+        Assert.That(ast, Is.EqualTo(new SetVariableNode("foo", new TextNode("Hello, world!")))); 
     }
     
     [Test]
@@ -398,7 +398,7 @@ public class AstGeneratorTests
         
         var ast = new AstGenerator().Generate(tokenInput);
         
-        Assert.That(ast, Is.EqualTo([new SetVariableNode("foo", new ConcatNode(new ConcatNode(new TextNode("Hello, "), new GetVariableNode("world")), new TextNode("!")))]));
+        Assert.That(ast, Is.EqualTo(new SetVariableNode("foo", new ConcatNode(new ConcatNode(new TextNode("Hello, "), new GetVariableNode("world")), new TextNode("!")))));
     }
 
     [Test]
@@ -462,6 +462,6 @@ public class AstGeneratorTests
         
         var ast = new AstGenerator().Generate(tokenInput);
         
-        Assert.That(ast, Is.EqualTo([new PrintNode(new NumberNode(1))]));
+        Assert.That(ast, Is.EqualTo(new PrintNode(new NumberNode(1))));
     }
 }
