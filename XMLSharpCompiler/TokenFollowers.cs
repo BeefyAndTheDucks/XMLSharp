@@ -32,7 +32,14 @@ public static class TokenFollowers
         typeof(SubtractToken),
         typeof(MultiplyToken),
         typeof(DivideToken),
-        typeof(ModuloToken)
+        typeof(ModuloToken),
+        typeof(IncrementToken),
+        typeof(DecrementToken),
+        typeof(IncrementByToken),
+        typeof(DecrementByToken),
+        typeof(MultiplyByToken),
+        typeof(DivideByToken),
+        typeof(ModuloByToken),
     ];
 
     // comparison operators
