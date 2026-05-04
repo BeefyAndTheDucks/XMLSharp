@@ -19,6 +19,7 @@ public record DivideNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftR
 public record ModuloNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.Mod);
 
 public record NumberNode(int Value) : AstNode(IROperation.Constant);
+public record DecimalNode(float Value) : AstNode(IROperation.Constant);
 #endregion
 
 #region Variables
