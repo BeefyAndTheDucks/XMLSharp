@@ -153,5 +153,5 @@ public enum IROperation
     
     Jump, // OperationIndex += Operand1
     
-    If, // If(Value(Operand1)) Jump(OperationIndex + 1) else Jump(OperationIndex + 2)     (If Value(Operand1) is number, it should be Value(Operand1) != 0, text should be !string.IsNullOrEmpty(Value(Operand1)))
+    If, // If(Value(Operand1)) OperationIndex += 1 else OperationIndex += 2     (If Value(Operand1) is number, it should be Value(Operand1) != 0, text should be !string.IsNullOrEmpty(Value(Operand1)))
 }
