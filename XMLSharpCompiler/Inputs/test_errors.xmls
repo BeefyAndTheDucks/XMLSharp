@@ -4,10 +4,4 @@ foo = 5;
 
 $ String reassignment
 text bar = "One";
-bar = "Two";
-
-if (two_pi > 5) {
-    write "Pi is greater than 5!";
-} else {
-    write "Pi is less than 5!";
-}
+bar = "Two"
