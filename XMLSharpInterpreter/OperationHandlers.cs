@@ -225,7 +225,7 @@ internal class AndHandler : IOperationHandler
     public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers, 
         Dictionary<int, dynamic>? variables)
     {
-        registers[instruction.Result] = (bool)registers[instruction.Operand1] && (bool)registers[instruction.Operand2];
+        registers[instruction.Result] = registers[instruction.Operand1] && registers[instruction.Operand2];
     }
 }
 
@@ -237,7 +237,7 @@ internal class OrHandler : IOperationHandler
     public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic>? variables)
     {
-        registers[instruction.Result] = (bool)registers[instruction.Operand1] || (bool)registers[instruction.Operand2];
+        registers[instruction.Result] = registers[instruction.Operand1] || registers[instruction.Operand2];
     }
 }
 
@@ -249,6 +249,6 @@ internal class XorHandler : IOperationHandler
     public void Execute(IRInstruction instruction, Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic>? variables)
     {
-        registers[instruction.Result] = (bool)registers[instruction.Operand1] ^ (bool)registers[instruction.Operand2];
+        registers[instruction.Result] = registers[instruction.Operand1] ^ registers[instruction.Operand2];
     }
 }
