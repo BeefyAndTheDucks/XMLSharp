@@ -50,6 +50,27 @@ public class AstGenerator : IAstGenerator
                 currentIndex++;
                 return new PrintNode(ParseExpression(tokens.Skip(currentIndex).ToArray()));
             }
+            
+            // Control-flow
+            case IfToken:
+            {
+                int blockBeginning = FindBlockBeginningIndex(tokens, currentIndex);
+                AstNode condition = ParseExpression(tokens.Skip(currentIndex + 1).Take(blockBeginning - currentIndex - 1).ToArray());
+                
+                int blockEnd = FindBlockEndIndex(tokens, blockBeginning - 1);
+                Console.WriteLine($"BlockBegin: {blockBeginning}, Token: {tokens[blockBeginning]}");
+                Console.WriteLine($"BlockEnd: {blockEnd}, Token: {tokens[blockEnd]}");
+
+                if (tokens[blockEnd + 1] is ElseToken)
+                {
+                    int elseBlockBeginning = FindBlockBeginningIndex(tokens, blockEnd + 1);
+                    int elseBlockEnd = FindBlockEndIndex(tokens, elseBlockBeginning - 1);
+                    Console.WriteLine($"ElseBlockBegin: {elseBlockBeginning}, Token: {tokens[elseBlockBeginning]}");
+                    Console.WriteLine($"ElseBlockEnd: {elseBlockEnd}, Token: {tokens[elseBlockEnd]}");
+                }
+                
+                throw new NotImplementedException();
+            }
         }
         
         throw new UnexpectedTokenException(currentToken);
@@ -62,6 +83,42 @@ public class AstGenerator : IAstGenerator
         return leastPrecedence == -1
             ? FirstPossibleNode(tokens)
             : ParseOperation(tokens, leastPrecedence);
+    }
+
+    internal static int FindBlockBeginningIndex(Token[] tokens, int startIndex)
+    {
+        int index = startIndex;
+        while (index < tokens.Length && tokens[index] is not EOFToken)
+        {
+            if (tokens[index] is BeginBlockToken)
+                return index;
+            index++;
+        }
+        return -1;
+    }
+    
+    internal static int FindBlockEndIndex(Token[] tokens, int startIndex)
+    {
+        int index = startIndex;
+        int blockDepth = 0;
+        while (index < tokens.Length && tokens[index] is not EOFToken)
+        {
+            if (tokens[index] is BeginBlockToken)
+                blockDepth++;
+            if (tokens[index] is EndBlockToken)
+            {
+                blockDepth--;
+                switch (blockDepth)
+                {
+                    case 0:
+                        return index;
+                    case < 0:
+                        throw new InvalidOperationException("Block depth cannot be negative.");
+                }
+            }
+            index++;
+        }
+        return -1;
     }
 
     private static AstNode FirstPossibleNode(Token[] tokens)

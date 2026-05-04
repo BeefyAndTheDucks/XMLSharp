@@ -70,26 +70,39 @@ public record ConcatNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftR
 public record PrintNode(AstNode Value) : AstNodeWithSingleChild(Value, IROperation.Print);
 #endregion
 
+#region Control Flow
+public record IfNode(AstNode Condition, AstNode IfTrue, AstNode? IfFalse) : AstNode;
+#endregion
+
 public static class AstNodeExtensions
 {
-    public static string GetTextForPrettyPrint(this AstNode node, bool[]? indentation = null)
+    extension(AstNode node)
     {
-        return node switch
+        public void PrettyPrint()
         {
-            BlockNode block => block.GetTextForPrettyPrint(indentation),
-            AstNodeWithLeftRight leftRightNode => leftRightNode.GetTextForPrettyPrint(indentation),
-            AstNodeWithSingleChild singleChildNode => singleChildNode.GetTextForPrettyPrint(indentation),
-            BooleanNode booleanNode => booleanNode.Value ? "true" : "false",
-            CreateVariableNode createVariableNode => createVariableNode.GetTextForPrettyPrint(indentation),
-            GetVariableNode getVariableNode => $"{nameof(GetVariableNode)} \"{getVariableNode.Name}\"",
-            NumberNode numberNode => numberNode.Value.ToString(),
-            DecimalNode decimalNode => decimalNode.Value.ToString(CultureInfo.InvariantCulture),
-            SetVariableNode setVariableNode => setVariableNode.GetTextForPrettyPrint(indentation),
-            TextNode textNode => $"\"{textNode.Value}\"",
-            _ => throw new ArgumentOutOfRangeException(nameof(node))
-        };
+            Console.WriteLine(node.GetTextForPrettyPrint());
+        }
+
+        public string GetTextForPrettyPrint(bool[]? indentation = null)
+        {
+            return node switch
+            {
+                BlockNode block => block.GetTextForPrettyPrint(indentation),
+                AstNodeWithLeftRight leftRightNode => leftRightNode.GetTextForPrettyPrint(indentation),
+                AstNodeWithSingleChild singleChildNode => singleChildNode.GetTextForPrettyPrint(indentation),
+                BooleanNode booleanNode => booleanNode.Value ? "true" : "false",
+                CreateVariableNode createVariableNode => createVariableNode.GetTextForPrettyPrint(indentation),
+                GetVariableNode getVariableNode => $"{nameof(GetVariableNode)} \"{getVariableNode.Name}\"",
+                NumberNode numberNode => numberNode.Value.ToString(),
+                DecimalNode decimalNode => decimalNode.Value.ToString(CultureInfo.InvariantCulture),
+                SetVariableNode setVariableNode => setVariableNode.GetTextForPrettyPrint(indentation),
+                TextNode textNode => $"\"{textNode.Value}\"",
+                IfNode ifNode => new BlockNode([ifNode.Condition, ifNode.IfTrue, ifNode.IfFalse ?? new TextNode("No IfFalse.")]).GetTextForPrettyPrint(indentation),
+                _ => throw new ArgumentOutOfRangeException(nameof(node))
+            };
+        }
     }
-    
+
     private static string GetTextForPrettyPrint(this BlockNode node, bool[]? indentation = null)
     {
         indentation ??= [];
