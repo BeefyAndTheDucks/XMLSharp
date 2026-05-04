@@ -74,3 +74,9 @@ if (greater) {
 } else {
     write "Equal!";
 }
+
+number i = 0;
+while (i < 10) {
+    write i;
+    i++;
+}

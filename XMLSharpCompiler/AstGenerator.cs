@@ -91,6 +91,19 @@ public class AstGenerator : IAstGenerator
                 
                 return new IfNode(condition, block, elseBlock);
             }
+
+            case WhileToken:
+            {
+                int blockBeginning = FindBlockBeginningIndex(tokens, currentIndex);
+                AstNode condition = ParseExpression(tokens.Skip(currentIndex + 1).Take(blockBeginning - currentIndex - 1).ToArray());
+                
+                int blockEnd = FindBlockEndIndex(tokens, blockBeginning - 1);
+                AstNode block = ParseBlock(tokens.Skip(blockBeginning + 1).Take(blockEnd - blockBeginning).ToArray());
+
+                endIndex = blockEnd;
+                
+                return new WhileNode(condition, block);
+            }
         }
         
         throw new UnexpectedTokenException(currentToken);

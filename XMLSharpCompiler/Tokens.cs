@@ -15,6 +15,8 @@ public record IfToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, C
 public record ElseToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
 public record ElifToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
 
+public record WhileToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+
 // matched by pattern
 public record AssignmentToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
 

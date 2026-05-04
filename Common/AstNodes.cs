@@ -8,7 +8,9 @@ public abstract record AstNode
     public sealed override string ToString() => this.GetTextForPrettyPrint();
 }
 
-public abstract record AstNodeWithLeftRight(AstNode LeftNode, AstNode RightNode, IROperation IrOperation) : AstNode;
+public abstract record AstNodeWithTwoChildren(AstNode LeftNode, AstNode RightNode) : AstNode;
+
+public abstract record AstNodeWithLeftRight(AstNode LeftNode, AstNode RightNode, IROperation IrOperation) : AstNodeWithTwoChildren(LeftNode, RightNode);
 
 public abstract record AstNodeWithSingleChild(AstNode Child, IROperation IrOperation) : AstNode;
 
@@ -72,6 +74,8 @@ public record PrintNode(AstNode Value) : AstNodeWithSingleChild(Value, IROperati
 
 #region Control Flow
 public record IfNode(AstNode Condition, AstNode IfTrue, AstNode? IfFalse) : AstNode;
+
+public record WhileNode(AstNode Condition, AstNode Loop) : AstNodeWithTwoChildren(Condition, Loop);
 #endregion
 
 public static class AstNodeExtensions
@@ -88,7 +92,7 @@ public static class AstNodeExtensions
             return node switch
             {
                 BlockNode block => block.GetTextForPrettyPrint(indentation),
-                AstNodeWithLeftRight leftRightNode => leftRightNode.GetTextForPrettyPrint(indentation),
+                AstNodeWithTwoChildren leftRightNode => leftRightNode.GetTextForPrettyPrint(indentation),
                 AstNodeWithSingleChild singleChildNode => singleChildNode.GetTextForPrettyPrint(indentation),
                 BooleanNode booleanNode => booleanNode.Value ? "true" : "false",
                 CreateVariableNode createVariableNode => createVariableNode.GetTextForPrettyPrint(indentation),
@@ -203,7 +207,7 @@ public static class AstNodeExtensions
         return builder.ToString();
     }
 
-    private static string GetTextForPrettyPrint(this AstNodeWithLeftRight node, bool[]? indentation = null)
+    private static string GetTextForPrettyPrint(this AstNodeWithTwoChildren node, bool[]? indentation = null)
     {
         indentation ??= [];
         var myIndentation = new List<bool>(indentation);

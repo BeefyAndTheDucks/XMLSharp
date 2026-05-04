@@ -17,5 +17,7 @@ public static class Keywords
         { "if", () => new IfToken() },
         { "else", () => new ElseToken() },
         { "elif", () => new ElifToken() },
+        
+        { "while", () => new WhileToken() },
     };
 }

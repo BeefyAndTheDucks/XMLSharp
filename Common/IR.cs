@@ -124,6 +124,24 @@ public class IR : IIR
                 instructions.AddRange(ifFalse);
                 
                 break;
+            
+            case WhileNode whileNode:
+                var conditionInstructions = GenInstructions(whileNode.Condition);
+                instructions.AddRange(conditionInstructions);
+                instructions.Add(new IRInstruction(IROperation.If, _temporaryValueIndex++, 0, 0));
+                instructions.Add(new IRInstruction(IROperation.Jump, 2, 0, 0));
+
+                var loopedInstructions = GenInstructions(whileNode.Loop);
+                
+                instructions.Add(new IRInstruction(IROperation.Jump, loopedInstructions.Length + 2, 0, 0));
+                
+                instructions.AddRange(loopedInstructions);
+                
+                instructions.Add(new IRInstruction(IROperation.Jump, -loopedInstructions.Length - conditionInstructions.Length - 3, 0, 0));
+                break;
+            
+            default:
+                throw new IndexOutOfRangeException(node.GetType().Name + " is not supported yet by the IR.");
         }
         
         return instructions.ToArray();
