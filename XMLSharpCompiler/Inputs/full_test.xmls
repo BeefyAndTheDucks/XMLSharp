@@ -81,7 +81,7 @@ while (i < 10) {
     i++;
 }
 
-for number j = 0; j < 10; j++ {
+for (number j = 0; j < 10; j++) {
     write "J is " # j;
 }
 
