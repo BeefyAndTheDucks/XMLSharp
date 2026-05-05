@@ -72,8 +72,7 @@ public static class TokenFollowers
             ..MathOps,
             ..ComparisonOps,
             ..LogicalOps,
-            typeof(ConcatToken),
-            ..AfterAnything
+            typeof(ConcatToken)
         ],
 
         [typeof(YesToken)] = [typeof(SemicolonToken), .. LogicalOps, typeof(EqualsToken), typeof(NotEqualsToken), .. AfterAnything],

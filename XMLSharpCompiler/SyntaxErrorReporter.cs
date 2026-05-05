@@ -1,18 +1,18 @@
+using Common;
+
 namespace XMLSharpCompiler;
 
 public class ErrorReporter
 {
-    public void Report(string source, SyntaxError[] errors)
+    public void Report(string source, Diagnostic[] errors)
     {
         string[] lines = source.Replace("\r\n", "\n").Split('\n');
 
-        ConsoleColor red = ConsoleColor.Red;
-        ConsoleColor darkRed = ConsoleColor.DarkRed;
 
-        foreach (SyntaxError error in errors)
+        foreach (Diagnostic error in errors)
         {
-            Console.ForegroundColor = red;
-            Console.Error.WriteLine($"Syntax error at {error.Line}:{error.Col}");
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.Error.WriteLine($"{error.Type} error at {error.Line}:{error.Col}");
             Console.ResetColor();
 
             if (error.Line > 0 && error.Line <= lines.Length)
@@ -30,9 +30,9 @@ public class ErrorReporter
             }
         }
 
-        Console.BackgroundColor = darkRed;
+        Console.BackgroundColor = ConsoleColor.DarkRed;
         string s = errors.Length == 1 ? "" : "s";
-        Console.Error.WriteLine($" {errors.Length} syntax error{s} found. Compilation aborted. ");
+        Console.Error.WriteLine($" {errors.Length} error{s} found. Compilation aborted. ");
         Console.ResetColor();
     }
 }

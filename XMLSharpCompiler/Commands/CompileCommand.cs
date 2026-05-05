@@ -43,7 +43,7 @@ public class CompileCommand : CommandBase
             tokens.PrettyPrint();
         }
 
-        SyntaxError[] errors = [];
+        Diagnostic[] errors = [];
         if (!parseResult.GetValue(_ignoreErrorsArg))
             errors = validator.Validate(tokens);
 

@@ -1,4 +1,5 @@
 using static XMLSharpCompiler.TokenFollowers;
+using Common;
 
 namespace XMLSharpCompiler;
 
@@ -16,12 +17,13 @@ public static class SyntaxRules
 // rule for variable declaration
 public class VariableDeclarationRule : ITokenRule
 {
-    public SyntaxError? Validate(Token[] tokens, int index)
+    public Diagnostic? Validate(Token[] tokens, int index)
     {
         if (tokens[index] is not VariableDefinitionToken) return null;
 
         if (index + 1 >= tokens.Length || tokens[index + 1] is not IdentifierToken identifierToken)
-            return new SyntaxError(
+            return new Diagnostic(
+                XMLSErrorType.SyntaxError,
                 "Expected identifier after type.", 
                 tokens[index].Line, 
                 tokens[index].Col, 
@@ -29,7 +31,8 @@ public class VariableDeclarationRule : ITokenRule
                 );
 
         if (index + 2 >= tokens.Length || tokens[index + 2] is not AssignmentToken)
-            return new SyntaxError(
+            return new Diagnostic(
+                XMLSErrorType.SyntaxError,
                 $"Expected '=' after '{identifierToken.Name}'.", 
                 tokens[index + 1].Line, 
                 tokens[index + 1].Col, 
@@ -43,7 +46,7 @@ public class VariableDeclarationRule : ITokenRule
 // rule for unexpected tokens
 public class UnexpectedTokenRule : ITokenRule
 {
-    public SyntaxError? Validate(Token[] statement, int index)
+    public Diagnostic? Validate(Token[] statement, int index)
     {   
         if (index + 1 >= statement.Length) return null;
         Token current = statement[index];
@@ -52,18 +55,18 @@ public class UnexpectedTokenRule : ITokenRule
         if (!ValidFollowers.TryGetValue(current.GetType(), out HashSet<Type>? followers)) return null;
         if (followers.Contains(next.GetType())) return null;
         if (next is IdentifierToken or VariableDefinitionToken or EOFToken)
-            return new SyntaxError("Missing ';' after statement.", current.Line, current.Col, current.Length);
+            return new Diagnostic(XMLSErrorType.SyntaxError, "Missing ';' after statement.", current.Line, current.Col, current.Length);
 
-        return new SyntaxError($"Unexpected token '{next.GetType().Name}'.", next.Line, next.Col, next.Length);
+        return new Diagnostic(XMLSErrorType.SyntaxError, $"Unexpected token '{next.GetType().Name}'.", next.Line, next.Col, next.Length);
     }
 }
 
 // rule for matching parens
 public class ParenMatchRule : IBlockRule
 {
-    public SyntaxError[] Validate(Token[] tokens)
+    public Diagnostic[] Validate(Token[] tokens)
     {
-        List<SyntaxError> errors = [];
+        List<Diagnostic> errors = [];
         int depth = 0;
         Token? lastOpen = null;
 
@@ -78,7 +81,7 @@ public class ParenMatchRule : IBlockRule
             {
                 if (depth == 0)
                 {
-                    errors.Add(new SyntaxError("Unexpected ')'.", token.Line, token.Col, token.Length));
+                    errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, "Unexpected ')'.", token.Line, token.Col, token.Length));
                 }
                 else
                 {
@@ -88,7 +91,7 @@ public class ParenMatchRule : IBlockRule
         }
 
         if (depth > 0)
-            errors.Add(new SyntaxError("Unclosed '('.", lastOpen!.Line, lastOpen.Col, lastOpen.Length));
+            errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, "Unclosed '('.", lastOpen!.Line, lastOpen.Col, lastOpen.Length));
 
         return errors.ToArray();
     }
@@ -97,9 +100,9 @@ public class ParenMatchRule : IBlockRule
 // rule for matching braces.
 public class BraceMatchRule : IBlockRule
 {
-    public SyntaxError[] Validate(Token[] tokens)
+    public Diagnostic[] Validate(Token[] tokens)
     {
-        List<SyntaxError> errors = [];
+        List<Diagnostic> errors = [];
         int depth = 0;
         Token? lastOpen = null;
 
@@ -114,7 +117,7 @@ public class BraceMatchRule : IBlockRule
             {
                 if (depth == 0)
                 {
-                    errors.Add(new SyntaxError("Unexpected '}'.", token.Line, token.Col, token.Length));
+                    errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, "Unexpected '}'.", token.Line, token.Col, token.Length));
                 }
                 else
                 {
@@ -124,7 +127,7 @@ public class BraceMatchRule : IBlockRule
         }
 
         if (depth > 0)
-            errors.Add(new SyntaxError("Unclosed '{'.", lastOpen!.Line, lastOpen.Col, lastOpen.Length));
+            errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, "Unclosed '{'.", lastOpen!.Line, lastOpen.Col, lastOpen.Length));
 
         return errors.ToArray();
     }

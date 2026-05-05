@@ -1,10 +1,12 @@
+using Common;
+
 namespace XMLSharpCompiler;
 
 public class SyntaxValidator
 {
-    public SyntaxError[] Validate(Token[] tokens)
+    public Diagnostic[] Validate(Token[] tokens)
     {
-        List<SyntaxError> errors = [];
+        List<Diagnostic> errors = [];
 
         foreach (ISyntaxRule rule in SyntaxRules.All)
         {
@@ -56,7 +58,7 @@ public class SyntaxValidator
         return statements;
     }
 
-    private static IEnumerable<SyntaxError> ValidateStatement(Token[] statement)
+    private static IEnumerable<Diagnostic> ValidateStatement(Token[] statement)
     {
         HashSet<int> flagged = [];
 
@@ -64,7 +66,7 @@ public class SyntaxValidator
         {
             if (rule is IStatementRule statementRule)
             {
-                SyntaxError? error = statementRule.Validate(statement);
+                Diagnostic? error = statementRule.Validate(statement);
                 if (error is not null)
                     yield return error;
             }
@@ -74,7 +76,7 @@ public class SyntaxValidator
                 {
                     if (flagged.Contains(i)) continue;
 
-                    SyntaxError? error = tokenRule.Validate(statement, i);
+                    Diagnostic? error = tokenRule.Validate(statement, i);
                     if (error is not null) {
                         flagged.Add(i);
                         yield return error;
