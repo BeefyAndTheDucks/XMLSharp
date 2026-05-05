@@ -21,7 +21,7 @@ public class SyntaxValidatorTest
             new EOFToken()
         ];
 
-        SyntaxError[] errors = _validator.Validate(tokens);
+        Diagnostic[] errors = _validator.Validate(tokens);
         Assert.That(errors, Is.Empty);
     }
 
@@ -34,7 +34,7 @@ public class SyntaxValidatorTest
             new EOFToken()
         ];
 
-        SyntaxError[] errors = _validator.Validate(tokens);
+        Diagnostic[] errors = _validator.Validate(tokens);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(errors, Has.Length.EqualTo(2), errors.GetTextForPrettyPrint());
@@ -58,7 +58,7 @@ public class SyntaxValidatorTest
             new EOFToken()
         ];
 
-        SyntaxError[] errors = _validator.Validate(tokens);
+        Diagnostic[] errors = _validator.Validate(tokens);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(errors, Has.Length.EqualTo(2), errors.GetTextForPrettyPrint());
