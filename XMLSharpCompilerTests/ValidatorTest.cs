@@ -37,11 +37,11 @@ public class SyntaxValidatorTest
         Diagnostic[] errors = _validator.Validate(tokens);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(errors, Has.Length.EqualTo(2), errors.GetTextForPrettyPrint());
+            Assert.That(errors, Has.Length.EqualTo(2));
             Assert.That(errors[0].Message, Is.EqualTo("Expected identifier after type."));
             Assert.That(errors[0].Line, Is.EqualTo(1));
             Assert.That(errors[0].Col, Is.EqualTo(1));
-            Assert.That(errors[1].Message, Is.EqualTo("Missing ';' after statement."));
+            Assert.That(errors[1].Message, Is.EqualTo("Expected expression after '='."));
             Assert.That(errors[1].Line, Is.EqualTo(1));
             Assert.That(errors[1].Col, Is.EqualTo(8));
         }
@@ -61,13 +61,10 @@ public class SyntaxValidatorTest
         Diagnostic[] errors = _validator.Validate(tokens);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(errors, Has.Length.EqualTo(2), errors.GetTextForPrettyPrint());
+            Assert.That(errors, Has.Length.EqualTo(1));
             Assert.That(errors[0].Message, Is.EqualTo("Expected '=' after 'foo'."));
             Assert.That(errors[0].Line, Is.EqualTo(1));
             Assert.That(errors[0].Col, Is.EqualTo(8));
-            Assert.That(errors[1].Message, Is.EqualTo("Unexpected token 'NumberToken'."));
-            Assert.That(errors[1].Line, Is.EqualTo(1));
-            Assert.That(errors[1].Col, Is.EqualTo(12));
         }
     }
     

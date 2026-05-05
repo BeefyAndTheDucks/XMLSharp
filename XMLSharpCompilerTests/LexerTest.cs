@@ -11,7 +11,8 @@ public class LexerTest
     public void TestVariables()
     {
         Lexer lexer = new Lexer();
-        Token[] tokens = lexer.Lex("number foo = 2;");
+        (Token[] tokens, Diagnostic[] errors) = lexer.Lex("number foo = 2;");
+        Assert.That(errors, Is.Empty);
         Assert.That(tokens, Is.EqualTo(new Token[]
         {
             new TypeToken(XMLSType.Number, 1, 1, 6),
@@ -19,7 +20,7 @@ public class LexerTest
             new AssignmentToken(1, 12, 1),
             new NumberToken(2, 1, 14, 1),
             new SemicolonToken(1, 15, 1),
-            new EOFToken()
+            new EOFToken(1, 16, 0)
         }));
     }
 
@@ -27,7 +28,8 @@ public class LexerTest
     public void TestStrings()
     {
         Lexer lexer = new Lexer();
-        Token[] tokens = lexer.Lex("text foo = \"hello\";");
+        (Token[] tokens, Diagnostic[] errors) = lexer.Lex("text foo = \"hello\";");
+        Assert.That(errors, Is.Empty);
         Assert.That(tokens, Is.EqualTo(new Token[]
         {
             new TypeToken(XMLSType.Text, 1, 1, 4),
@@ -35,7 +37,7 @@ public class LexerTest
             new AssignmentToken(1, 10, 1),
             new TextToken("hello", 1, 12, 7),
             new SemicolonToken(1, 19, 1),
-            new EOFToken()
+            new EOFToken(1, 20, 0)
         }));
     }
 
@@ -43,12 +45,13 @@ public class LexerTest
     public void TestUnexpectedCharacter()
     {
         Lexer lexer = new Lexer();
-        UnexpectedCharacterException ex = Assert.Throws<UnexpectedCharacterException>(() => lexer.Lex("number foo = @;"));
+        (Token[] tokens, Diagnostic[] errors) = lexer.Lex("number foo = @;");
+        Assert.That(errors, Has.Length.EqualTo(1));
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(ex.Line, Is.EqualTo(1));
-            Assert.That(ex.Col, Is.EqualTo(14));
-            Assert.That(ex.Character, Is.EqualTo('@'));
+            Assert.That(errors[0].Line, Is.EqualTo(1));
+            Assert.That(errors[0].Col, Is.EqualTo(14));
+            Assert.That(errors[0].Message, Does.Contain("@"));
         }
     }
 }

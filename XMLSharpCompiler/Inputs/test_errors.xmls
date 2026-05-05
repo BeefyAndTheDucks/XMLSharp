@@ -1,37 +1,39 @@
-$ Number reassignment
-number foo = 10; 
-foo = 5;
+$ Missing = after named identifier
+number foo 10;
 
-$ String reassignment
-text bar = "One";
-bar = "Two";
+$ Missing = after decimal
+decimal pi 3.14;
 
-write ";
+$ Expected assignment operator after named variable
+foo + 5;
 
-yesno greater = yes;
-yesno less =
+$ Keyword used as statement start
+while;
 
-if (greater) {
-    write "Greater!";
-} elif (less){
-    write "Less!";
-} else {
-    $ This error is a job for the ast generator to catch. 
-    write egg;
+$ Bad expression using boolean operator as value
+yesno flag = &;
+
+$ Missing expression after comparison
+yesno result = 10 ====;
+
+$ Unexpected ? as statement start
+? foo = yes;
+
+$ Missing condition in if
+if () {
+    write "bad";
 }
 
-number baz = 10 + ;
+$ Concat without right hand side
+write "hello" #;
 
-if (foo {
-    write "Missing close paren";
+$ For loop with missing identifier
+for (number = 0; number < 10; number++) {
+    write "bad";
 }
 
-while () {
-    write "Empty condition";
-}
-
-number + = 5;
-
-for number j = 0; j < 10 {
-    write "Missing increment semicolon";
+$ Nested bad assignment
+if (yes) {
+    decimal pi 3.14;
+    foo ~ 5;
 }

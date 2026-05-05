@@ -22,7 +22,7 @@ public partial class SyntaxValidator
             case PrintToken: ValidatePrint(); break;
             case IdentifierToken: ValidateAssignment(); break;
             default:
-                errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, "Unexpected token.", Current.Line, Current.Col, Current.Length));
+                errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, $"Unexpected token {TokenName(Current)}.", Current.Line, Current.Col, Current.Length));
                 Advance();
                 return;
         }
@@ -32,17 +32,18 @@ public partial class SyntaxValidator
     }
 
     private bool IsExpressionStart() => Current is NumberToken or DecimalToken or TextToken
-    or YesToken or NoToken or IdentifierToken or OpenParenToken or NotToken;
+        or YesToken or NoToken or IdentifierToken or OpenParenToken or NotToken;
 
     private void ValidateVariableDeclaration()
     {
         Advance(); // type
+        Token nameTok = Current;
         Expect<IdentifierToken>("Expected identifier after type.");
-        Expect<AssignmentToken>("Expected '=' after identifier.");
+        Expect<AssignmentToken>($"Expected '=' after {TokenName(nameTok)}.");
         if (!IsExpressionStart())
         {
             Token lastToken = pos > 0 ? tokens[pos - 1] : Current;
-            errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, "Expected expression after '='.", lastToken.Line, lastToken.Col, lastToken.Length));
+            errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, $"Expected expression after {TokenName(lastToken)}.", lastToken.Line, lastToken.Col, lastToken.Length));
             Synchronise();
             return;
         }
@@ -52,6 +53,7 @@ public partial class SyntaxValidator
 
     private void ValidateAssignment()
     {
+        Token nameTok = Current;
         Advance(); // identifier
 
         switch (Current)
@@ -76,7 +78,8 @@ public partial class SyntaxValidator
                 Expect<SemicolonToken>("Expected ';' after statement.");
                 break;
             default:
-                errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, "Expected assignment operator after identifier.", Current.Line, Current.Col, Current.Length));
+                errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, $"Expected assignment operator after {TokenName(nameTok)}.", Current.Line, Current.Col, Current.Length));
+                Synchronise();
                 break;
         }
     }
@@ -128,21 +131,23 @@ public partial class SyntaxValidator
         Advance(); // for
         Expect<OpenParenToken>("Expected '(' after 'for'.");
         Expect<TypeToken>("Expected type after 'for'.");
+        Token nameTok = Current;
         Expect<IdentifierToken>("Expected identifier after type.");
-        Expect<AssignmentToken>("Expected '=' after identifier.");
+        Expect<AssignmentToken>($"Expected '=' after {TokenName(nameTok)}.");
         ValidateExpression();
         Expect<SemicolonToken>("Expected ';' after initializer.");
         ValidateExpression();
         Expect<SemicolonToken>("Expected ';' after condition.");
 
-        Expect<IdentifierToken>("Expected variable name for increment.");
+        Token incTok = Current;
+        Expect<IdentifierToken>("Expected variable name in for increment step.");
 
         if (Current is not IncrementToken and not DecrementToken
                     and not IncrementByToken and not DecrementByToken
                     and not MultiplyByToken and not DivideByToken and not ModuloByToken)
         {
             Token lastToken = pos > 0 ? tokens[pos - 1] : Current;
-            errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, "Expected increment or decrement in for loop.", lastToken.Line, lastToken.Col, lastToken.Length));
+            errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, $"Expected increment or decrement after {TokenName(lastToken)}.", lastToken.Line, lastToken.Col, lastToken.Length));
             Synchronise();
             return;
         }
@@ -221,7 +226,7 @@ public partial class SyntaxValidator
                 ValidatePrimary();
                 break;
             default:
-                errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, "Expected expression.", Current.Line, Current.Col, Current.Length));
+                errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, $"Expected expression, got {TokenName(Current)}.", Current.Line, Current.Col, Current.Length));
                 break;
         }
     }
@@ -243,6 +248,4 @@ public partial class SyntaxValidator
             Advance();
         }
     }
-
-    
 }

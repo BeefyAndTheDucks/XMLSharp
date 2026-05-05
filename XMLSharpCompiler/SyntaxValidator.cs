@@ -52,4 +52,10 @@ public partial class SyntaxValidator
             .Where(e => seen.Add((e.Line, e.Col)))
             .ToArray();
     }
+
+    private string TokenName(Token token)
+    {
+        if (token is IdentifierToken id) return $"'{id.Name}'";
+        return TokenReverseMap.TryGet(token, out string value) ? $"'{value}'" : token.GetType().Name.Replace("Token", "");
+    }
 }
