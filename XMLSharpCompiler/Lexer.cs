@@ -1,13 +1,15 @@
+using Common;
+
 namespace XMLSharpCompiler;
 
-
-// actual code
 public class Lexer : ILexer
 {
+    private readonly List<Diagnostic> _errors = [];
 
-    public Token[] Lex(string input)
+    public (Token[] Tokens, Diagnostic[] Errors) Lex(string input)
     {
         List<Token> tokens = [];
+        _errors.Clear();
 
         var keywords = Keywords.Map;
         var definitions = Definitions.MatchingMap;
@@ -50,7 +52,6 @@ public class Lexer : ILexer
             {
                 string word = "";
                 int startCol = col;
-
                 bool hasDot = false;
 
                 while (i < input.Length && (char.IsDigit(input[i]) || input[i] == '.'))
@@ -111,10 +112,43 @@ public class Lexer : ILexer
 
                 while (i < input.Length && input[i] != '"')
                 {
-                    word += input[i];
+                    if (input[i] == ';')
+                    {
+                        _errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, "Unterminated string.", line, startCol, col - startCol));
+                        break;
+                    }
+
+                    if (input[i] == '\\')
+                    {
+                        i++;
+                        col++;
+                        if (i >= input.Length) break;
+
+                        word += input[i] switch
+                        {
+                            'n' => '\n',
+                            't' => '\t',
+                            '"' => '"',
+                            ';' => ';',
+                            '\\' => '\\',
+                            var c => c
+                        };
+                    }
+                    else
+                    {
+                        word += input[i];
+                    }
+
                     i++;
                     col++;
                 }
+
+                if (i >= input.Length)
+                {
+                    _errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, "Unterminated string.", line, startCol, col - startCol));
+                    continue;
+                }
+
                 i++;
                 col++;
                 int length = col - startCol;
@@ -138,20 +172,16 @@ public class Lexer : ILexer
                     break;
                 }
             }
+
             if (!matched)
             {
-                throw new UnexpectedCharacterException(line, col, input[i]);
+                _errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, $"Unexpected character '{input[i]}'.", line, col, 1));
+                i++;
+                col++;
             }
         }
 
-        tokens.Add(new EOFToken());
-        return tokens.ToArray();
+        tokens.Add(new EOFToken(line, col));
+        return (tokens.ToArray(), _errors.ToArray());
     }
-}
-
-public class UnexpectedCharacterException(int line, int col, char character) : Exception($"Unexpected character \"{character}\" at {line}:{col}.")
-{
-    public readonly int Line = line;
-    public readonly int Col = col;
-    public readonly char Character = character;
 }

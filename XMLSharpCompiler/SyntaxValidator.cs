@@ -2,87 +2,54 @@ using Common;
 
 namespace XMLSharpCompiler;
 
-public class SyntaxValidator
+public partial class SyntaxValidator
 {
-    public Diagnostic[] Validate(Token[] tokens)
+    private Token[] tokens = [];
+    private int pos;
+    private readonly List<Diagnostic> errors = [];
+
+    private Token Current => tokens[pos];
+    private Token Peek(int offset = 1) => tokens[Math.Min(pos + offset, tokens.Length - 1)];
+
+    private Token Advance()
     {
-        List<Diagnostic> errors = [];
-
-        foreach (ISyntaxRule rule in SyntaxRules.All)
-        {
-            if (rule is IBlockRule blockRule)
-            {
-                errors.AddRange(blockRule.Validate(tokens));
-            }
-        }
-
-        List<Token[]> statements = SplitStatements(tokens);
-
-        foreach (Token[] statement in statements)
-        {
-            errors.AddRange(ValidateStatement(statement));
-        }
-
-        return errors.ToArray();
+        Token t = Current;
+        if (Current is not EOFToken) pos++;
+        return t;
     }
 
-    private static List<Token[]> SplitStatements(Token[] tokens)
+    private bool Check<T>() where T : Token => Current is T;
+
+    private bool Match<T>() where T : Token
     {
-        List<Token[]> statements = [];
-        List<Token> current = [];
-
-        foreach (Token token in tokens)
-        {
-            if (token is SemicolonToken)
-            {
-                current.Add(token);
-                statements.Add(current.ToArray());
-                current = [];
-            }
-            else if (token is EOFToken)
-            {
-                if (current.Count > 0) 
-                {
-                    current.Add(token);
-                    statements.Add(current.ToArray());
-                    current = [];
-                }
-                break;
-            }
-            else
-            {
-                current.Add(token);
-            }
-        }
-
-        return statements;
+        if (!Check<T>()) return false;
+        Advance();
+        return true;
     }
 
-    private static IEnumerable<Diagnostic> ValidateStatement(Token[] statement)
+    private void Expect<T>(string message) where T : Token
     {
-        HashSet<int> flagged = [];
+        if (Current is T) { Advance(); return; }
+        Token lastToken = pos > 0 ? tokens[pos - 1] : Current;
+        errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, message, lastToken.Line, lastToken.Col, lastToken.Length));
+        if (typeof(T) == typeof(SemicolonToken))
+            Synchronise();
+    }
 
-        foreach (ISyntaxRule rule in SyntaxRules.All)
-        {
-            if (rule is IStatementRule statementRule)
-            {
-                Diagnostic? error = statementRule.Validate(statement);
-                if (error is not null)
-                    yield return error;
-            }
-            if (rule is ITokenRule tokenRule)
-            {
-                for (int i = 0; i < statement.Length; i++)
-                {
-                    if (flagged.Contains(i)) continue;
+    public Diagnostic[] Validate(Token[] input)
+    {
+        tokens = input;
+        pos = 0;
+        errors.Clear();
 
-                    Diagnostic? error = tokenRule.Validate(statement, i);
-                    if (error is not null) {
-                        flagged.Add(i);
-                        yield return error;
-                    }
-                }
-            }
-        }
+        while (Current is not EOFToken)
+            ValidateStatement();
+
+        HashSet<(int Line, int Col)> seen = [];
+        return errors
+            .OrderBy(e => e.Line)
+            .ThenBy(e => e.Col)
+            .Where(e => seen.Add((e.Line, e.Col)))
+            .ToArray();
     }
 }

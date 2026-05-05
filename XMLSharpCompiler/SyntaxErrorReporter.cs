@@ -12,7 +12,7 @@ public class ErrorReporter
         foreach (Diagnostic error in errors)
         {
             Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.Error.WriteLine($"{error.Type} error at {error.Line}:{error.Col}");
+            Console.Error.WriteLine($"{error.Type} at {error.Line}:{error.Col}");
             Console.ResetColor();
 
             if (error.Line > 0 && error.Line <= lines.Length)

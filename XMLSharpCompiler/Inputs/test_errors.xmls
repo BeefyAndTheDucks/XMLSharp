@@ -4,4 +4,34 @@ foo = 5;
 
 $ String reassignment
 text bar = "One";
-bar = "Two"
+bar = "Two";
+
+write ";
+
+yesno greater = yes;
+yesno less =
+
+if (greater) {
+    write "Greater!";
+} elif (less){
+    write "Less!";
+} else {
+    $ This error is a job for the ast generator to catch. 
+    write egg;
+}
+
+number baz = 10 + ;
+
+if (foo {
+    write "Missing close paren";
+}
+
+while () {
+    write "Empty condition";
+}
+
+number + = 5;
+
+for number j = 0; j < 10 {
+    write "Missing increment semicolon";
+}

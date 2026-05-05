@@ -1,7 +1,9 @@
+using Common;
+
 namespace XMLSharpCompiler;
 
 public interface ILexer
 {
-    Token[] Lex(string input);
+    (Token[] Tokens, Diagnostic[] Errors) Lex(string input);
 }
 

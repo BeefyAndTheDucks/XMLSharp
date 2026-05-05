@@ -35,7 +35,7 @@ public class CompileCommand : CommandBase
         SyntaxValidator validator = new();
 
         string fileContent = File.ReadAllText(inputFile.FullName);
-        Token[] tokens = lexer.Lex(fileContent);
+        var (tokens, lexErrors) = lexer.Lex(fileContent);
 
         if (verbose)
         {
@@ -43,14 +43,20 @@ public class CompileCommand : CommandBase
             tokens.PrettyPrint();
         }
 
-        Diagnostic[] errors = [];
+        List<Diagnostic> errors = [..lexErrors];
         if (!parseResult.GetValue(_ignoreErrorsArg))
-            errors = validator.Validate(tokens);
+        {
+            HashSet<(int Line, int Col)> lexPositions = [.. lexErrors.Select(e => (e.Line, e.Col))];
+            Diagnostic[] validatorErrors = validator.Validate(tokens)
+                .Where(e => !lexPositions.Contains((e.Line, e.Col)))
+                .ToArray();
+            errors.AddRange(validatorErrors);
+        }
 
-        if (errors.Length > 0)
+        if (errors.Count > 0)
         {
             ErrorReporter reporter = new();
-            reporter.Report(fileContent, errors);
+            reporter.Report(fileContent, [..errors]);
             Environment.Exit(1);
         }
         
