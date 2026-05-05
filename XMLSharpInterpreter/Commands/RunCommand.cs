@@ -33,7 +33,9 @@ public class RunCommand : CommandBase
             interpreter.Run(instructions, parseResult.GetValue(_verboseArg));
         } catch (Exception e)
         {
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.Error.WriteLine($"An error occured while running {inputFile.Name}: {e.Message}.");
+            Console.ResetColor();
         }
     }
 

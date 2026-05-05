@@ -10,6 +10,13 @@ public class Interpreter
 
     public void Run(IRInstruction[] instructions, bool verboseMode)
     {
+        // Validate that there exists a handler for each IROperation
+        foreach (IROperation operation in Enum.GetValues<IROperation>())
+        {
+            if (!_handlers.ContainsKey(operation))
+                throw new InvalidOperationException($"No handler for operation {operation}.");
+        }
+        
         int ip = 0;
         while (ip < instructions.Length)
         {
