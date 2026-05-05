@@ -15,7 +15,7 @@ public partial class SyntaxValidator
             case EndBlockToken:
                 Advance();
                 return;
-            case VariableDefinitionToken: ValidateVariableDeclaration(); break;
+            case TypeToken: ValidateVariableDeclaration(); break;
             case IfToken: ValidateIf(); break;
             case WhileToken: ValidateWhile(); break;
             case ForToken: ValidateFor(); break;
@@ -127,7 +127,7 @@ public partial class SyntaxValidator
     {
         Advance(); // for
         Expect<OpenParenToken>("Expected '(' after 'for'.");
-        Expect<VariableDefinitionToken>("Expected type after 'for'.");
+        Expect<TypeToken>("Expected type after 'for'.");
         Expect<IdentifierToken>("Expected identifier after type.");
         Expect<AssignmentToken>("Expected '=' after identifier.");
         ValidateExpression();
@@ -236,7 +236,7 @@ public partial class SyntaxValidator
                 return;
             }
             if (Current is IfToken or WhileToken or ForToken or PrintToken
-                or VariableDefinitionToken or EndBlockToken
+                or TypeToken or EndBlockToken
                 or ElifToken or ElseToken)
                 return;
 
