@@ -13,7 +13,7 @@ public class SyntaxValidatorTest
     public void TestValidVariableDeclaration()
     {
         Token[] tokens = [
-            new VariableDefinitionToken(XMLSType.Number, 1, 1),
+            new TypeToken(XMLSType.Number, 1, 1),
             new IdentifierToken("foo", 1, 8),
             new AssignmentToken(1, 12),
             new NumberToken(10, 1, 14),
@@ -29,7 +29,7 @@ public class SyntaxValidatorTest
     public void TestMissingIdentifierAfterType()
     {
         Token[] tokens = [
-            new VariableDefinitionToken(XMLSType.Number, 1, 1),
+            new TypeToken(XMLSType.Number, 1, 1),
             new AssignmentToken(1, 8),
             new EOFToken()
         ];
@@ -51,7 +51,7 @@ public class SyntaxValidatorTest
     public void TestMissingAssignmentAfterIdentifier()
     {
         Token[] tokens = [
-            new VariableDefinitionToken(XMLSType.Number, 1, 1, 6),
+            new TypeToken(XMLSType.Number, 1, 1, 6),
             new IdentifierToken("foo", 1, 8, 3),
             new NumberToken(10, 1, 12, 2),
             new SemicolonToken(1, 14, 1),

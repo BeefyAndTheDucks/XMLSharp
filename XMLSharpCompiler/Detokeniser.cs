@@ -32,7 +32,7 @@ public static class Detokeniser
 
             string part = t switch
             {
-                VariableDefinitionToken v => v.Type switch
+                TypeToken v => v.Type switch
                 {
                     XMLSType.Number => "number",
                     XMLSType.Bool => "yesno",

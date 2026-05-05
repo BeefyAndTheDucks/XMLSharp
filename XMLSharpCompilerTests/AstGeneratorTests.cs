@@ -12,7 +12,7 @@ public class AstGeneratorTests
     {
         Token[] tokenInput =
         [
-            new VariableDefinitionToken(XMLSType.Number), new IdentifierToken("foo"), new AssignmentToken(),
+            new TypeToken(XMLSType.Number), new IdentifierToken("foo"), new AssignmentToken(),
             new NumberToken(2), new AddToken(), new NumberToken(2), new SemicolonToken(), new EOFToken()
         ];
         

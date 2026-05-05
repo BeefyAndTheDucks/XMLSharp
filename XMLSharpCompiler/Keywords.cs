@@ -6,10 +6,10 @@ public static class Keywords
 {
     public static readonly Dictionary<string, Func<Token>> Map = new()
     {
-        { "number", () => new VariableDefinitionToken(XMLSType.Number) },
-        { "yesno",  () => new VariableDefinitionToken(XMLSType.Bool) },
-        { "decimal", () => new VariableDefinitionToken(XMLSType.Float) },
-        { "text", () => new VariableDefinitionToken(XMLSType.Text)},
+        { "number", () => new TypeToken(XMLSType.Number) },
+        { "yesno",  () => new TypeToken(XMLSType.Bool) },
+        { "decimal", () => new TypeToken(XMLSType.Float) },
+        { "text", () => new TypeToken(XMLSType.Text)},
         { "write", () => new PrintToken() },
         { "yes", () => new YesToken() },
         { "no", () => new NoToken() },

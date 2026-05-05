@@ -8,7 +8,7 @@ public abstract record Token(int Line = 0, int Col = 0, int Length = 0);
 public record NumberToken(int Value, int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
 public record TextToken(string Text, int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
 public record IdentifierToken(string Name, int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record VariableDefinitionToken(XMLSType Type, int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+public record TypeToken(XMLSType Type, int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
 public record DecimalToken(float Value, int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
 
 public record IfToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);

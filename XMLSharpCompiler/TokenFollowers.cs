@@ -116,8 +116,8 @@ public static class TokenFollowers
 
         // keywords
         [typeof(PrintToken)] = [.. AllValues, typeof(NotToken)],
-        [typeof(ForToken)] = [typeof(VariableDefinitionToken), typeof(IdentifierToken)],
+        [typeof(ForToken)] = [typeof(TypeToken), typeof(IdentifierToken)],
 
-        [typeof(VariableDefinitionToken)] = [typeof(IdentifierToken)],
+        [typeof(TypeToken)] = [typeof(IdentifierToken)],
     };
 }

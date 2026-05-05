@@ -42,7 +42,7 @@ public class AstGenerator : IAstGenerator
 
         switch (currentToken)
         {
-            case VariableDefinitionToken variableDefinitionToken:
+            case TypeToken variableDefinitionToken:
             {
                 currentIndex++;
                 IdentifierToken identifierToken = ConvertOrThrow<IdentifierToken>(tokens[currentIndex++]);
