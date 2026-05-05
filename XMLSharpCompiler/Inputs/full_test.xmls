@@ -80,3 +80,9 @@ while (i < 10) {
     write i;
     i++;
 }
+
+for number j = 0; j < 10; j++ {
+    write "J is " # j;
+}
+
+write "Done!";

@@ -21,7 +21,7 @@ public class AstGenerator : IAstGenerator
         return new BlockNode(nodes.ToArray());
     }
     
-    private static AstNode ParseBlock(Token[] tokens)
+    private static BlockNode ParseBlock(Token[] tokens)
     {
         int index = 0;
         List<AstNode> nodes = [];
@@ -33,8 +33,6 @@ public class AstGenerator : IAstGenerator
             index++;
         }
 
-        if (nodes.Count == 1)
-            return nodes[0];
         return new BlockNode(nodes.ToArray());
     }
     
@@ -103,6 +101,32 @@ public class AstGenerator : IAstGenerator
                 endIndex = blockEnd;
                 
                 return new WhileNode(condition, block);
+            }
+
+            case ForToken:
+            {
+                int loopHeaderEnd = NextSemicolonIndex(tokens, currentIndex);
+                AstNode loopHeader = Parse(tokens.Skip(currentIndex + 1).Take(loopHeaderEnd - currentIndex).ToArray(), out _, 0);
+                int conditionEnd = NextSemicolonIndex(tokens, loopHeaderEnd + 1);
+                AstNode condition = ParseExpression(tokens.Skip(loopHeaderEnd + 1).Take(conditionEnd - loopHeaderEnd - 1).ToArray());
+                int loopFooterEnd = FindBlockBeginningIndex(tokens, conditionEnd + 1);
+                AstNode loopFooter = Parse(tokens.Skip(conditionEnd + 1).Take(loopFooterEnd - conditionEnd).ToArray(), out _, 0);
+                
+                int loopBlockEnd = FindBlockEndIndex(tokens, loopFooterEnd);
+                AstNode block = ParseBlock(tokens.Skip(loopFooterEnd + 1).Take(loopBlockEnd - loopFooterEnd).ToArray());
+                loopHeader.PrettyPrint();
+                condition.PrettyPrint();
+                loopFooter.PrettyPrint();
+                block.PrettyPrint();
+
+                endIndex = loopBlockEnd;
+                return new BlockNode([
+                    loopHeader,
+                    new WhileNode(condition, new BlockNode([
+                        block,
+                        loopFooter
+                    ]))
+                ]);
             }
         }
         

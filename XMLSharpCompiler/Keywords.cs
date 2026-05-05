@@ -19,5 +19,6 @@ public static class Keywords
         { "elif", () => new ElifToken() },
         
         { "while", () => new WhileToken() },
+        { "for", () => new ForToken() },
     };
 }
