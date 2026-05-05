@@ -56,6 +56,14 @@ public partial class SyntaxValidator
     private string TokenName(Token token)
     {
         if (token is IdentifierToken id) return $"'{id.Name}'";
+        if (token is TypeToken type) return type.Type switch
+        {
+            XMLSType.Number => "'number'",
+            XMLSType.Bool => "'yesno'",
+            XMLSType.Float => "'decimal'",
+            XMLSType.Text => "'text'",
+            _ => "'type'"
+        };
         return TokenReverseMap.TryGet(token, out string value) ? $"'{value}'" : token.GetType().Name.Replace("Token", "");
     }
 }

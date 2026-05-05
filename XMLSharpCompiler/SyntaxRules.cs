@@ -130,7 +130,14 @@ public partial class SyntaxValidator
     {
         Advance(); // for
         Expect<OpenParenToken>("Expected '(' after 'for'.");
+        Token typeTok = Current;
         Expect<TypeToken>("Expected type after 'for'.");
+        if (Current is not IdentifierToken)
+        {
+            errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, $"Expected identifier after {TokenName(typeTok)}.", typeTok.Line, typeTok.Col, typeTok.Length));
+            Synchronise();
+            return;
+        }
         Token nameTok = Current;
         Expect<IdentifierToken>("Expected identifier after type.");
         Expect<AssignmentToken>($"Expected '=' after {TokenName(nameTok)}.");
