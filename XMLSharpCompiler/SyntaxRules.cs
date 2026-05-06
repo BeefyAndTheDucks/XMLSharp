@@ -21,6 +21,8 @@ public partial class SyntaxValidator
             case ForToken: ValidateFor(); break;
             case PrintToken: ValidatePrint(); break;
             case IdentifierToken: ValidateAssignment(); break;
+            case FunctionToken: ValidateFunctionDefinition(); break;
+            case ReturnToken: ValidateReturn(); break;
             default:
                 errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, $"Unexpected token {TokenName(Current)}.", Current.Line, Current.Col, Current.Length));
                 Advance();
@@ -222,6 +224,14 @@ public partial class SyntaxValidator
             case NoToken:
             case IdentifierToken:
                 Advance();
+                
+                if (Current is OpenParenToken)
+                {
+                    Advance();
+                    while (IsExpressionStart())
+                        ValidateExpression();
+                    Expect<CloseParenToken>("Expected ')' after parameters in function call.");
+                }
                 break;
             case OpenParenToken:
                 Advance();
@@ -236,6 +246,30 @@ public partial class SyntaxValidator
                 errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, $"Expected expression, got {TokenName(Current)}.", Current.Line, Current.Col, Current.Length));
                 break;
         }
+    }
+
+    private void ValidateFunctionDefinition()
+    {
+        Advance(); // function
+        if (Current is TypeToken)
+            Advance();
+        Expect<IdentifierToken>("Expected function name.");
+        Expect<OpenParenToken>("Expected '(' after identifier in function definition.");
+        while (Current is TypeToken)
+        {
+            // Handle parameters
+            Advance();
+            Expect<IdentifierToken>("Expected parameter name after parameter type in function definition.");
+        }
+        Expect<CloseParenToken>("Expected ')' after parameters.");
+        ValidateBlock();
+    }
+
+    private void ValidateReturn()
+    {
+        Advance(); // return
+        ValidateExpression();
+        Expect<SemicolonToken>("Expected ';' after return statement.");
     }
 
     private void Synchronise()
