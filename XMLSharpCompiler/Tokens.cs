@@ -18,6 +18,9 @@ public record ElifToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line,
 public record WhileToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
 public record ForToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
 
+public record FunctionToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+public record ReturnToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+
 // matched by pattern
 public record AssignmentToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
 

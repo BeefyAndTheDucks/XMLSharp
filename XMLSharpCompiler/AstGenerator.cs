@@ -42,13 +42,13 @@ public class AstGenerator : IAstGenerator
 
         switch (currentToken)
         {
-            case TypeToken variableDefinitionToken:
+            case TypeToken typeToken:
             {
                 currentIndex++;
                 IdentifierToken identifierToken = ConvertOrThrow<IdentifierToken>(tokens[currentIndex++]);
                 ConvertOrThrow<AssignmentToken>(tokens[currentIndex++]);
                 endIndex = FindNextTokenOfType<SemicolonToken>(tokens, currentIndex);
-                return new CreateVariableNode(identifierToken.Name, variableDefinitionToken.Type, ParseExpression(tokens.Skip(currentIndex).ToArray()));
+                return new CreateVariableNode(identifierToken.Name, typeToken.Type, ParseExpression(tokens.Skip(currentIndex).ToArray()));
             }
             case IdentifierToken identifierToken:
             {
@@ -64,6 +64,11 @@ public class AstGenerator : IAstGenerator
                 currentIndex++;
                 endIndex = FindNextTokenOfType<SemicolonToken>(tokens, currentIndex);
                 return new PrintNode(ParseExpression(tokens.Skip(currentIndex).ToArray()));
+            }
+
+            case FunctionToken:
+            {
+                throw new NotImplementedException();
             }
             
             // Control-flow

@@ -20,5 +20,8 @@ public static class Keywords
         
         { "while", () => new WhileToken() },
         { "for", () => new ForToken() },
+        
+        { "fn", () => new FunctionToken() },
+        { "return", () => new ReturnToken() },
     };
 }

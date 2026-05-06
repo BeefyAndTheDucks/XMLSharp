@@ -1,3 +1,7 @@
+fn number double(number x) {
+    return x * 2;
+}
+
 number foo = 10 + 20;
 number bar = 10 + foo;
 number baz = 10 - 20;
@@ -84,5 +88,7 @@ while (i < 10) {
 for (number j = 0; j < 10; j++) {
     write "J is " # j;
 }
+
+write "Foo, but doubled is " # double(foo);
 
 write "Done!";
