@@ -128,6 +128,17 @@ public partial class SyntaxValidator
         ValidateBlock();
     }
 
+    private static readonly HashSet<Type> ForIncrementOperators = new()
+    {
+        typeof(IncrementToken),
+        typeof(DecrementToken),
+        typeof(IncrementByToken),
+        typeof(DecrementByToken),
+        typeof(MultiplyByToken),
+        typeof(DivideByToken),
+        typeof(ModuloByToken),
+    };
+
     private void ValidateFor()
     {
         Advance(); // for
@@ -151,9 +162,7 @@ public partial class SyntaxValidator
         Token incTok = Current;
         Expect<IdentifierToken>("Expected variable name in for increment step.");
 
-        if (Current is not IncrementToken and not DecrementToken
-                    and not IncrementByToken and not DecrementByToken
-                    and not MultiplyByToken and not DivideByToken and not ModuloByToken)
+        if (!ForIncrementOperators.Contains(Current.GetType()))
         {
             Token lastToken = pos > 0 ? tokens[pos - 1] : Current;
             errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, $"Expected increment or decrement after {TokenName(lastToken)}.", lastToken.Line, lastToken.Col, lastToken.Length));
@@ -189,13 +198,30 @@ public partial class SyntaxValidator
         Expect<EndBlockToken>("Expected '}'.");
     }
 
+    private static readonly HashSet<Type> ExpressionOperators = new()
+    {
+        typeof(AddToken),
+        typeof(SubtractToken),
+        typeof(MultiplyToken),
+        typeof(DivideToken),
+        typeof(ModuloToken),
+        typeof(GreaterToken),
+        typeof(LessToken),
+        typeof(GreaterOrEqualsToken),
+        typeof(LessOrEqualsToken),
+        typeof(EqualsToken),
+        typeof(NotEqualsToken),
+        typeof(AndToken),
+        typeof(OrToken),
+        typeof(XorToken),
+        typeof(ConcatToken),
+    };
+
     private void ValidateExpression()
     {
         ValidateUnary();
 
-        while (Current is AddToken or SubtractToken or MultiplyToken or DivideToken or ModuloToken
-                        or GreaterToken or LessToken or GreaterOrEqualsToken or LessOrEqualsToken
-                        or EqualsToken or NotEqualsToken or AndToken or OrToken or XorToken or ConcatToken)
+        while (ExpressionOperators.Contains(Current.GetType()))
         {
             Advance();
             ValidateUnary();
