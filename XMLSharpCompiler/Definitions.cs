@@ -42,6 +42,8 @@ public static class Definitions
         
         ("{"   , () => new BeginBlockToken()),
         ("}"   , () => new EndBlockToken()),
+        
+        (","   , () => new SeparatorToken()),
     ];
 
     public static (string Pattern, Func<Token> Create)[] MatchingMap

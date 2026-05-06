@@ -141,7 +141,7 @@ public class IR : IIR
                 break;
             
             default:
-                throw new IndexOutOfRangeException(node.GetType().Name + " is not supported yet by the IR.");
+                throw new NotSupportedException(node.GetType().Name + " is not supported yet by the IR.");
         }
         
         return instructions.ToArray();

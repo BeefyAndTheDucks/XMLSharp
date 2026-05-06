@@ -250,14 +250,8 @@ public partial class SyntaxValidator
             case NoToken:
             case IdentifierToken:
                 Advance();
-
-                if (Current is OpenParenToken)
-                {
-                    Advance();
-                    while (IsExpressionStart())
-                        ValidateExpression();
-                    Expect<CloseParenToken>("Expected ')' after parameters in function call.");
-                }
+                if (Current is OpenParenToken) // Function call
+                    ValidateFunctionCall();
                 break;
             case OpenParenToken:
                 Advance();
@@ -274,6 +268,26 @@ public partial class SyntaxValidator
         }
     }
 
+    private void ValidateFunctionCall()
+    {
+        Advance();
+        bool noComma = false;
+        while (IsExpressionStart())
+        {
+            if (noComma)
+            {
+                errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, "Expected ',' between parameters.", Previous.Line, Previous.Col, Previous.Length));
+                break;
+            }
+            ValidateExpression();
+            if (Check<SeparatorToken>())
+                Advance();
+            else
+                noComma = true;
+        }
+        Expect<CloseParenToken>("Expected ')' after parameters in function call.");
+    }
+
     private void ValidateFunctionDefinition()
     {
         Advance(); // function
@@ -281,11 +295,21 @@ public partial class SyntaxValidator
             Advance();
         Expect<IdentifierToken>("Expected function name.");
         Expect<OpenParenToken>("Expected '(' after identifier in function definition.");
+        bool noComma = false;
         while (Current is TypeToken)
         {
+            if (noComma)
+            {
+                errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, "Expected ',' between parameters.", Previous.Line, Previous.Col, Previous.Length));
+                break;
+            }
             // Handle parameters
             Advance();
             Expect<IdentifierToken>("Expected parameter name after parameter type in function definition.");
+            if (Check<SeparatorToken>())
+                Advance();
+            else
+                noComma = true;
         }
         Expect<CloseParenToken>("Expected ')' after parameters.");
         ValidateBlock();

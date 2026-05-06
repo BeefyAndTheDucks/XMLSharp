@@ -4,8 +4,15 @@ namespace XMLSharpCompiler;
 
 public class AstGenerator : IAstGenerator
 {
+    private bool _dirty;
+    private readonly List<string> _arguments = [];
+    
     public AstNode Generate(Token[] tokens)
     {
+        if (_dirty)
+            throw new InvalidOperationException($"Cannot reuse AstGenerator instances after {nameof(Generate)} has been called.");
+        _dirty = true;
+        
         int index = 0;
         List<AstNode> nodes = [];
 
@@ -21,22 +28,26 @@ public class AstGenerator : IAstGenerator
         return new BlockNode(nodes.ToArray());
     }
     
-    private static BlockNode ParseBlock(Token[] tokens)
+    private AstNode ParseBlock(Token[] tokens)
     {
         int index = 0;
         List<AstNode> nodes = [];
+        
+        int blockEnd = FindBlockEndIndex(tokens, 0, 1);
 
-        while (tokens[index] is not EndBlockToken)
+        while (index < blockEnd)
         {
             nodes.Add(Parse(tokens, out index, index));
 
             index++;
         }
-
+        
+        if (nodes.Count == 1)
+            return nodes[0];
         return new BlockNode(nodes.ToArray());
     }
     
-    private static AstNode Parse(Token[] tokens, out int endIndex, int currentIndex)
+    private AstNode Parse(Token[] tokens, out int endIndex, int currentIndex)
     {
         Token currentToken = tokens[currentIndex];
 
@@ -55,7 +66,10 @@ public class AstGenerator : IAstGenerator
                 currentIndex++;
                 ConvertOrThrow<AssignmentToken>(tokens[currentIndex++]);
                 endIndex = FindNextTokenOfType<SemicolonToken>(tokens, currentIndex);
-                return new SetVariableNode(identifierToken.Name, ParseExpression(tokens.Skip(currentIndex).ToArray()));
+                AstNode expression = ParseExpression(tokens.Skip(currentIndex).ToArray());
+                if (_arguments.Contains(identifierToken.Name))
+                    return new SetParameterNode(identifierToken.Name, expression);
+                return new SetVariableNode(identifierToken.Name, expression);
             }
             
             // Functions
@@ -68,7 +82,39 @@ public class AstGenerator : IAstGenerator
 
             case FunctionToken:
             {
-                throw new NotImplementedException();
+                currentIndex++;
+                XMLSType? returnType = null;
+                if (tokens[currentIndex++] is TypeToken type)
+                    returnType = type.Type;
+                IdentifierToken identifierToken = ConvertOrThrow<IdentifierToken>(tokens[currentIndex++]);
+                ConvertOrThrow<OpenParenToken>(tokens[currentIndex++]);
+                List<(XMLSType Type, string ParamName)> parameters = [];
+                while (tokens[currentIndex] is not CloseParenToken)
+                {
+                    parameters.Add((ConvertOrThrow<TypeToken>(tokens[currentIndex++]).Type,
+                        ConvertOrThrow<IdentifierToken>(tokens[currentIndex++]).Name));
+                    if (tokens[currentIndex] is SeparatorToken)
+                        currentIndex++;
+                }
+                _arguments.AddRange(parameters.Select(p => p.ParamName));
+                currentIndex++;
+                int blockEnd = FindBlockEndIndex(tokens, currentIndex++);
+                AstNode block = ParseBlock(tokens.Skip(currentIndex).Take(blockEnd - currentIndex + 1).ToArray());
+                int returnIndex = FindNextTokenOfType<ReturnToken>(tokens, currentIndex);
+                bool hasReturn = returnIndex > -1 && returnIndex < blockEnd;
+                if (returnType != null && !hasReturn)
+                    throw new InvalidOperationException("Function must return a value if it has a return type."); // TODO: Convert to new error/diagnostic system
+                foreach (string parameter in parameters.Select(p => p.ParamName))
+                    _arguments.Remove(parameter);
+                endIndex = blockEnd;
+                return new FunctionNode(identifierToken.Name, block);
+            }
+            
+            case ReturnToken:
+            {
+                currentIndex++;
+                endIndex = FindNextTokenOfType<SemicolonToken>(tokens, currentIndex);
+                return new ReturnNode(ParseExpression(tokens.Skip(currentIndex).ToArray()));
             }
             
             // Control-flow
@@ -136,7 +182,7 @@ public class AstGenerator : IAstGenerator
         throw new UnexpectedTokenException(currentToken);
     }
 
-    internal static AstNode ParseExpression(Token[] tokens, int? stopIndex = null)
+    internal AstNode ParseExpression(Token[] tokens, int? stopIndex = null)
     {
         int leastPrecedence = GetLeastPrecedenceNodeIndex(tokens, stopIndex);
         
@@ -157,10 +203,10 @@ public class AstGenerator : IAstGenerator
         return -1;
     }
     
-    internal static int FindBlockEndIndex(Token[] tokens, int startIndex)
+    internal static int FindBlockEndIndex(Token[] tokens, int startIndex, int startDepth = 0)
     {
         int index = startIndex;
-        int blockDepth = 0;
+        int blockDepth = startDepth;
         while (index < tokens.Length && tokens[index] is not EOFToken)
         {
             if (tokens[index] is BeginBlockToken)
@@ -181,31 +227,66 @@ public class AstGenerator : IAstGenerator
         return -1;
     }
 
-    private static AstNode FirstPossibleNode(Token[] tokens)
+    private AstNode FirstPossibleNode(Token[] tokens)
     {
-        foreach (Token token in tokens)
+        for (int i = 0; i < tokens.Length; i++)
         {
             try
             {
-                return NodeFromToken(token);
+                return NodeFromTokens(tokens, i);
             } catch (InvalidOperationException) {}
         }
         throw new InvalidOperationException("Cannot create node from tokens.");
     }
 
-    private static AstNode NodeFromToken(Token token)
+    private AstNode NodeFromTokens(Token[] tokens, int index)
     {
+        Token token = tokens[index];
         return token switch
         {
             NumberToken number => new NumberNode(number.Value),
             DecimalToken dec => new DecimalNode(dec.Value),
-            IdentifierToken identifier => new GetVariableNode(identifier.Name),
+            IdentifierToken => ParseIdentifierInExpression(tokens, index),
             TextToken text => new TextNode(text.Text),
             YesToken => new BooleanNode(true),
             NoToken => new BooleanNode(false),
             
             _ => throw new InvalidOperationException("Cannot create node from token: " + token + ".")
         };
+    }
+
+    private AstNode ParseIdentifierInExpression(Token[] tokens, int currentIndex)
+    {
+        IdentifierToken identifierToken = ConvertOrThrow<IdentifierToken>(tokens[currentIndex]); // This should never throw.
+        Token? nextToken = null;
+        try
+        {
+            nextToken = tokens[currentIndex + 1];
+        } catch (IndexOutOfRangeException) {}
+        if (nextToken is not OpenParenToken)
+        {
+            if (_arguments.Contains(identifierToken.Name))
+                return new GetParameterNode(identifierToken.Name);
+            return new GetVariableNode(ConvertOrThrow<IdentifierToken>(tokens[currentIndex]).Name);
+        }
+        
+        Console.WriteLine("Parsing function call.");
+        // Function call...
+        currentIndex += 2; // skip over identifier and open paren.
+        List<AstNode> arguments = [];
+        while (tokens[currentIndex] is not CloseParenToken)
+        {
+            int endIndex = FindNextTokenOfType<SeparatorToken>(tokens, currentIndex);
+            bool foundSeparator = endIndex != -1;
+            if (!foundSeparator)
+                endIndex = FindNextTokenOfType<CloseParenToken>(tokens, currentIndex);
+            if (endIndex == -1)
+                throw new InvalidOperationException("Cannot find closing paren for function call.");
+            arguments.Add(ParseExpression(tokens.Skip(currentIndex).Take(endIndex - currentIndex).ToArray()));
+            currentIndex = foundSeparator ? endIndex + 1 : endIndex;
+        }
+
+        return new CallFunctionNode(identifierToken.Name, arguments.ToArray());
     }
 
     private static int GetLeastPrecedenceNodeIndex(Token[] tokens, int? stopIndex = null)
@@ -276,7 +357,7 @@ public class AstGenerator : IAstGenerator
         };
     }
     
-    private static AstNode ParseOperation(Token[] tokens, int currentIndex)
+    private AstNode ParseOperation(Token[] tokens, int currentIndex)
     {
         return tokens[currentIndex] switch
         {

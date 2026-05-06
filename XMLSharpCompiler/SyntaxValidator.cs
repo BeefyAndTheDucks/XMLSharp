@@ -9,7 +9,8 @@ public partial class SyntaxValidator
     private readonly List<Diagnostic> errors = [];
 
     private Token Current => tokens[pos];
-    private Token Peek(int offset = 1) => tokens[Math.Min(pos + offset, tokens.Length - 1)];
+    private Token Previous => Peek(-1);
+    private Token Peek(int offset = 1) => tokens[Math.Clamp(pos + offset, 0, tokens.Length - 1)];
 
     private Token Advance()
     {

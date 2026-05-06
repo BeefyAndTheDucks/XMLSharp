@@ -8,13 +8,13 @@ public abstract record AstNode
     public sealed override string ToString() => this.GetTextForPrettyPrint();
 }
 
-public abstract record AstNodeWithTwoChildren(AstNode LeftNode, AstNode RightNode) : AstNode;
+public abstract record AstNodeWithChildren(AstNode[] Children, string? PrettyPrintLabel = null) : AstNode;
 
-public abstract record AstNodeWithLeftRight(AstNode LeftNode, AstNode RightNode, IROperation IrOperation) : AstNodeWithTwoChildren(LeftNode, RightNode);
+public abstract record AstNodeWithLeftRight(AstNode LeftNode, AstNode RightNode, IROperation IrOperation, string? PrettyPrintLabel = null) : AstNodeWithChildren([LeftNode, RightNode], PrettyPrintLabel);
 
-public abstract record AstNodeWithSingleChild(AstNode Child, IROperation IrOperation) : AstNode;
+public abstract record AstNodeWithSingleChild(AstNode Child, IROperation IrOperation, string? PrettyPrintLabel = null) : AstNodeWithChildren([Child], PrettyPrintLabel);
 
-public record BlockNode(AstNode[] Nodes) : AstNode;
+public record BlockNode(AstNode[] Nodes) : AstNodeWithChildren(Nodes);
 
 #region Numbers
 public record AddNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftRight(LeftNode, RightNode, IROperation.Add);
@@ -29,9 +29,9 @@ public record DecimalNode(float Value) : AstNode;
 #endregion
 
 #region Variables
-public record CreateVariableNode(string Name, XMLSType Type, AstNode ValueNode) : AstNode;
+public record CreateVariableNode(string Name, XMLSType Type, AstNode ValueNode) : AstNodeWithChildren([ValueNode], $"called \"{Name}\" of type {Type}");
 
-public record SetVariableNode(string Name, AstNode ValueNode) : AstNode;
+public record SetVariableNode(string Name, AstNode ValueNode) : AstNodeWithChildren([ValueNode], Name);
 
 public record GetVariableNode(string Name) : AstNode;
 #endregion
@@ -70,12 +70,19 @@ public record ConcatNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftR
 
 #region Functions
 public record PrintNode(AstNode Value) : AstNodeWithSingleChild(Value, IROperation.Print);
+
+public record FunctionNode(string Name, AstNode Contents) : AstNodeWithChildren([Contents], Name);
+public record ReturnNode(AstNode Value) : AstNodeWithChildren([Value]);
+public record CallFunctionNode(string Name, AstNode[] Arguments) : AstNodeWithChildren(Arguments, Name);
+
+public record SetParameterNode(string Name, AstNode Value) : AstNodeWithChildren([Value], Name);
+public record GetParameterNode(string Name) : AstNode;
 #endregion
 
 #region Control Flow
-public record IfNode(AstNode Condition, AstNode IfTrue, AstNode? IfFalse) : AstNode;
+public record IfNode(AstNode Condition, AstNode IfTrue, AstNode? IfFalse) : AstNodeWithChildren([Condition, IfTrue, IfFalse ?? new TextNode("No IfFalse.")]);
 
-public record WhileNode(AstNode Condition, AstNode Loop) : AstNodeWithTwoChildren(Condition, Loop);
+public record WhileNode(AstNode Condition, AstNode Loop) : AstNodeWithChildren([Condition, Loop]);
 #endregion
 
 public static class AstNodeExtensions
@@ -91,35 +98,33 @@ public static class AstNodeExtensions
         {
             return node switch
             {
-                BlockNode block => block.GetTextForPrettyPrint(indentation),
-                AstNodeWithTwoChildren leftRightNode => leftRightNode.GetTextForPrettyPrint(indentation),
-                AstNodeWithSingleChild singleChildNode => singleChildNode.GetTextForPrettyPrint(indentation),
-                BooleanNode booleanNode => booleanNode.Value ? "true" : "false",
-                CreateVariableNode createVariableNode => createVariableNode.GetTextForPrettyPrint(indentation),
+                AstNodeWithChildren block => block.GetTextForPrettyPrint(indentation),
                 GetVariableNode getVariableNode => $"{nameof(GetVariableNode)} \"{getVariableNode.Name}\"",
+                BooleanNode booleanNode => booleanNode.Value ? "true" : "false",
                 NumberNode numberNode => numberNode.Value.ToString(),
                 DecimalNode decimalNode => decimalNode.Value.ToString(CultureInfo.InvariantCulture),
-                SetVariableNode setVariableNode => setVariableNode.GetTextForPrettyPrint(indentation),
                 TextNode textNode => $"\"{textNode.Value}\"",
-                IfNode ifNode => new BlockNode([ifNode.Condition, ifNode.IfTrue, ifNode.IfFalse ?? new TextNode("No IfFalse.")]).GetTextForPrettyPrint(indentation, nameof(IfNode)),
-                _ => throw new ArgumentOutOfRangeException(nameof(node))
+                GetParameterNode getParameterNode => $"{nameof(GetParameterNode)} \"{getParameterNode.Name}\"",
+                _ => throw new NotSupportedException($"Pretty print for {node.GetType().Name} not implemented yet.")
             };
         }
     }
 
-    private static string GetTextForPrettyPrint(this BlockNode node, bool[]? indentation = null, string? overrideName = null)
+    private static string GetTextForPrettyPrint(this AstNodeWithChildren node, bool[]? indentation = null)
     {
         indentation ??= [];
         var myIndentation = new List<bool>(indentation);
         
         StringBuilder builder = new();
-        builder.Append(overrideName ?? node.GetType().Name);
+        builder.Append(node.GetType().Name);
+        builder.Append(' ');
+        builder.Append(node.PrettyPrintLabel);
 
-        for (int i = 0; i < node.Nodes.Length; i++)
+        for (int i = 0; i < node.Children.Length; i++)
         {
-            bool last = i >= node.Nodes.Length - 1;
+            bool last = i >= node.Children.Length - 1;
             bool first = i == 0;
-            AstNode currentNode = node.Nodes[i];
+            AstNode currentNode = node.Children[i];
             
             builder.Append('\n');
         
@@ -133,108 +138,6 @@ public static class AstNodeExtensions
             builder.Append(last ? "└── " : "├── ");
             builder.Append(currentNode.GetTextForPrettyPrint(myIndentation.ToArray()));
         }
-        
-        return builder.ToString();
-    }
-    
-    private static string GetTextForPrettyPrint(this AstNodeWithSingleChild node, bool[]? indentation = null)
-    {
-        indentation ??= [];
-        var myIndentation = new List<bool>(indentation);
-        
-        StringBuilder builder = new();
-        builder.Append(node.GetType().Name);
-        
-        builder.Append('\n');
-        
-        foreach (bool indent in indentation)
-            builder.Append(indent ? "│   " : "    ");
-        
-        myIndentation.Add(false);
-
-        builder.Append("└── ");
-        builder.Append(node.Child.GetTextForPrettyPrint(myIndentation.ToArray()));
-
-        return builder.ToString();
-    }
-    
-    private static string GetTextForPrettyPrint(this CreateVariableNode node, bool[]? indentation = null)
-    {
-        indentation ??= [];
-        var myIndentation = new List<bool>(indentation);
-        
-        StringBuilder builder = new();
-        builder.Append(node.GetType().Name);
-        builder.Append(" called \"");
-        builder.Append(node.Name);
-        builder.Append("\" of type ");
-        builder.Append(node.Type);
-        
-        builder.Append('\n');
-        
-        foreach (bool indent in indentation)
-            builder.Append(indent ? "│   " : "    ");
-        
-        myIndentation.Add(false);
-
-        builder.Append("└── ");
-        builder.Append(node.ValueNode.GetTextForPrettyPrint(myIndentation.ToArray()));
-
-        return builder.ToString();
-    }
-    
-    private static string GetTextForPrettyPrint(this SetVariableNode node, bool[]? indentation = null)
-    {
-        indentation ??= [];
-        var myIndentation = new List<bool>(indentation);
-        
-        StringBuilder builder = new();
-        builder.Append(node.GetType().Name);
-        builder.Append(" \"");
-        builder.Append(node.Name);
-        builder.Append('\"');
-        
-        builder.Append('\n');
-        
-        foreach (bool indent in indentation)
-            builder.Append(indent ? "│   " : "    ");
-        
-        myIndentation.Add(false);
-
-        builder.Append("└── ");
-        builder.Append(node.ValueNode.GetTextForPrettyPrint(myIndentation.ToArray()));
-
-        return builder.ToString();
-    }
-
-    private static string GetTextForPrettyPrint(this AstNodeWithTwoChildren node, bool[]? indentation = null)
-    {
-        indentation ??= [];
-        var myIndentation = new List<bool>(indentation);
-        
-        StringBuilder builder = new();
-        builder.Append(node.GetType().Name);
-        
-        builder.Append('\n');
-        
-        foreach (bool indent in indentation)
-            builder.Append(indent ? "│   " : "    ");
-        
-        myIndentation.Add(true);
-
-        builder.Append("├── ");
-        builder.Append(node.LeftNode.GetTextForPrettyPrint(myIndentation.ToArray()));
-        
-        builder.Append('\n');
-        
-        foreach (bool indent in indentation)
-            builder.Append(indent ? "│   " : "    ");
-        
-        myIndentation.RemoveAt(myIndentation.Count - 1);
-        myIndentation.Add(false);
-        
-        builder.Append("└── ");
-        builder.Append(node.RightNode.GetTextForPrettyPrint(myIndentation.ToArray()));
         
         return builder.ToString();
     }
