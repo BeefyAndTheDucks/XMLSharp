@@ -4,9 +4,11 @@ namespace XMLSharpCompiler;
 
 public class ErrorReporter
 {
-    public void Report(string source, Diagnostic[] errors)
+    public void Report(string? source, Diagnostic[] errors)
     {
-        string[] lines = source.Replace("\r\n", "\n").Split('\n');
+        string[] lines = [];
+        if (source is not null)
+            lines = source.Replace("\r\n", "\n").Split('\n');
 
 
         foreach (Diagnostic error in errors)
@@ -18,10 +20,15 @@ public class ErrorReporter
 
                 _ => ConsoleColor.Cyan
             };
-            Console.Error.WriteLine($"{error.Type} at {error.Line}:{error.Col}");
+
+            if (error.Line > 0 && error.Col > 0)
+                Console.Error.WriteLine($"{error.Type} at {error.Line}:{error.Col}");
+            else
+                Console.Error.WriteLine($"{error.Type} — {error.Message}");
+
             Console.ResetColor();
 
-            if (error.Line > 0 && error.Line <= lines.Length)
+            if (source is not null && error.Line > 0 && error.Line <= lines.Length)
             {
                 string lineText = lines[error.Line - 1];
                 string lineNum = error.Line.ToString();
