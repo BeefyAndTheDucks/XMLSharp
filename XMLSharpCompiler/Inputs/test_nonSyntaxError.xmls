@@ -1,0 +1,20 @@
+$ Undefined variable
+number foo = bar;
+
+$ Use before declaration
+number baz = qux;
+qux = 5;
+
+$ Type mismatch
+number x = "hello";
+yesno flag = 42;
+
+$ Wrong type in condition
+number count = 0;
+if (count) {
+    write "bad";
+}
+
+$ Undefined function call
+number result = doesntExist(5);
+
