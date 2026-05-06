@@ -224,7 +224,7 @@ public partial class SyntaxValidator
             case NoToken:
             case IdentifierToken:
                 Advance();
-                
+
                 if (Current is OpenParenToken)
                 {
                     Advance();
@@ -272,6 +272,22 @@ public partial class SyntaxValidator
         Expect<SemicolonToken>("Expected ';' after return statement.");
     }
 
+    // add any tokens that mark the start of a new statement or block boundary.
+    private static readonly HashSet<Type> syncStopToken =
+    [
+        typeof(IfToken),
+        typeof(WhileToken),
+        typeof(ForToken),
+        typeof(PrintToken),
+        typeof(TypeToken),
+        typeof(EndBlockToken),
+        typeof(ElifToken),
+        typeof(ElseToken),
+        typeof(FunctionToken),
+        typeof(ReturnToken),
+    ];
+
+    // use this to recover to the next safe token
     private void Synchronise()
     {
         while (Current is not EOFToken)
@@ -281,9 +297,7 @@ public partial class SyntaxValidator
                 Advance();
                 return;
             }
-            if (Current is IfToken or WhileToken or ForToken or PrintToken
-                or TypeToken or EndBlockToken
-                or ElifToken or ElseToken)
+            if (syncStopToken.Contains(Current.GetType()))
                 return;
 
             Advance();
