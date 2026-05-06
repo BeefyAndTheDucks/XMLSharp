@@ -11,7 +11,13 @@ public class ErrorReporter
 
         foreach (Diagnostic error in errors)
         {
-            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.ForegroundColor = error.Type switch
+            {
+                XMLSErrorType.SyntaxError => ConsoleColor.Red,
+                XMLSErrorType.Warning => ConsoleColor.Yellow,
+
+                _ => ConsoleColor.Cyan
+            };
             Console.Error.WriteLine($"{error.Type} at {error.Line}:{error.Col}");
             Console.ResetColor();
 
