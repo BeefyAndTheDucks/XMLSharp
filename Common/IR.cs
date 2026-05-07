@@ -15,15 +15,21 @@ public class IR : IIR
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
     };
+
+    private bool _dirty;
     
     public IRInstruction[] FromAst(AstNode ast)
     {
+        if (_dirty)
+            throw new InvalidOperationException($"Cannot reuse IR instances after {nameof(FromAst)} has been called.");
+        _dirty = true;
+        
         _variableNameToVariableIndexTable.Clear();
         
         _temporaryValueIndex = 0;
         _variableIndex = 0;
         
-        return GenInstructions(ast).ToArray();
+        return GenInstructions(ast);
     }
 
     private IRInstruction[] GenInstructions(AstNode node)
@@ -69,9 +75,10 @@ public class IR : IIR
             // Arithmetics
             case AstNodeWithLeftRight lrNode:
                 instructions.AddRange(GenInstructions(lrNode.LeftNode));
+                int leftSideIndex = _temporaryValueIndex;
                 _temporaryValueIndex++;
                 instructions.AddRange(GenInstructions(lrNode.RightNode));
-                instructions.Add(new IRInstruction(lrNode.IrOperation, _temporaryValueIndex - 1, _temporaryValueIndex++, _temporaryValueIndex));
+                instructions.Add(new IRInstruction(lrNode.IrOperation, leftSideIndex, _temporaryValueIndex++, _temporaryValueIndex));
                 break;
             
             case AstNodeWithSingleChild singleChildNode:
