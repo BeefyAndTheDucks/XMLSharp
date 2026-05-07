@@ -409,7 +409,7 @@ public class AstGeneratorTests
             new NumberToken(1), new AddToken(), new NumberToken(2), new AddToken(), new NumberToken(3), new SemicolonToken(), new EOFToken()
         ];
         
-        AstNode ast = AstGenerator.ParseExpression(tokenInput);
+        AstNode ast = new AstGenerator().ParseExpression(tokenInput);
         
         Assert.That(ast, Is.EqualTo(new AddNode(new AddNode(new NumberNode(1), new NumberNode(2)), new NumberNode(3))));
     }
@@ -422,7 +422,7 @@ public class AstGeneratorTests
             new NumberToken(1), new AddToken(), new NumberToken(2), new MultiplyToken(), new NumberToken(3), new SemicolonToken(), new EOFToken()
         ];
         
-        AstNode ast = AstGenerator.ParseExpression(tokenInput);
+        AstNode ast = new AstGenerator().ParseExpression(tokenInput);
         
         Assert.That(ast, Is.EqualTo(new AddNode(new NumberNode(1), new MultiplyNode(new NumberNode(2), new NumberNode(3)))));
     }
@@ -436,7 +436,7 @@ public class AstGeneratorTests
             new NumberToken(1), new MultiplyToken(), new OpenParenToken(), new NumberToken(2), new AddToken(), new NumberToken(3), new CloseParenToken(), new MultiplyToken(), new NumberToken(4), new SemicolonToken(), new EOFToken()
         ];
         
-        AstNode ast = AstGenerator.ParseExpression(tokenInput);
+        AstNode ast = new AstGenerator().ParseExpression(tokenInput);
 
         Assert.That(ast, Is.EqualTo(
             new MultiplyNode(

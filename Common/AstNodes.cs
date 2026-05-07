@@ -8,7 +8,24 @@ public abstract record AstNode
     public sealed override string ToString() => this.GetTextForPrettyPrint();
 }
 
-public abstract record AstNodeWithChildren(AstNode[] Children, string? PrettyPrintLabel = null) : AstNode;
+public abstract record AstNodeWithChildren(AstNode[] Children, string? PrettyPrintLabel = null) : AstNode
+{
+    public virtual bool Equals(AstNodeWithChildren? other)
+    {
+        if (other is null || GetType() != other.GetType()) return false;
+        
+        return PrettyPrintLabel == other.PrettyPrintLabel &&
+               Children.SequenceEqual(other.Children); 
+    }
+
+    public override int GetHashCode()
+    {
+        HashCode hash = new();
+        hash.Add(PrettyPrintLabel);
+        foreach (AstNode child in Children) hash.Add(child);
+        return hash.ToHashCode();
+    }
+}
 
 public abstract record AstNodeWithLeftRight(AstNode LeftNode, AstNode RightNode, IROperation IrOperation, string? PrettyPrintLabel = null) : AstNodeWithChildren([LeftNode, RightNode], PrettyPrintLabel);
 
