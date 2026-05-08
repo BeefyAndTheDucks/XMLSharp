@@ -542,9 +542,6 @@ internal class ReturnHandler : IOperationHandler
         Dictionary<int, dynamic> variables,
         Dictionary<int, dynamic> parameters, Stack<int> callStack, Dictionary<int, int> functions, bool verboseMode)
     {
-        if (verboseMode)
-            Console.Write($"return {registers[instruction.Operand1]}");
-        
         return JumpTo(callStack.Pop() + 1, instructionIndex);
     }
 }
@@ -558,6 +555,9 @@ internal class CopyHandler : IOperationHandler
         Dictionary<int, dynamic> parameters, Stack<int> callStack, Dictionary<int, int> functions, bool verboseMode)
     {
         registers[instruction.Result] = registers[instruction.Operand1];
+        
+        if (verboseMode)
+            Console.Write($"{instruction.Result} = {registers[instruction.Result]}");
         
         return 1;
     }
