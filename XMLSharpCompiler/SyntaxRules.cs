@@ -20,7 +20,7 @@ public partial class SyntaxValidator
             case WhileToken: ValidateWhile(); break;
             case ForToken: ValidateFor(); break;
             case PrintToken: ValidatePrint(); break;
-            case IdentifierToken: ValidateAssignment(); break;
+            case IdentifierToken: ValidateIdentifier(); break;
             case FunctionToken: ValidateFunctionDefinition(); break;
             case ReturnToken: ValidateReturn(); break;
             default:
@@ -53,7 +53,7 @@ public partial class SyntaxValidator
         Expect<SemicolonToken>("Expected ';' after statement.");
     }
 
-    private void ValidateAssignment()
+    private void ValidateIdentifier()
     {
         Token nameTok = Current;
         Advance(); // identifier
@@ -77,6 +77,10 @@ public partial class SyntaxValidator
             case IncrementToken:
             case DecrementToken:
                 Advance();
+                Expect<SemicolonToken>("Expected ';' after statement.");
+                break;
+            case OpenParenToken:
+                ValidateFunctionCall();
                 Expect<SemicolonToken>("Expected ';' after statement.");
                 break;
             default:
@@ -231,11 +235,7 @@ public partial class SyntaxValidator
     private void ValidateUnary()
     {
         if (Current is NotToken)
-        {
             Advance();
-            ValidatePrimary();
-            return;
-        }
         ValidatePrimary();
     }
 
@@ -318,7 +318,8 @@ public partial class SyntaxValidator
     private void ValidateReturn()
     {
         Advance(); // return
-        ValidateExpression();
+        if (Current is not SemicolonToken)
+            ValidateExpression();
         Expect<SemicolonToken>("Expected ';' after return statement.");
     }
 

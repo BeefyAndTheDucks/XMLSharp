@@ -34,7 +34,7 @@ public class RunCommand : CommandBase
         } catch (Exception e)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.Error.WriteLine($"An error occured while running {inputFile.Name}: {e.Message}.");
+            Console.Error.WriteLine($"An error occured while running {inputFile.Name}: {e.Message}\n{e.StackTrace}");
             Console.ResetColor();
         }
     }

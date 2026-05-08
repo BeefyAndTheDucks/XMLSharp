@@ -2,6 +2,10 @@ fn number scale_by(number x, number by) {
     return x * by;
 }
 
+fn print(text t) {
+    write t;
+}
+
 number foo = 10 + 20;
 number bar = 10 + foo;
 number baz = 10 - 20;
@@ -89,6 +93,6 @@ for (number j = 0; j < 10; j++) {
     write "J is " # j;
 }
 
-write "Foo, but doubled is " # scale_by(foo, 2);
+print("Foo, but doubled is " # scale_by(foo, 2));
 
 write "Done!";

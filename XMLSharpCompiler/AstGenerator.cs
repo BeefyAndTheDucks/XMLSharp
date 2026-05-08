@@ -63,6 +63,12 @@ public class AstGenerator : IAstGenerator
             }
             case IdentifierToken identifierToken:
             {
+                if (tokens[currentIndex + 1] is OpenParenToken)
+                {
+                    endIndex = FindNextTokenOfType<SemicolonToken>(tokens, currentIndex);
+                    return ParseFunctionCall(tokens, currentIndex, identifierToken);
+                }
+                
                 currentIndex++;
                 ConvertOrThrow<AssignmentToken>(tokens[currentIndex++]);
                 endIndex = FindNextTokenOfType<SemicolonToken>(tokens, currentIndex);
@@ -84,8 +90,11 @@ public class AstGenerator : IAstGenerator
             {
                 currentIndex++;
                 XMLSType? returnType = null;
-                if (tokens[currentIndex++] is TypeToken type)
+                if (tokens[currentIndex] is TypeToken type)
+                {
                     returnType = type.Type;
+                    currentIndex++;
+                }
                 IdentifierToken identifierToken = ConvertOrThrow<IdentifierToken>(tokens[currentIndex++]);
                 ConvertOrThrow<OpenParenToken>(tokens[currentIndex++]);
                 List<(XMLSType Type, string ParamName)> parameters = [];
@@ -100,6 +109,17 @@ public class AstGenerator : IAstGenerator
                 currentIndex++;
                 int blockEnd = FindBlockEndIndex(tokens, currentIndex++);
                 AstNode block = ParseBlock(tokens.Skip(currentIndex).Take(blockEnd - currentIndex + 1).ToArray());
+                if (block is BlockNode blockNode)
+                {
+                    if (blockNode.Nodes[^1] is not ReturnNode)
+                        block = new BlockNode(blockNode.Nodes.Append(new VoidReturnNode()).ToArray());
+                }
+                else
+                {
+                    if (block is not ReturnNode)
+                        block = new BlockNode([block, new VoidReturnNode()]);
+                }
+                
                 int returnIndex = FindNextTokenOfType<ReturnToken>(tokens, currentIndex);
                 bool hasReturn = returnIndex > -1 && returnIndex < blockEnd;
                 if (returnType != null && !hasReturn)
@@ -107,12 +127,17 @@ public class AstGenerator : IAstGenerator
                 foreach (string parameter in parameters.Select(p => p.ParamName))
                     _arguments.Remove(parameter);
                 endIndex = blockEnd;
-                return new FunctionNode(identifierToken.Name, block);
+                return new FunctionNode(identifierToken.Name, returnType, block, parameters.Select(p => p.ParamName).ToArray());
             }
             
             case ReturnToken:
             {
                 currentIndex++;
+                if (tokens[currentIndex] is SemicolonToken)
+                {
+                    endIndex = currentIndex;
+                    return new VoidReturnNode();
+                }
                 endIndex = FindNextTokenOfType<SemicolonToken>(tokens, currentIndex);
                 return new ReturnNode(ParseExpression(tokens.Skip(currentIndex).ToArray()));
             }
@@ -236,7 +261,7 @@ public class AstGenerator : IAstGenerator
                 return NodeFromTokens(tokens, i);
             } catch (InvalidOperationException) {}
         }
-        throw new InvalidOperationException("Cannot create node from tokens.");
+        throw new InvalidOperationException($"Cannot create node from tokens.\n{tokens.GetTextForPrettyPrint()}");
     }
 
     private AstNode NodeFromTokens(Token[] tokens, int index)
@@ -270,8 +295,12 @@ public class AstGenerator : IAstGenerator
             return new GetVariableNode(ConvertOrThrow<IdentifierToken>(tokens[currentIndex]).Name);
         }
         
-        Console.WriteLine("Parsing function call.");
         // Function call...
+        return ParseFunctionCall(tokens, currentIndex, identifierToken);
+    }
+
+    private CallFunctionNode ParseFunctionCall(Token[] tokens, int currentIndex, IdentifierToken identifierToken)
+    {
         currentIndex += 2; // skip over identifier and open paren.
         List<AstNode> arguments = [];
         while (tokens[currentIndex] is not CloseParenToken)

@@ -88,8 +88,9 @@ public record ConcatNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftR
 #region Functions
 public record PrintNode(AstNode Value) : AstNodeWithSingleChild(Value, IROperation.Print);
 
-public record FunctionNode(string Name, AstNode Contents) : AstNodeWithChildren([Contents], Name);
-public record ReturnNode(AstNode Value) : AstNodeWithChildren([Value]);
+public record FunctionNode(string Name, XMLSType? ReturnType, AstNode Contents, string[] ParameterNames) : AstNodeWithChildren([Contents], $"{Name} returning {ReturnType.ToString() ?? "nothing"}.");
+public record ReturnNode(AstNode Value) : AstNodeWithSingleChild(Value, IROperation.Return);
+public record VoidReturnNode : AstNode;
 public record CallFunctionNode(string Name, AstNode[] Arguments) : AstNodeWithChildren(Arguments, Name);
 
 public record SetParameterNode(string Name, AstNode Value) : AstNodeWithChildren([Value], Name);
@@ -122,6 +123,7 @@ public static class AstNodeExtensions
                 DecimalNode decimalNode => decimalNode.Value.ToString(CultureInfo.InvariantCulture),
                 TextNode textNode => $"\"{textNode.Value}\"",
                 GetParameterNode getParameterNode => $"{nameof(GetParameterNode)} \"{getParameterNode.Name}\"",
+                VoidReturnNode => $"{nameof(VoidReturnNode)}",
                 _ => throw new NotSupportedException($"Pretty print for {node.GetType().Name} not implemented yet.")
             };
         }

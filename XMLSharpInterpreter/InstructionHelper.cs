@@ -33,4 +33,9 @@ public static class InstructionHelper
                 throw new InvalidOperationException($"Unsupported JSON value kind: {element.ValueKind}");
         }
     }
+    
+    public static int JumpTo(int destinationInstructionIndex, int currentInstructionIndex)
+    {
+        return destinationInstructionIndex - currentInstructionIndex;
+    }
 }
