@@ -227,6 +227,35 @@ public class AstGenerator : IAstGenerator
         }
         return -1;
     }
+
+    internal static int FindNextTokenInSameParenDepthOfType<T>(Token[] tokens, int startIndex) where T : Token
+    {
+        int index = startIndex;
+        int parensDepth = 0;
+        while (index < tokens.Length && tokens[index] is not EOFToken)
+        {
+            switch (tokens[index])
+            {
+                case T:
+                    if (parensDepth == 0)
+                        return index;
+                    if (typeof(T) == typeof(OpenParenToken))
+                        parensDepth++;
+                    if (typeof(T) == typeof(CloseParenToken))
+                        parensDepth--;
+                    break;
+                case OpenParenToken:
+                    parensDepth++;
+                    break;
+                case CloseParenToken:
+                    parensDepth--;
+                    break;
+            }
+            
+            index++;
+        }
+        return -1;
+    }
     
     internal static int FindBlockEndIndex(Token[] tokens, int startIndex, int startDepth = 0)
     {
@@ -305,10 +334,10 @@ public class AstGenerator : IAstGenerator
         List<AstNode> arguments = [];
         while (tokens[currentIndex] is not CloseParenToken)
         {
-            int endIndex = FindNextTokenOfType<SeparatorToken>(tokens, currentIndex);
+            int endIndex = FindNextTokenInSameParenDepthOfType<SeparatorToken>(tokens, currentIndex);
             bool foundSeparator = endIndex != -1;
             if (!foundSeparator)
-                endIndex = FindNextTokenOfType<CloseParenToken>(tokens, currentIndex);
+                endIndex = FindNextTokenInSameParenDepthOfType<CloseParenToken>(tokens, currentIndex);
             if (endIndex == -1)
                 throw new InvalidOperationException("Cannot find closing paren for function call.");
             arguments.Add(ParseExpression(tokens.Skip(currentIndex).Take(endIndex - currentIndex).ToArray()));
