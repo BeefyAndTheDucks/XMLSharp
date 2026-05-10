@@ -33,7 +33,10 @@ public class AstGenerator : IAstGenerator
         int index = 0;
         List<AstNode> nodes = [];
         
-        int blockEnd = FindBlockEndIndex(tokens, 0, 1);
+        if (tokens[0] is BeginBlockToken)
+            index++;
+        
+        int blockEnd = FindBlockEndIndex(tokens, index, 1);
 
         while (index < blockEnd)
         {
@@ -49,29 +52,27 @@ public class AstGenerator : IAstGenerator
     
     private AstNode ParseStatement(Token[] tokens, out int endIndex, int currentIndex)
     {
-        Token currentToken = tokens[currentIndex];
+        Token currentToken = tokens[currentIndex++];
 
         switch (currentToken)
         {
             case TypeToken typeToken:
             {
-                currentIndex++;
-                IdentifierToken identifierToken = ConvertOrThrow<IdentifierToken>(tokens[currentIndex++]);
-                ConvertOrThrow<AssignmentToken>(tokens[currentIndex++]);
-                endIndex = FindNextTokenOfType<SemicolonToken>(tokens, currentIndex);
+                IdentifierToken identifierToken = Consume<IdentifierToken>();
+                Consume<AssignmentToken>();
+                endIndex = StatementEndIndex();
                 return new CreateVariableNode(identifierToken.Name, typeToken.Type, ParseExpression(tokens.Skip(currentIndex).ToArray()));
             }
             case IdentifierToken identifierToken:
             {
-                if (tokens[currentIndex + 1] is OpenParenToken)
+                if (TryConsumeNoOut<OpenParenToken>())
                 {
-                    endIndex = FindNextTokenOfType<SemicolonToken>(tokens, currentIndex);
+                    endIndex = StatementEndIndex();
                     return ParseFunctionCall(tokens, currentIndex, identifierToken);
                 }
                 
-                currentIndex++;
-                ConvertOrThrow<AssignmentToken>(tokens[currentIndex++]);
-                endIndex = FindNextTokenOfType<SemicolonToken>(tokens, currentIndex);
+                Consume<AssignmentToken>();
+                endIndex = StatementEndIndex();
                 AstNode expression = ParseExpression(tokens.Skip(currentIndex).ToArray());
                 if (_arguments.Contains(identifierToken.Name))
                     return new SetParameterNode(identifierToken.Name, expression);
@@ -81,33 +82,29 @@ public class AstGenerator : IAstGenerator
             // Functions
             case PrintToken:
             {
-                currentIndex++;
-                endIndex = FindNextTokenOfType<SemicolonToken>(tokens, currentIndex);
+                endIndex = StatementEndIndex();
                 return new PrintNode(ParseExpression(tokens.Skip(currentIndex).ToArray()));
             }
 
             case FunctionToken:
             {
-                currentIndex++;
                 XMLSType? returnType = null;
-                if (tokens[currentIndex] is TypeToken type)
-                {
+                if (TryConsume(out TypeToken type))
                     returnType = type.Type;
-                    currentIndex++;
-                }
-                IdentifierToken identifierToken = ConvertOrThrow<IdentifierToken>(tokens[currentIndex++]);
-                ConvertOrThrow<OpenParenToken>(tokens[currentIndex++]);
+                IdentifierToken identifierToken = Consume<IdentifierToken>();
+                Consume<OpenParenToken>();
                 List<(XMLSType Type, string ParamName)> parameters = [];
                 while (tokens[currentIndex] is not CloseParenToken)
                 {
-                    parameters.Add((ConvertOrThrow<TypeToken>(tokens[currentIndex++]).Type,
-                        ConvertOrThrow<IdentifierToken>(tokens[currentIndex++]).Name));
-                    if (tokens[currentIndex] is SeparatorToken)
-                        currentIndex++;
+                    TypeToken typeToken = Consume<TypeToken>();
+                    IdentifierToken paramIdentifierToken = Consume<IdentifierToken>();
+                    parameters.Add((typeToken.Type, paramIdentifierToken.Name));
+                    TryConsumeNoOut<SeparatorToken>();
                 }
+
+                Consume<CloseParenToken>();
                 _arguments.AddRange(parameters.Select(p => p.ParamName));
-                currentIndex++;
-                int blockEnd = FindBlockEndIndex(tokens, currentIndex++);
+                int blockEnd = BlockEndIndex(currentIndex);
                 AstNode block = ParseBlock(tokens.Skip(currentIndex).Take(blockEnd - currentIndex + 1).ToArray());
                 if (block is BlockNode blockNode)
                 {
@@ -132,23 +129,22 @@ public class AstGenerator : IAstGenerator
             
             case ReturnToken:
             {
-                currentIndex++;
-                if (tokens[currentIndex] is SemicolonToken)
+                if (TryConsumeNoOut<SemicolonToken>())
                 {
                     endIndex = currentIndex;
                     return new VoidReturnNode();
                 }
-                endIndex = FindNextTokenOfType<SemicolonToken>(tokens, currentIndex);
+                endIndex = StatementEndIndex();
                 return new ReturnNode(ParseExpression(tokens.Skip(currentIndex).ToArray()));
             }
             
             // Control-flow
             case IfToken:
             {
-                int blockBeginning = FindNextTokenOfType<BeginBlockToken>(tokens, currentIndex);
+                int blockBeginning = BlockBeginIndex();
                 AstNode condition = ParseExpression(tokens.Skip(currentIndex + 1).Take(blockBeginning - currentIndex - 1).ToArray());
                 
-                int blockEnd = FindBlockEndIndex(tokens, blockBeginning - 1);
+                int blockEnd = BlockEndIndex(blockBeginning - 1);
                 AstNode block = ParseBlock(tokens.Skip(blockBeginning + 1).Take(blockEnd - blockBeginning).ToArray());
                 
                 if (tokens[blockEnd + 1] is not ElseToken)
@@ -157,8 +153,8 @@ public class AstGenerator : IAstGenerator
                     return new IfNode(condition, block, null);
                 }
                 
-                int elseBlockBeginning = FindNextTokenOfType<BeginBlockToken>(tokens, blockEnd + 1);
-                int elseBlockEnd = FindBlockEndIndex(tokens, elseBlockBeginning - 1);
+                int elseBlockBeginning = BlockBeginIndex(blockEnd + 1);
+                int elseBlockEnd = BlockEndIndex(elseBlockBeginning - 1);
                 AstNode elseBlock = ParseBlock(tokens.Skip(elseBlockBeginning + 1).Take(elseBlockEnd - elseBlockBeginning).ToArray());
 
                 endIndex = elseBlockEnd;
@@ -168,10 +164,10 @@ public class AstGenerator : IAstGenerator
 
             case WhileToken:
             {
-                int blockBeginning = FindNextTokenOfType<BeginBlockToken>(tokens, currentIndex);
+                int blockBeginning = BlockBeginIndex();
                 AstNode condition = ParseExpression(tokens.Skip(currentIndex + 1).Take(blockBeginning - currentIndex - 1).ToArray());
                 
-                int blockEnd = FindBlockEndIndex(tokens, blockBeginning - 1);
+                int blockEnd = BlockEndIndex(blockBeginning - 1);
                 AstNode block = ParseBlock(tokens.Skip(blockBeginning + 1).Take(blockEnd - blockBeginning).ToArray());
 
                 endIndex = blockEnd;
@@ -181,8 +177,7 @@ public class AstGenerator : IAstGenerator
 
             case ForToken:
             {
-                currentIndex++;
-                ConvertOrThrow<OpenParenToken>(tokens[currentIndex++]);
+                Consume<OpenParenToken>();
                 int loopHeaderEnd = FindNextTokenOfType<SemicolonToken>(tokens, currentIndex);
                 AstNode loopHeader = ParseStatement(tokens.Skip(currentIndex).Take(loopHeaderEnd - currentIndex + 1).ToArray(), out _, 0);
                 int conditionEnd = FindNextTokenOfType<SemicolonToken>(tokens, loopHeaderEnd + 1);
@@ -190,7 +185,7 @@ public class AstGenerator : IAstGenerator
                 int loopFooterEnd = FindNextTokenOfType<CloseParenToken>(tokens, conditionEnd + 1);
                 AstNode loopFooter = ParseStatement(tokens.Skip(conditionEnd + 1).Take(loopFooterEnd - conditionEnd - 1).Append(new SemicolonToken()).ToArray(), out _, 0);
                 
-                int loopBlockEnd = FindBlockEndIndex(tokens, loopFooterEnd);
+                int loopBlockEnd = BlockEndIndex(loopFooterEnd);
                 AstNode block = ParseBlock(tokens.Skip(loopFooterEnd + 2).Take(loopBlockEnd - loopFooterEnd).ToArray());
 
                 endIndex = loopBlockEnd;
@@ -205,6 +200,14 @@ public class AstGenerator : IAstGenerator
         }
         
         throw new UnexpectedTokenException(currentToken);
+
+        T Consume<T>() where T : Token => ConsumeToken<T>(tokens, ref currentIndex);
+        bool TryConsume<T>(out T token) where T : Token => TryConsumeToken(tokens, ref currentIndex, out token);
+        bool TryConsumeNoOut<T>() where T : Token => TryConsumeToken<T>(tokens, ref currentIndex, out _);
+        
+        int StatementEndIndex() => FindNextTokenOfType<SemicolonToken>(tokens, currentIndex);
+        int BlockBeginIndex(int? beginIndex = null) => FindNextTokenOfType<BeginBlockToken>(tokens, beginIndex ?? currentIndex);
+        int BlockEndIndex(int? beginIndex = null, int startDepth = 0) => FindBlockEndIndex(tokens, beginIndex ?? currentIndex++, startDepth);
     }
 
     internal AstNode ParseExpression(Token[] tokens, int? stopIndex = null)
@@ -311,26 +314,17 @@ public class AstGenerator : IAstGenerator
 
     private AstNode ParseIdentifierInExpression(Token[] tokens, int currentIndex)
     {
-        IdentifierToken identifierToken = ConvertOrThrow<IdentifierToken>(tokens[currentIndex]); // This should never throw.
-        Token? nextToken = null;
-        try
-        {
-            nextToken = tokens[currentIndex + 1];
-        } catch (IndexOutOfRangeException) {}
-        if (nextToken is not OpenParenToken)
-        {
-            if (_arguments.Contains(identifierToken.Name))
-                return new GetParameterNode(identifierToken.Name);
-            return new GetVariableNode(ConvertOrThrow<IdentifierToken>(tokens[currentIndex]).Name);
-        }
+        IdentifierToken identifierToken = ConsumeToken<IdentifierToken>(tokens, ref currentIndex); // This should never throw.
+
+        if (TryConsumeToken<OpenParenToken>(tokens, ref currentIndex, out _)) return ParseFunctionCall(tokens, currentIndex, identifierToken);
         
-        // Function call...
-        return ParseFunctionCall(tokens, currentIndex, identifierToken);
+        if (_arguments.Contains(identifierToken.Name))
+            return new GetParameterNode(identifierToken.Name);
+        return new GetVariableNode(identifierToken.Name);
     }
 
     private CallFunctionNode ParseFunctionCall(Token[] tokens, int currentIndex, IdentifierToken identifierToken)
     {
-        currentIndex += 2; // skip over identifier and open paren.
         List<AstNode> arguments = [];
         while (tokens[currentIndex] is not CloseParenToken)
         {
@@ -392,7 +386,7 @@ public class AstGenerator : IAstGenerator
             SubtractToken => 10,
             MultiplyToken => 20,
             DivideToken => 20,
-            ModuloToken => 20, // according to https://www.calc-tools.com/formulas/order-of-operations-understanding-modulo, modulo has the same OOO as Mult and Divide.
+            ModuloToken => 20, // according to https://www.calc-tools.com/formulas/order-of-operations-understanding-modulo, modulo has the same precedence as Mult and Divide.
             
             // Boolean
             AndToken => 10,
@@ -451,10 +445,30 @@ public class AstGenerator : IAstGenerator
         AstNode GetRhs() => ParseExpression(tokens.Skip(currentIndex + 1).ToArray());
     }
 
-    private static T ConvertOrThrow<T>(Token token)
+    private static bool TryConsumeToken<T>(Token[] currentTokens, ref int currentIndex, out T consumed) where T : Token
     {
-        if (token is T t) return t;
-        throw new UnexpectedTokenException(token);
+        if (currentIndex >= currentTokens.Length)
+        {
+            consumed = null!;
+            return false;
+        }
+        Token nextToken = currentTokens[currentIndex];
+        if (nextToken is T token)
+        {
+            consumed = token;
+            currentIndex++;
+            return true;
+        }
+
+        consumed = null!;
+        return false;
+    }
+
+    private static T ConsumeToken<T>(Token[] currentTokens, ref int currentIndex) where T : Token
+    {
+        return TryConsumeToken(currentTokens, ref currentIndex, out T consumed)
+            ? consumed
+            : throw new UnexpectedTokenException(currentTokens[currentIndex]);
     }
 }
 
