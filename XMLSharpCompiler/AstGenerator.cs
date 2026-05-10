@@ -18,7 +18,7 @@ public class AstGenerator : IAstGenerator
 
         while (tokens[index] is not EOFToken)
         {
-            nodes.Add(Parse(tokens, out index, index));
+            nodes.Add(ParseStatement(tokens, out index, index));
             
             index++;
         }
@@ -37,7 +37,7 @@ public class AstGenerator : IAstGenerator
 
         while (index < blockEnd)
         {
-            nodes.Add(Parse(tokens, out index, index));
+            nodes.Add(ParseStatement(tokens, out index, index));
 
             index++;
         }
@@ -47,7 +47,7 @@ public class AstGenerator : IAstGenerator
         return new BlockNode(nodes.ToArray());
     }
     
-    private AstNode Parse(Token[] tokens, out int endIndex, int currentIndex)
+    private AstNode ParseStatement(Token[] tokens, out int endIndex, int currentIndex)
     {
         Token currentToken = tokens[currentIndex];
 
@@ -184,11 +184,11 @@ public class AstGenerator : IAstGenerator
                 currentIndex++;
                 ConvertOrThrow<OpenParenToken>(tokens[currentIndex++]);
                 int loopHeaderEnd = FindNextTokenOfType<SemicolonToken>(tokens, currentIndex);
-                AstNode loopHeader = Parse(tokens.Skip(currentIndex).Take(loopHeaderEnd - currentIndex + 1).ToArray(), out _, 0);
+                AstNode loopHeader = ParseStatement(tokens.Skip(currentIndex).Take(loopHeaderEnd - currentIndex + 1).ToArray(), out _, 0);
                 int conditionEnd = FindNextTokenOfType<SemicolonToken>(tokens, loopHeaderEnd + 1);
                 AstNode condition = ParseExpression(tokens.Skip(loopHeaderEnd + 1).Take(conditionEnd - loopHeaderEnd).ToArray());
                 int loopFooterEnd = FindNextTokenOfType<CloseParenToken>(tokens, conditionEnd + 1);
-                AstNode loopFooter = Parse(tokens.Skip(conditionEnd + 1).Take(loopFooterEnd - conditionEnd - 1).Append(new SemicolonToken()).ToArray(), out _, 0);
+                AstNode loopFooter = ParseStatement(tokens.Skip(conditionEnd + 1).Take(loopFooterEnd - conditionEnd - 1).Append(new SemicolonToken()).ToArray(), out _, 0);
                 
                 int loopBlockEnd = FindBlockEndIndex(tokens, loopFooterEnd);
                 AstNode block = ParseBlock(tokens.Skip(loopFooterEnd + 2).Take(loopBlockEnd - loopFooterEnd).ToArray());
