@@ -225,4 +225,17 @@ public class IR : IIR
     {
         return JsonSerializer.Deserialize<IRProgram>(File.ReadAllText(file.FullName), _options);
     }
+
+    public bool IsIR(FileInfo file)
+    {
+        try
+        {
+            ReadFromFile(file);
+            return true;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
 }

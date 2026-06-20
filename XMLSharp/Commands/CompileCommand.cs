@@ -19,9 +19,8 @@ public class CompileCommand : CommandBase
             Console.Error.WriteLine($"File {inputFile.FullName} does not exist.");
             Environment.Exit(1);
         }
-        
-        FileInfo outputFile = parseResult.GetValue(_outputFileArg) ?? new FileInfo(
-            Path.Combine(inputFile.Directory!.FullName, Path.GetFileNameWithoutExtension(inputFile.Name) + ".ir"));
+
+        FileInfo outputFile = parseResult.GetValue(_outputFileArg) ?? Helpers.GetIRFileForSourceFile(inputFile);
 
         bool verbose = parseResult.GetValue(_verboseArg);
         

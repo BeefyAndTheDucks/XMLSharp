@@ -69,6 +69,11 @@ public class Interpreter
         }
     }
 
+    public static bool CanInterpret(FileInfo file)
+    {
+        return new IR().IsIR(file);
+    }
+
     public record RunSettings
     {
         public bool VerboseMode = false;

@@ -7,6 +7,7 @@ public interface IIR
     IRProgram FromAst(AstNode ast);
     void WriteToFile(FileInfo file, IRProgram program);
     IRProgram? ReadFromFile(FileInfo file);
+    bool IsIR(FileInfo file);
 }
 
 public record IRProgram(
