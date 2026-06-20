@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using Common;
 
 namespace XMLSharpInterpreter;
@@ -6,12 +7,14 @@ namespace XMLSharpInterpreter;
 public class Interpreter
 {
     private readonly Dictionary<IROperation, IOperationHandler> _handlers = OperationHandlers.All.ToDictionary(h => h.Operation);
-    internal Dictionary<int, dynamic> Registers { get; } = [];
-    internal Dictionary<int, dynamic> Variables { get; } = [];
-    internal Dictionary<int, dynamic> Parameters { get; } = [];
-    private Stack<int> CallStack { get; } = [];
+    internal Stack<Dictionary<int, dynamic>> Registers { get; } = [];
+    internal Stack<Dictionary<int, dynamic>> Variables { get; } = [];
+    internal Stack<Dictionary<int, dynamic>> Parameters { get; } = [];
+    private Stack<FunctionCall> CallStack { get; } = [];
     private Dictionary<int, int> Functions { get; } = []; // Key = function index, value = function info (begin index, result temp var)
 
+    private int _debuggerCallstackPadding = 70;
+    
     public void Run(IRProgram program, RunSettings settings)
     {
         // Validate that there exists a handler for each IROperation
@@ -23,11 +26,17 @@ public class Interpreter
             Console.ResetColor();
         }
         
+        Registers.Push([]);
+        Variables.Push([]);
+        
         Stopwatch sw = Stopwatch.StartNew();
         
         int instructionIndex = 0;
         while (instructionIndex < program.Instructions.Length)
         {
+            if (settings.Debugger)
+                Console.Clear();
+            
             IRInstruction instruction = program.Instructions[instructionIndex];
             IOperationHandler handler = _handlers[instruction.Operation];
 
@@ -38,6 +47,57 @@ public class Interpreter
             
             if (settings.VerboseMode)
                 Console.WriteLine('\"');
+            
+            if (settings.Debugger)
+            {
+                StringBuilder sb = new();
+                
+                for (int i = 0; i < program.Instructions.Length; i++)
+                {
+                    sb.Clear();
+                    if (i == instructionIndex)
+                        sb.Append("> ");
+                    sb.Append($"[{i}] ");
+                    IRInstruction instructionToPrint = program.Instructions[i];
+                    sb.Append(instructionToPrint);
+                    if (instructionToPrint.Operation == IROperation.GetParameter)
+                    {
+                        if (Parameters.Count > 0)
+                            if (Parameters.Peek().TryGetValue(instructionToPrint.Operand1, out var parameterValue))
+                                sb.Append($" // Parameters[{instructionToPrint.Operand1}] = {parameterValue}");
+                    } else if (instructionToPrint.Operation == IROperation.GetVar)
+                    {
+                        if (Variables.Count > 0)
+                            if (Variables.Peek().TryGetValue(instructionToPrint.Operand1, out var variableValue))
+                                sb.Append($" // Variables[{instructionToPrint.Operand1}] = {variableValue}");
+                    }
+                    else
+                    {
+                        if (Parameters.Count > 0)
+                            if (Registers.Peek().TryGetValue(instructionToPrint.Result, out var registerValue))
+                                sb.Append($" // Registers[{instructionToPrint.Result}] = {registerValue}");
+                    }
+                    int padding = _debuggerCallstackPadding - sb.Length;
+                    if (padding < 0)
+                    {
+                        _debuggerCallstackPadding = sb.Length + 5;
+                        padding = 0;
+                    }
+                    sb.Append(new string(' ', padding));
+                    sb.Append("| ");
+                    if (i < CallStack.Count)
+                    {
+                        FunctionCall callStackEntry = CallStack.ElementAt(i);
+                        sb.Append(callStackEntry.ReturnLocation);
+                    }
+                    Console.WriteLine(sb);
+                }
+                
+                if (settings.DebuggerAutoStepRate is not null && settings.DebuggerAutoStepRate.Value > TimeSpan.Zero)
+                    Thread.Sleep(settings.DebuggerAutoStepRate.Value);
+                else
+                    Console.ReadKey();
+            }
 
             instructionIndex += delta;
         }
@@ -71,13 +131,22 @@ public class Interpreter
 
     public static bool CanInterpret(FileInfo file)
     {
-        return new IR().IsIR(file);
+        IIR ir = new IR();
+        return ir.IsIR(file);
     }
 
     public record RunSettings
     {
         public bool VerboseMode = false;
+        public bool Debugger = false;
+
+        public TimeSpan? DebuggerAutoStepRate;
     }
+}
+
+public record FunctionCall
+{
+    public int ReturnLocation;
 }
 
 public record InterpreterSettings
@@ -85,12 +154,18 @@ public record InterpreterSettings
     public required FileInfo InputFile;
     
     public bool VerboseMode = false;
+    public bool Debugger = false;
+
+    public TimeSpan? DebuggerAutoStepRate;
 
     internal Interpreter.RunSettings ToRunSettings()
     {
         return new Interpreter.RunSettings
         {
-            VerboseMode = VerboseMode
+            Debugger = Debugger,
+            VerboseMode = VerboseMode,
+            
+            DebuggerAutoStepRate = DebuggerAutoStepRate
         };
     }
 }

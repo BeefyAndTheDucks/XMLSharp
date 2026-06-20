@@ -34,14 +34,15 @@ internal class ConstantHandler : IOperationHandler
     public IROperation Operation => IROperation.Constant;
 
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
-        registers[instruction.Result] = GetConstantValue(constants[instruction.Operand1]);
+        registers.Peek()[instruction.Result] = GetConstantValue(constants[instruction.Operand1]);
         
         if (verboseMode)
-            Console.Write($"{registers[instruction.Result]}");
+            Console.Write($"{registers.Peek()[instruction.Result]}");
         
         return 1;
     }
@@ -54,14 +55,15 @@ internal class PrintHandler : IOperationHandler
     public IROperation Operation => IROperation.Print;
 
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
         if (verboseMode)
-            Console.Write(registers[instruction.Operand1]);
+            Console.Write(registers.Peek()[instruction.Operand1]);
         else
-            Console.WriteLine(registers[instruction.Operand1]);
+            Console.WriteLine(registers.Peek()[instruction.Operand1]);
         
         return 1;
     }
@@ -74,14 +76,15 @@ internal class AddHandler : IOperationHandler
     public IROperation Operation => IROperation.Add;
 
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
-        registers[instruction.Result] = registers[instruction.Operand1] + registers[instruction.Operand2];
+        registers.Peek()[instruction.Result] = registers.Peek()[instruction.Operand1] + registers.Peek()[instruction.Operand2];
         
         if (verboseMode)
-            Console.Write($"{registers[instruction.Result]}");
+            Console.Write($"{registers.Peek()[instruction.Result]}");
 
         return 1;
     }
@@ -94,14 +97,15 @@ internal class SubHandler : IOperationHandler
     public IROperation Operation => IROperation.Sub;
 
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
-        registers[instruction.Result] = registers[instruction.Operand1] - registers[instruction.Operand2];
+        registers.Peek()[instruction.Result] = registers.Peek()[instruction.Operand1] - registers.Peek()[instruction.Operand2];
         
         if (verboseMode)
-            Console.Write($"{registers[instruction.Result]}");
+            Console.Write($"{registers.Peek()[instruction.Result]}");
 
         return 1;
     }
@@ -114,14 +118,15 @@ internal class MulHandler : IOperationHandler
     public IROperation Operation => IROperation.Mul;
 
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
-        registers[instruction.Result] = registers[instruction.Operand1] * registers[instruction.Operand2];
+        registers.Peek()[instruction.Result] = registers.Peek()[instruction.Operand1] * registers.Peek()[instruction.Operand2];
         
         if (verboseMode)
-            Console.Write($"{registers[instruction.Result]}");
+            Console.Write($"{registers.Peek()[instruction.Result]}");
 
         return 1;
     }
@@ -134,14 +139,15 @@ internal class DivHandler : IOperationHandler
     public IROperation Operation => IROperation.Div;
 
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
-        registers[instruction.Result] = registers[instruction.Operand1] / registers[instruction.Operand2];
+        registers.Peek()[instruction.Result] = registers.Peek()[instruction.Operand1] / registers.Peek()[instruction.Operand2];
         
         if (verboseMode)
-            Console.Write($"{registers[instruction.Result]}");
+            Console.Write($"{registers.Peek()[instruction.Result]}");
 
         return 1;
     }
@@ -154,14 +160,15 @@ internal class ModHandler : IOperationHandler
     public IROperation Operation => IROperation.Mod;
 
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
-        registers[instruction.Result] = registers[instruction.Operand1] % registers[instruction.Operand2];
+        registers.Peek()[instruction.Result] = registers.Peek()[instruction.Operand1] % registers.Peek()[instruction.Operand2];
         
         if (verboseMode)
-            Console.Write($"{registers[instruction.Result]}");
+            Console.Write($"{registers.Peek()[instruction.Result]}");
         
         return 1;
     }
@@ -174,16 +181,17 @@ internal class CreateVarHandler : IOperationHandler
     public IROperation Operation => IROperation.CreateVar;
 
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
         if (variables is null) throw new InvalidOperationException("Variables table is required for variable operations.");
 
-        variables[instruction.Operand1] = registers[instruction.Operand2];
+        variables.Peek()[instruction.Operand1] = registers.Peek()[instruction.Operand2];
         
         if (verboseMode)
-            Console.Write($"{variables[instruction.Operand1]}");
+            Console.Write($"{variables.Peek()[instruction.Operand1]}");
         
         return 1;
     }
@@ -196,16 +204,17 @@ internal class SetVarHandler : IOperationHandler
     public IROperation Operation => IROperation.SetVar;
 
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
         if (variables is null) throw new InvalidOperationException("Variables table is required for variable operations.");
 
-        variables[instruction.Operand1] = registers[instruction.Operand2];
+        variables.Peek()[instruction.Operand1] = registers.Peek()[instruction.Operand2];
         
         if (verboseMode)
-            Console.Write($"{variables[instruction.Operand1]}");
+            Console.Write($"{variables.Peek()[instruction.Operand1]}");
         
         return 1;
     }
@@ -218,16 +227,17 @@ internal class GetVarHandler : IOperationHandler
     public IROperation Operation => IROperation.GetVar;
 
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
         if (variables is null) throw new InvalidOperationException("Variables table is required for variable operations.");
 
-        registers[instruction.Result] = variables[instruction.Operand1];
+        registers.Peek()[instruction.Result] = variables.Peek()[instruction.Operand1];
         
         if (verboseMode)
-            Console.Write($"{registers[instruction.Result]}");
+            Console.Write($"{registers.Peek()[instruction.Result]}");
         
         return 1;
     }
@@ -238,14 +248,15 @@ internal class EqualHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Equal;
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
-        registers[instruction.Result] = registers[instruction.Operand1] == registers[instruction.Operand2];
+        registers.Peek()[instruction.Result] = registers.Peek()[instruction.Operand1] == registers.Peek()[instruction.Operand2];
         
         if (verboseMode)
-            Console.Write($"{registers[instruction.Result]}");
+            Console.Write($"{registers.Peek()[instruction.Result]}");
         
         return 1;
     }
@@ -256,14 +267,15 @@ internal class NotEqualHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.NotEqual;
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
-        registers[instruction.Result] = registers[instruction.Operand1] != registers[instruction.Operand2];
+        registers.Peek()[instruction.Result] = registers.Peek()[instruction.Operand1] != registers.Peek()[instruction.Operand2];
         
         if (verboseMode)
-            Console.Write($"{registers[instruction.Result]}");
+            Console.Write($"{registers.Peek()[instruction.Result]}");
         
         return 1;
     }
@@ -274,14 +286,15 @@ internal class GreaterHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.GreaterThan;
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
-        registers[instruction.Result] = registers[instruction.Operand1] > registers[instruction.Operand2];
+        registers.Peek()[instruction.Result] = registers.Peek()[instruction.Operand1] > registers.Peek()[instruction.Operand2];
         
         if (verboseMode)
-            Console.Write($"{registers[instruction.Result]}");
+            Console.Write($"{registers.Peek()[instruction.Result]}");
         
         return 1;
     }
@@ -292,14 +305,15 @@ internal class GreaterOrEqualHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.GreaterThanOrEqual;
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
-        registers[instruction.Result] = registers[instruction.Operand1] >= registers[instruction.Operand2];
+        registers.Peek()[instruction.Result] = registers.Peek()[instruction.Operand1] >= registers.Peek()[instruction.Operand2];
         
         if (verboseMode)
-            Console.Write($"{registers[instruction.Result]}");
+            Console.Write($"{registers.Peek()[instruction.Result]}");
         
         return 1;
     }
@@ -310,14 +324,15 @@ internal class LessHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.LessThan;
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
-        registers[instruction.Result] = registers[instruction.Operand1] < registers[instruction.Operand2];
+        registers.Peek()[instruction.Result] = registers.Peek()[instruction.Operand1] < registers.Peek()[instruction.Operand2];
         
         if (verboseMode)
-            Console.Write($"{registers[instruction.Result]}");
+            Console.Write($"{registers.Peek()[instruction.Result]}");
         
         return 1;
     }
@@ -328,14 +343,15 @@ internal class LessOrEqualHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.LessThanOrEqual;
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
-        registers[instruction.Result] = registers[instruction.Operand1] <= registers[instruction.Operand2];
+        registers.Peek()[instruction.Result] = registers.Peek()[instruction.Operand1] <= registers.Peek()[instruction.Operand2];
         
         if (verboseMode)
-            Console.Write($"{registers[instruction.Result]}");
+            Console.Write($"{registers.Peek()[instruction.Result]}");
         
         return 1;
     }
@@ -347,14 +363,15 @@ internal class AndHandler : IOperationHandler
     public IROperation Operation => IROperation.And;
 
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
-        registers[instruction.Result] = registers[instruction.Operand1] && registers[instruction.Operand2];
+        registers.Peek()[instruction.Result] = registers.Peek()[instruction.Operand1] && registers.Peek()[instruction.Operand2];
         
         if (verboseMode)
-            Console.Write($"{registers[instruction.Result]}");
+            Console.Write($"{registers.Peek()[instruction.Result]}");
         
         return 1;
     }
@@ -367,14 +384,15 @@ internal class OrHandler : IOperationHandler
     public IROperation Operation => IROperation.Or;
 
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
-        registers[instruction.Result] = registers[instruction.Operand1] || registers[instruction.Operand2];
+        registers.Peek()[instruction.Result] = registers.Peek()[instruction.Operand1] || registers.Peek()[instruction.Operand2];
         
         if (verboseMode)
-            Console.Write($"{registers[instruction.Result]}");
+            Console.Write($"{registers.Peek()[instruction.Result]}");
         
         return 1;
     }
@@ -387,14 +405,15 @@ internal class XorHandler : IOperationHandler
     public IROperation Operation => IROperation.Xor;
 
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
-        registers[instruction.Result] = registers[instruction.Operand1] ^ registers[instruction.Operand2];
+        registers.Peek()[instruction.Result] = registers.Peek()[instruction.Operand1] ^ registers.Peek()[instruction.Operand2];
         
         if (verboseMode)
-            Console.Write($"{registers[instruction.Result]}");
+            Console.Write($"{registers.Peek()[instruction.Result]}");
         
         return 1;
     }
@@ -405,14 +424,15 @@ internal class ConcatHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Concat;
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
-        registers[instruction.Result] = registers[instruction.Operand1].ToString() + registers[instruction.Operand2].ToString();
+        registers.Peek()[instruction.Result] = registers.Peek()[instruction.Operand1].ToString() + registers.Peek()[instruction.Operand2].ToString();
         
         if (verboseMode)
-            Console.Write($"{registers[instruction.Result]}");
+            Console.Write($"{registers.Peek()[instruction.Result]}");
         
         return 1;
     }
@@ -423,14 +443,15 @@ internal class NotHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Not;
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
         if (verboseMode)
-            Console.Write($"{!registers[instruction.Operand1]}");
+            Console.Write($"{!registers.Peek()[instruction.Operand1]}");
         
-        registers[instruction.Result] = !registers[instruction.Operand1];
+        registers.Peek()[instruction.Result] = !registers.Peek()[instruction.Operand1];
         return 1;
     }
 }
@@ -441,8 +462,9 @@ internal class JumpHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Jump;
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
         if (verboseMode)
@@ -459,11 +481,12 @@ internal class IfHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.If;
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
-        dynamic value = registers[instruction.Operand1];
+        dynamic value = registers.Peek()[instruction.Operand1];
 
         bool condition = value switch
         {
@@ -486,8 +509,9 @@ internal class FunctionDefinitionHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.DefineFunction;
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables, Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
         functions[instruction.Operand1] = instructionIndex;
@@ -505,15 +529,15 @@ internal class SetParameterHandler : IOperationHandler
     public IROperation Operation => IROperation.SetParameter;
 
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables,
-        Dictionary<int, dynamic> parameters,
-        Stack<int> callStack, Dictionary<int, int> functions, bool verboseMode)
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables,
+        Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack, Dictionary<int, int> functions, bool verboseMode)
     {
-        parameters[instruction.Operand1] = registers[instruction.Operand2];
+        parameters.Peek()[instruction.Result] = registers.Peek()[instruction.Operand1];
         
         if (verboseMode)
-            Console.Write($"param {instruction.Operand1} = {registers[instruction.Operand2]}");
+            Console.Write($"param {instruction.Result} = {registers.Peek()[instruction.Operand1]}");
         
         return 1;
     }
@@ -525,11 +549,19 @@ internal class FunctionCallHandler : IOperationHandler
     public IROperation Operation => IROperation.CallFunction;
 
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables,
-        Dictionary<int, dynamic> parameters, Stack<int> callStack, Dictionary<int, int> functions, bool verboseMode)
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables,
+        Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack, Dictionary<int, int> functions, bool verboseMode)
     {
-        callStack.Push(instructionIndex);
+        FunctionCall functionCall = new()
+        {
+            ReturnLocation = instructionIndex + 1,
+        };
+        callStack.Push(functionCall);
+        
+        registers.Push([]);
+        variables.Push([]);
         
         int functionCallIndex = instruction.Operand1;
         int functionCallBeginIndex = functions[functionCallIndex] + 2;
@@ -548,14 +580,15 @@ internal class GetParameterHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.GetParameter;
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables,
-        Dictionary<int, dynamic> parameters, Stack<int> callStack, Dictionary<int, int> functions, bool verboseMode)
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables,
+        Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack, Dictionary<int, int> functions, bool verboseMode)
     {
-        registers[instruction.Result] = parameters[instruction.Operand1];
+        registers.Peek()[instruction.Result] = parameters.Peek()[instruction.Operand1];
         
         if (verboseMode)
-            Console.Write($"register {instruction.Result} = {parameters[instruction.Operand1]}");
+            Console.Write($"register {instruction.Result} = {parameters.Peek()[instruction.Operand1]}");
         
         return 1;
     }
@@ -566,11 +599,17 @@ internal class ReturnHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Return;
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers,
-        Dictionary<int, dynamic> variables,
-        Dictionary<int, dynamic> parameters, Stack<int> callStack, Dictionary<int, int> functions, bool verboseMode)
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables,
+        Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack, Dictionary<int, int> functions, bool verboseMode)
     {
-        return JumpTo(callStack.Pop() + 1, instructionIndex);
+        parameters.Pop();
+        var functionRegisters = registers.Pop();
+        registers.Peek()[instruction.Result] = functionRegisters[instruction.Operand1];
+        variables.Pop();
+        FunctionCall functionCall = callStack.Pop();
+        return JumpTo(functionCall.ReturnLocation, instructionIndex);
     }
 }
 
@@ -580,13 +619,33 @@ internal class CopyHandler : IOperationHandler
     public IROperation Operation => IROperation.Copy;
 
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
-        Dictionary<int, dynamic> registers, Dictionary<int, dynamic> variables,
-        Dictionary<int, dynamic> parameters, Stack<int> callStack, Dictionary<int, int> functions, bool verboseMode)
+        Stack<Dictionary<int, dynamic>> registers, Stack<Dictionary<int, dynamic>> variables,
+        Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack, Dictionary<int, int> functions, bool verboseMode)
     {
-        registers[instruction.Result] = registers[instruction.Operand1];
+        registers.Peek()[instruction.Result] = registers.Peek()[instruction.Operand1];
         
         if (verboseMode)
-            Console.Write($"{instruction.Result} = {registers[instruction.Result]}");
+            Console.Write($"{instruction.Result} = {registers.Peek()[instruction.Result]}");
+        
+        return 1;
+    }
+}
+
+[UsedImplicitly]
+internal class PrepareCallFunctionHandler : IOperationHandler
+{
+    public IROperation Operation => IROperation.PrepareCallFunction;
+
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Stack<Dictionary<int, dynamic>> registers, Stack<Dictionary<int, dynamic>> variables,
+        Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack, Dictionary<int, int> functions, bool verboseMode)
+    {
+        parameters.Push([]);
+        
+        if (verboseMode)
+            Console.Write("push new parameters frame");
         
         return 1;
     }

@@ -364,6 +364,28 @@ public class AstGenerator : IAstGenerator
                 case CloseParenToken:
                     precedenceBonus -= 100;
                     continue;
+                case IdentifierToken:
+                    if (i < tokens.Length - 1 && tokens[i + 1] is OpenParenToken)
+                    {
+                        int depth = 0;
+                        i++;
+                        do
+                        {
+                            switch (tokens[i++])
+                            {
+                                case OpenParenToken:
+                                    depth++;
+                                    break;
+                                case CloseParenToken:
+                                    depth--;
+                                    break;
+                            }
+                        } while (depth > 0);
+
+                        i--;
+                        token = tokens[i];
+                    }
+                    break;
             }
 
             int tokenPrecedence = GetPrecedence(token);

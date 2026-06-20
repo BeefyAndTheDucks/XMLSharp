@@ -85,22 +85,6 @@ public class IR : IIR
                 _constants.Add(IRConstant.From(booleanNode.Value));
                 break;
             
-            // Arithmetics
-            case AstNodeWithLeftRight lrNode:
-            {
-                instructions.AddRange(GenInstructions(lrNode.LeftNode));
-                int leftSideIndex = _temporaryValueIndex;
-                _temporaryValueIndex++;
-                instructions.AddRange(GenInstructions(lrNode.RightNode));
-                instructions.Add(new IRInstruction(lrNode.IrOperation, leftSideIndex, _temporaryValueIndex++, _temporaryValueIndex));
-                break;
-            }
-
-            case AstNodeWithSingleChild singleChildNode:
-                instructions.AddRange(GenInstructions(singleChildNode.Child));
-                instructions.Add(new IRInstruction(singleChildNode.IrOperation, _temporaryValueIndex++, 0, _temporaryValueIndex));
-                break;
-            
             // Control flow
             
             /*
@@ -173,17 +157,23 @@ public class IR : IIR
                 _currentFunctionName.Push(functionNode.Name);
                 _functionParameters[functionNode.Name] = functionNode.ParameterNames;
                 _functionNameToFunctionIndexTable.Add(functionNode.Name, functionIndex);
+                _functionNameToOutputTemporaryTable.Add(functionNode.Name, _temporaryValueIndex++);
                 var contentInstructions = GenInstructions(functionNode.Contents);
                 _currentFunctionName.Pop();
                 
                 instructions.Add(new IRInstruction(IROperation.DefineFunction, functionIndex, 0, 0));
                 instructions.Add(new IRInstruction(IROperation.Jump, contentInstructions.Length + 1, 0, 0)); // Jump over the function contents
                 instructions.AddRange(contentInstructions);
-                _functionNameToOutputTemporaryTable.Add(functionNode.Name, _temporaryValueIndex - 1);
                 _temporaryValueIndex++;
                 
                 break;
             }
+            
+            case ReturnNode returnNode:
+                string functionName = _currentFunctionName.Peek();
+                instructions.AddRange(GenInstructions(returnNode.Child));
+                instructions.Add(new IRInstruction(returnNode.IrOperation, _temporaryValueIndex++, 0, _functionNameToOutputTemporaryTable[functionName]));
+                break;
 
             case GetParameterNode getParameterNode:
             {
@@ -193,12 +183,17 @@ public class IR : IIR
 
             case CallFunctionNode callFunctionNode:
             {
+                List<int> parameterTemporaryValueIndices = [];
                 for (int parameterIndex = 0; parameterIndex < _functionParameters[callFunctionNode.Name].Length; parameterIndex++)
                 {
                     instructions.AddRange(GenInstructions(callFunctionNode.Arguments[parameterIndex]));
-                    instructions.Add(new IRInstruction(IROperation.SetParameter, parameterIndex, _temporaryValueIndex++, 0));
+                    parameterTemporaryValueIndices.Add(_temporaryValueIndex++);
                 }
-                
+
+                instructions.Add(new IRInstruction(IROperation.PrepareCallFunction, 0, 0, 0));
+                instructions.AddRange(parameterTemporaryValueIndices.Select((parameterTemporaryValueIndex, parameterIndex) =>
+                    new IRInstruction(IROperation.SetParameter, parameterTemporaryValueIndex, 0, parameterIndex)));
+
                 instructions.Add(new IRInstruction(IROperation.CallFunction, _functionNameToFunctionIndexTable[callFunctionNode.Name], 0, 0));
                 instructions.Add(new IRInstruction(IROperation.Copy, _functionNameToOutputTemporaryTable[callFunctionNode.Name], 0, _temporaryValueIndex));
                 break;
@@ -206,6 +201,22 @@ public class IR : IIR
 
             case VoidReturnNode:
                 instructions.Add(new IRInstruction(IROperation.Return, 0, 0, 0));
+                break;
+            
+            // Arithmetics
+            case AstNodeWithLeftRight lrNode:
+            {
+                instructions.AddRange(GenInstructions(lrNode.LeftNode));
+                int leftSideIndex = _temporaryValueIndex;
+                _temporaryValueIndex++;
+                instructions.AddRange(GenInstructions(lrNode.RightNode));
+                instructions.Add(new IRInstruction(lrNode.IrOperation, leftSideIndex, _temporaryValueIndex++, _temporaryValueIndex));
+                break;
+            }
+
+            case AstNodeWithSingleChild singleChildNode:
+                instructions.AddRange(GenInstructions(singleChildNode.Child));
+                instructions.Add(new IRInstruction(singleChildNode.IrOperation, _temporaryValueIndex++, 0, _temporaryValueIndex));
                 break;
 
             default:

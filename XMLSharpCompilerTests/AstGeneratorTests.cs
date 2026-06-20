@@ -464,4 +464,22 @@ public class AstGeneratorTests
         
         Assert.That(ast, Is.EqualTo(new PrintNode(new NumberNode(1))));
     }
+
+    [Test]
+    public void TestFunctionWithExpression()
+    {
+        Token[] tokenInput =
+        [
+            new NumberToken(1), new AddToken(), new IdentifierToken("foo"), new OpenParenToken(), new NumberToken(1), new AddToken(), new NumberToken(1), new CloseParenToken(), new SemicolonToken(), new EOFToken()
+        ];
+
+        AstNode expected = new AddNode(
+            new NumberNode(1),
+            new CallFunctionNode("foo", [new AddNode(new NumberNode(1), new NumberNode(1))])
+        );
+        
+        var ast = new AstGenerator().ParseExpression(tokenInput);
+        
+        Assert.That(ast, Is.EqualTo(expected));
+    }
 }

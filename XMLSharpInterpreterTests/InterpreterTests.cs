@@ -3,8 +3,6 @@ using XMLSharpInterpreter;
 
 namespace XMLSharpInterpreterTests;
 
-
-
 [TestFixture]
 [TestOf(typeof(Interpreter))]
 public class InterpreterTest
@@ -18,7 +16,7 @@ public class InterpreterTest
     {
         Interpreter interpreter = new();
         interpreter.Run(new IRProgram(constants ?? [], instructions), RunSettings);
-        return (interpreter.Registers, interpreter.Variables);
+        return (interpreter.Registers.Peek(), interpreter.Variables.Peek());
     }
 
     [Test]

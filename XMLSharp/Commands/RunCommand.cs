@@ -8,6 +8,8 @@ public class RunCommand : CommandBase
 {
     private readonly Argument<FileInfo> _fileArg = new("file");
     private readonly Option<bool> _verboseArg = new("--verbose", "-verbose", "-v", "--v");
+    private readonly Option<bool> _debuggerArg = new("--debugger", "-debugger", "--debug", "-debug", "-d", "--d");
+    private readonly Option<int> _debuggerAutoStepRateArg = new("--debugger-auto-step-rate-seconds", "--auto-step", "--step-rate");
     
     protected override void Invoke(ParseResult parseResult)
     {
@@ -19,6 +21,10 @@ public class RunCommand : CommandBase
         }
         
         bool verbose = parseResult.GetValue(_verboseArg);
+        bool debug = parseResult.GetValue(_debuggerArg);
+
+        int stepRate = parseResult.GetValue(_debuggerAutoStepRateArg);
+        TimeSpan? autoStepRate = stepRate > 0 ? TimeSpan.FromSeconds(stepRate) : null;
 
         if (!Interpreter.CanInterpret(inputFile))
         {
@@ -39,7 +45,10 @@ public class RunCommand : CommandBase
         InterpreterSettings settings = new()
         {
             InputFile = inputFile,
-            VerboseMode = verbose
+            VerboseMode = verbose,
+            Debugger = debug,
+            
+            DebuggerAutoStepRate = autoStepRate
         };
 
         Interpreter.Interpret(settings);
@@ -50,7 +59,9 @@ public class RunCommand : CommandBase
         return new Command("run", "Run a compiled XMLSharp file")
         {
             _fileArg,
-            _verboseArg
+            _verboseArg,
+            _debuggerArg,
+            _debuggerAutoStepRateArg
         };
     }
 }

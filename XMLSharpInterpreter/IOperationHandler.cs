@@ -9,10 +9,10 @@ public interface IOperationHandler
         IRInstruction instruction, 
         int instructionIndex,
         IRConstant[] constants,
-        Dictionary<int, dynamic> registers, 
-        Dictionary<int, dynamic> variables,
-        Dictionary<int, dynamic> parameters,
-        Stack<int> callStack,
+        Stack<Dictionary<int, dynamic>> registers, 
+        Stack<Dictionary<int, dynamic>> variables,
+        Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack,
         Dictionary<int, int> functions,
         bool verboseMode);
 
