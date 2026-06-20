@@ -51,7 +51,7 @@ public record IRInstruction(
                 IROperation.If => $"if({Operand1}) jump(1 relative) else jump(2 relative)",
                 IROperation.DefineFunction => $"define function(id = {Operand1})",
                 IROperation.CallFunction => $"call function(id = {Operand1})",
-                IROperation.Return => "return",
+                IROperation.ReturnValue => "return",
                 IROperation.GetParameter => $"{Result} = parameter({Operand1})",
                 IROperation.SetParameter => $"parameter({Result}) = {Operand1}",
                 IROperation.Copy => $"{Result} = {Operand1}",
@@ -115,8 +115,9 @@ public enum IROperation : byte
     
     DefineFunction, // ID = Operand1
     PrepareCallFunction, // ParametersStack.Push(new parameters frame)
-    CallFunction, // CallStack.Push(OperationIndex); OperationIndex = FunctionAddressAt(Operand1)
-    Return, // OperationIndex = CallStack.Pop(); AND ParameterStack.Pop();
+    CallFunction, // Push Frame; CallStack.Push(OperationIndex); OperationIndex = FunctionAddressAt(Operand1)
+    ReturnValue, // OperationIndex = CallStack.Pop(); AND Restore Frame AND Result = TemporaryStack.Peek()(Operand1);
+    ReturnVoid, // OperationIndex = CallStack.Pop(); AND Restore Frame
     
     GetParameter, // Result = ParameterStack.Peek()(Operand1)
     SetParameter, // ParameterStack.Peek()(Result) = Value(Operand1)

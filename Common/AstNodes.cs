@@ -89,7 +89,7 @@ public record ConcatNode(AstNode LeftNode, AstNode RightNode) : AstNodeWithLeftR
 public record PrintNode(AstNode Value) : AstNodeWithSingleChild(Value, IROperation.Print);
 
 public record FunctionNode(string Name, XMLSType? ReturnType, AstNode Contents, string[] ParameterNames) : AstNodeWithChildren([Contents], $"{Name} returning {ReturnType.ToString() ?? "nothing"}.");
-public record ReturnNode(AstNode Value) : AstNodeWithSingleChild(Value, IROperation.Return);
+public record ReturnNode(AstNode Value) : AstNodeWithSingleChild(Value, IROperation.ReturnValue);
 public record VoidReturnNode : AstNode;
 public record CallFunctionNode(string Name, AstNode[] Arguments) : AstNodeWithChildren(Arguments, Name);
 

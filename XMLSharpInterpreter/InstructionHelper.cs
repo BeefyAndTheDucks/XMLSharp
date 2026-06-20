@@ -38,4 +38,18 @@ public static class InstructionHelper
     {
         return destinationInstructionIndex - currentInstructionIndex;
     }
+
+    public static dynamic FindVariableValue(int variableIndex, Stack<Dictionary<int, dynamic>> variables)
+    {
+        var index = 0;
+        while (index < variables.Count)
+        {
+            var variablesInFrame = variables.ElementAt(index);
+            if (variablesInFrame.TryGetValue(variableIndex, out var value))
+                return value;
+            index++;
+        }
+
+        throw new KeyNotFoundException("Variable not found in any frame.");
+    }
 }

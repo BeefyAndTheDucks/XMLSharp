@@ -234,7 +234,7 @@ internal class GetVarHandler : IOperationHandler
     {
         if (variables is null) throw new InvalidOperationException("Variables table is required for variable operations.");
 
-        registers.Peek()[instruction.Result] = variables.Peek()[instruction.Operand1];
+        registers.Peek()[instruction.Result] = FindVariableValue(instruction.Operand1, variables);
         
         if (verboseMode)
             Console.Write($"{registers.Peek()[instruction.Result]}");
@@ -595,9 +595,9 @@ internal class GetParameterHandler : IOperationHandler
 }
 
 [UsedImplicitly]
-internal class ReturnHandler : IOperationHandler
+internal class ReturnValueHandler : IOperationHandler
 {
-    public IROperation Operation => IROperation.Return;
+    public IROperation Operation => IROperation.ReturnValue;
     public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
         Stack<Dictionary<int, dynamic>> registers,
         Stack<Dictionary<int, dynamic>> variables,
@@ -607,6 +607,24 @@ internal class ReturnHandler : IOperationHandler
         parameters.Pop();
         var functionRegisters = registers.Pop();
         registers.Peek()[instruction.Result] = functionRegisters[instruction.Operand1];
+        variables.Pop();
+        FunctionCall functionCall = callStack.Pop();
+        return JumpTo(functionCall.ReturnLocation, instructionIndex);
+    }
+}
+
+[UsedImplicitly]
+internal class ReturnVoidHandler : IOperationHandler
+{
+    public IROperation Operation => IROperation.ReturnVoid;
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Stack<Dictionary<int, dynamic>> registers,
+        Stack<Dictionary<int, dynamic>> variables,
+        Stack<Dictionary<int, dynamic>> parameters,
+        Stack<FunctionCall> callStack, Dictionary<int, int> functions, bool verboseMode)
+    {
+        parameters.Pop();
+        registers.Pop();
         variables.Pop();
         FunctionCall functionCall = callStack.Pop();
         return JumpTo(functionCall.ReturnLocation, instructionIndex);

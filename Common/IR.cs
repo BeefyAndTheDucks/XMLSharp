@@ -8,11 +8,15 @@ public class IR : IIR
 {
     private int _temporaryValueIndex;
     private int _variableIndex;
+    
+    private Stack<int> _temporaryValueIndices = [];
+    
     private int _functionIndex;
+
+    private record FunctionInfo(int Id, int OutputTemporaryIndex, XMLSType? ReturnType);
     
     private readonly Dictionary<string, int> _variableNameToVariableIndexTable = new();
-    private readonly Dictionary<string, int> _functionNameToFunctionIndexTable = new();
-    private readonly Dictionary<string, int> _functionNameToOutputTemporaryTable = new();
+    private readonly Dictionary<string, FunctionInfo> _functionNameToFunctionInfoTable = new();
     private readonly Dictionary<string, string[]> _functionParameters = [];
     private readonly Stack<string> _currentFunctionName = [];
     
@@ -156,9 +160,10 @@ public class IR : IIR
                 int functionIndex = _functionIndex++;
                 _currentFunctionName.Push(functionNode.Name);
                 _functionParameters[functionNode.Name] = functionNode.ParameterNames;
-                _functionNameToFunctionIndexTable.Add(functionNode.Name, functionIndex);
-                _functionNameToOutputTemporaryTable.Add(functionNode.Name, _temporaryValueIndex++);
+                _functionNameToFunctionInfoTable.Add(functionNode.Name, new FunctionInfo(functionIndex, _temporaryValueIndex++, functionNode.ReturnType));
+                _temporaryValueIndices.Push(_temporaryValueIndex);
                 var contentInstructions = GenInstructions(functionNode.Contents);
+                _temporaryValueIndex = _temporaryValueIndices.Pop();
                 _currentFunctionName.Pop();
                 
                 instructions.Add(new IRInstruction(IROperation.DefineFunction, functionIndex, 0, 0));
@@ -168,12 +173,14 @@ public class IR : IIR
                 
                 break;
             }
-            
+
             case ReturnNode returnNode:
+            {
                 string functionName = _currentFunctionName.Peek();
                 instructions.AddRange(GenInstructions(returnNode.Child));
-                instructions.Add(new IRInstruction(returnNode.IrOperation, _temporaryValueIndex++, 0, _functionNameToOutputTemporaryTable[functionName]));
+                instructions.Add(new IRInstruction(returnNode.IrOperation, _temporaryValueIndex++, 0, _functionNameToFunctionInfoTable[functionName].OutputTemporaryIndex));
                 break;
+            }
 
             case GetParameterNode getParameterNode:
             {
@@ -194,13 +201,15 @@ public class IR : IIR
                 instructions.AddRange(parameterTemporaryValueIndices.Select((parameterTemporaryValueIndex, parameterIndex) =>
                     new IRInstruction(IROperation.SetParameter, parameterTemporaryValueIndex, 0, parameterIndex)));
 
-                instructions.Add(new IRInstruction(IROperation.CallFunction, _functionNameToFunctionIndexTable[callFunctionNode.Name], 0, 0));
-                instructions.Add(new IRInstruction(IROperation.Copy, _functionNameToOutputTemporaryTable[callFunctionNode.Name], 0, _temporaryValueIndex));
+                FunctionInfo functionInfo = _functionNameToFunctionInfoTable[callFunctionNode.Name];
+                instructions.Add(new IRInstruction(IROperation.CallFunction, functionInfo.Id, 0, 0));
+                if (functionInfo.ReturnType != null)
+                    instructions.Add(new IRInstruction(IROperation.Copy, functionInfo.OutputTemporaryIndex, 0, _temporaryValueIndex));
                 break;
             }
 
             case VoidReturnNode:
-                instructions.Add(new IRInstruction(IROperation.Return, 0, 0, 0));
+                instructions.Add(new IRInstruction(IROperation.ReturnVoid, 0, 0, 0));
                 break;
             
             // Arithmetics
