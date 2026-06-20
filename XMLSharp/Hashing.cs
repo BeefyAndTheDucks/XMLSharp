@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
-using System.Text;
 
-namespace Common;
+namespace XMLSharp;
 
 public static class Hashing
 {

@@ -8,6 +8,7 @@ public interface IOperationHandler
     int Execute(
         IRInstruction instruction, 
         int instructionIndex,
+        IRConstant[] constants,
         Dictionary<int, dynamic> registers, 
         Dictionary<int, dynamic> variables,
         Dictionary<int, dynamic> parameters,

@@ -33,11 +33,12 @@ internal class ConstantHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Constant;
 
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
-        registers[instruction.Result] = RequireData(instruction);
+        registers[instruction.Result] = GetConstantValue(constants[instruction.Operand1]);
         
         if (verboseMode)
             Console.Write($"{registers[instruction.Result]}");
@@ -52,7 +53,8 @@ internal class PrintHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Print;
 
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -71,7 +73,8 @@ internal class AddHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Add;
 
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -90,7 +93,8 @@ internal class SubHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Sub;
 
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -109,7 +113,8 @@ internal class MulHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Mul;
 
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -128,7 +133,8 @@ internal class DivHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Div;
 
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -147,7 +153,8 @@ internal class ModHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Mod;
 
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -166,7 +173,8 @@ internal class CreateVarHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.CreateVar;
 
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -187,7 +195,8 @@ internal class SetVarHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.SetVar;
 
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -208,7 +217,8 @@ internal class GetVarHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.GetVar;
 
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -227,7 +237,8 @@ internal class GetVarHandler : IOperationHandler
 internal class EqualHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Equal;
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -244,7 +255,8 @@ internal class EqualHandler : IOperationHandler
 internal class NotEqualHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.NotEqual;
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -261,7 +273,8 @@ internal class NotEqualHandler : IOperationHandler
 internal class GreaterHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.GreaterThan;
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -278,7 +291,8 @@ internal class GreaterHandler : IOperationHandler
 internal class GreaterOrEqualHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.GreaterThanOrEqual;
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -295,7 +309,8 @@ internal class GreaterOrEqualHandler : IOperationHandler
 internal class LessHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.LessThan;
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -312,7 +327,8 @@ internal class LessHandler : IOperationHandler
 internal class LessOrEqualHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.LessThanOrEqual;
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -330,7 +346,8 @@ internal class AndHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.And;
 
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -349,7 +366,8 @@ internal class OrHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Or;
 
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -368,7 +386,8 @@ internal class XorHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Xor;
 
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -385,7 +404,8 @@ internal class XorHandler : IOperationHandler
 internal class ConcatHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Concat;
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -402,7 +422,8 @@ internal class ConcatHandler : IOperationHandler
 internal class NotHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Not;
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -419,7 +440,8 @@ internal class NotHandler : IOperationHandler
 internal class JumpHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Jump;
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -436,7 +458,8 @@ internal class JumpHandler : IOperationHandler
 internal class IfHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.If;
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -462,7 +485,8 @@ internal class IfHandler : IOperationHandler
 internal class FunctionDefinitionHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.DefineFunction;
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables, Dictionary<int, dynamic> parameters, Stack<int> callStack,
         Dictionary<int, int> functions, bool verboseMode)
     {
@@ -480,7 +504,8 @@ internal class SetParameterHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.SetParameter;
 
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables,
         Dictionary<int, dynamic> parameters,
         Stack<int> callStack, Dictionary<int, int> functions, bool verboseMode)
@@ -499,7 +524,8 @@ internal class FunctionCallHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.CallFunction;
 
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables,
         Dictionary<int, dynamic> parameters, Stack<int> callStack, Dictionary<int, int> functions, bool verboseMode)
     {
@@ -521,7 +547,8 @@ internal class FunctionCallHandler : IOperationHandler
 internal class GetParameterHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.GetParameter;
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables,
         Dictionary<int, dynamic> parameters, Stack<int> callStack, Dictionary<int, int> functions, bool verboseMode)
     {
@@ -538,7 +565,8 @@ internal class GetParameterHandler : IOperationHandler
 internal class ReturnHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Return;
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers,
         Dictionary<int, dynamic> variables,
         Dictionary<int, dynamic> parameters, Stack<int> callStack, Dictionary<int, int> functions, bool verboseMode)
     {
@@ -551,7 +579,8 @@ internal class CopyHandler : IOperationHandler
 {
     public IROperation Operation => IROperation.Copy;
 
-    public int Execute(IRInstruction instruction, int instructionIndex, Dictionary<int, dynamic> registers, Dictionary<int, dynamic> variables,
+    public int Execute(IRInstruction instruction, int instructionIndex, IRConstant[] constants,
+        Dictionary<int, dynamic> registers, Dictionary<int, dynamic> variables,
         Dictionary<int, dynamic> parameters, Stack<int> callStack, Dictionary<int, int> functions, bool verboseMode)
     {
         registers[instruction.Result] = registers[instruction.Operand1];

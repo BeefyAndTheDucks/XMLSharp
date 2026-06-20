@@ -15,6 +15,8 @@ public class IR : IIR
     private readonly Dictionary<string, int> _functionNameToOutputTemporaryTable = new();
     private readonly Dictionary<string, string[]> _functionParameters = [];
     private readonly Stack<string> _currentFunctionName = [];
+    
+    private readonly List<IRConstant> _constants = [];
 
     private readonly JsonSerializerOptions _options = new()
     {
@@ -23,7 +25,7 @@ public class IR : IIR
 
     private bool _dirty;
     
-    public IRInstruction[] FromAst(AstNode ast)
+    public IRProgram FromAst(AstNode ast)
     {
         if (_dirty)
             throw new InvalidOperationException($"Cannot reuse IR instances after {nameof(FromAst)} has been called.");
@@ -34,7 +36,9 @@ public class IR : IIR
         _temporaryValueIndex = 0;
         _variableIndex = 0;
         
-        return GenInstructions(ast);
+        IRInstruction[] instructions = GenInstructions(ast);
+        
+        return new IRProgram(_constants.ToArray(), instructions);
     }
 
     private IRInstruction[] GenInstructions(AstNode node)
@@ -65,16 +69,20 @@ public class IR : IIR
             
             // Datatypes/Constants
             case NumberNode numberNode:
-                instructions.Add(new IRInstruction(IROperation.Constant, 0, 0, _temporaryValueIndex, numberNode.Value));
+                instructions.Add(new IRInstruction(IROperation.Constant, _constants.Count, 0, _temporaryValueIndex));
+                _constants.Add(IRConstant.From(numberNode.Value));
                 break;
             case DecimalNode decimalNode:
-                instructions.Add(new IRInstruction(IROperation.Constant, 0, 0, _temporaryValueIndex, decimalNode.Value));
+                instructions.Add(new IRInstruction(IROperation.Constant, _constants.Count, 0, _temporaryValueIndex));
+                _constants.Add(IRConstant.From(decimalNode.Value));
                 break;
             case TextNode textNode:
-                instructions.Add(new IRInstruction(IROperation.Constant, 0, 0, _temporaryValueIndex, textNode.Value));
+                instructions.Add(new IRInstruction(IROperation.Constant, _constants.Count, 0, _temporaryValueIndex));
+                _constants.Add(IRConstant.From(textNode.Value));
                 break;
             case BooleanNode booleanNode:
-                instructions.Add(new IRInstruction(IROperation.Constant, 0, 0, _temporaryValueIndex, booleanNode.Value));
+                instructions.Add(new IRInstruction(IROperation.Constant, _constants.Count, 0, _temporaryValueIndex));
+                _constants.Add(IRConstant.From(booleanNode.Value));
                 break;
             
             // Arithmetics
@@ -207,65 +215,14 @@ public class IR : IIR
         return instructions.ToArray();
     }
 
-    public void WriteToFile(FileInfo file, IRInstruction[] instructions)
+    public void WriteToFile(FileInfo file, IRProgram program)
     {
-        string json = JsonSerializer.Serialize(instructions, _options);
+        string json = JsonSerializer.Serialize(program, _options);
         File.WriteAllText(file.FullName, json);
     }
 
-    public IRInstruction[]? ReadFromFile(FileInfo file)
+    public IRProgram? ReadFromFile(FileInfo file)
     {
-        return JsonSerializer.Deserialize<IRInstruction[]>(File.ReadAllText(file.FullName), _options);
+        return JsonSerializer.Deserialize<IRProgram>(File.ReadAllText(file.FullName), _options);
     }
-}
-
-public record IRInstruction(
-    [property: JsonPropertyName("O")] IROperation Operation,
-    [property: JsonPropertyName("1")] int Operand1,
-    [property: JsonPropertyName("2")] int Operand2,
-    [property: JsonPropertyName("R")] int Result,
-    [property: JsonPropertyName("D")] object? Data = null
-);
-
-public enum IROperation : byte
-{
-    Add, // Result = Value(Operand1) + Value(Operand2)
-    Sub, // Result = Value(Operand1) - Value(Operand2)
-    Mul, // Result = Value(Operand1) * Value(Operand2)
-    Div, // Result = Value(Operand1) / Value(Operand2)
-    Mod, // Result = Value(Operand1) % Value(Operand2)
-    
-    GetVar, // Result = Variable(Operand1)
-    SetVar, // Variable(Operand1) = Value(Operand2)
-    CreateVar, // Variable(Operand1) = Value(Operand2)
-    
-    Not, // Result = !Value(Operand1)
-    And, // Result = Value(Operand1) && Value(Operand2)
-    Or, // Result = Value(Operand1) || Value(Operand2)
-    Xor, // Result = Value(Operand1) ^ Value(Operand2)
-    
-    Equal, // Result = Value(Operand1) == Value(Operand2)
-    NotEqual, // Result = Value(Operand1) != Value(Operand2)
-    GreaterThan, // Result = Value(Operand1) > Value(Operand2)
-    GreaterThanOrEqual, // Result = Value(Operand1) >= Value(Operand2)
-    LessThan, // Result = Value(Operand1) < Value(Operand2)
-    LessThanOrEqual, // Result = Value(Operand1) <= Value(Operand2)
-    
-    Concat, // Result = Value(Operand1) + Value(Operand2)
-    
-    Constant, // Result = Data
-    Print, // Print(Value(Operand1))
-    
-    Jump, // OperationIndex += Operand1
-    
-    If, // If(Value(Operand1)) OperationIndex += 1 else OperationIndex += 2     (If Value(Operand1) is number, it should be Value(Operand1) != 0, text should be !string.IsNullOrEmpty(Value(Operand1)))
-    
-    DefineFunction, // ID = Operand1
-    CallFunction, // CallStack.Push(OperationIndex); OperationIndex = FunctionAddressAt(Operand1)
-    Return, // OperationIndex = CallStack.Pop();
-    
-    GetParameter, // Result = Parameter(Operand1)
-    SetParameter, // Parameter(Operand1) = Value(Operand2)
-    
-    Copy, // Result = Value(Operand1)
 }

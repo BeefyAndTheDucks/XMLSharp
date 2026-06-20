@@ -1,6 +1,6 @@
 using System.CommandLine;
 
-namespace Common;
+namespace XMLSharp;
 
 public abstract class CommandBase
 {

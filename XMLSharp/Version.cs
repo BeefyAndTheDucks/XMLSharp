@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace XMLSharpCompiler;
+namespace XMLSharp;
 
 public static class Version
 {

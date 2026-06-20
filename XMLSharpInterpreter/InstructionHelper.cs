@@ -5,9 +5,9 @@ using Common;
 
 public static class InstructionHelper
 {
-    public static dynamic RequireData(IRInstruction instruction)
+    public static dynamic GetConstantValue(IRConstant constant)
     {
-        dynamic data = instruction.Data ?? throw new InvalidOperationException("Instruction has no data.");
+        dynamic data = constant.Value ?? throw new InvalidOperationException("Instruction has no data.");
 
         if (data is not JsonElement element)
             return data;

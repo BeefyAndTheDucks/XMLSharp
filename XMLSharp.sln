@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XMLSharpInterpreter", "XMLS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XMLSharpInterpreterTests", "XMLSharpInterpreterTests\XMLSharpInterpreterTests.csproj", "{12BD3F9F-8E1C-42BE-9891-CB9A36BF1B0A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XMLSharp", "XMLSharp\XMLSharp.csproj", "{92DCD3C1-8FCB-4BDB-9E92-4F9DD48D57AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{12BD3F9F-8E1C-42BE-9891-CB9A36BF1B0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12BD3F9F-8E1C-42BE-9891-CB9A36BF1B0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12BD3F9F-8E1C-42BE-9891-CB9A36BF1B0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92DCD3C1-8FCB-4BDB-9E92-4F9DD48D57AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92DCD3C1-8FCB-4BDB-9E92-4F9DD48D57AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92DCD3C1-8FCB-4BDB-9E92-4F9DD48D57AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92DCD3C1-8FCB-4BDB-9E92-4F9DD48D57AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
