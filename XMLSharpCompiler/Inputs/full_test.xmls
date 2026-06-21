@@ -1,5 +1,5 @@
-import "fib.xmls";
-import "math.xmls";
+import "helpers/fib.xmls";
+import "helpers/math.xmls";
 
 fn number scale_by(number x, number by) {
     return x * by;

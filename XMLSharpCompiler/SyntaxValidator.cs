@@ -4,18 +4,18 @@ namespace XMLSharpCompiler;
 
 public partial class SyntaxValidator : ITokenProcessor
 {
-    private Token[] tokens = [];
-    private int pos;
-    private List<Diagnostic> errors = [];
+    private Token[] _tokens = [];
+    private int _pos;
+    private List<Diagnostic> _errors = [];
 
-    private Token Current => tokens[pos];
+    private Token Current => _tokens[_pos];
     private Token Previous => Peek(-1);
-    private Token Peek(int offset = 1) => tokens[Math.Clamp(pos + offset, 0, tokens.Length - 1)];
+    private Token Peek(int offset = 1) => _tokens[Math.Clamp(_pos + offset, 0, _tokens.Length - 1)];
 
     private Token Advance()
     {
         Token t = Current;
-        if (Current is not EOFToken) pos++;
+        if (Current is not EOFToken) _pos++;
         return t;
     }
 
@@ -31,8 +31,8 @@ public partial class SyntaxValidator : ITokenProcessor
     private void Expect<T>(string message) where T : Token
     {
         if (Current is T) { Advance(); return; }
-        Token lastToken = pos > 0 ? tokens[pos - 1] : Current;
-        errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, message, lastToken.Line, lastToken.Col, lastToken.Length));
+        Token lastToken = _pos > 0 ? _tokens[_pos - 1] : Current;
+        _errors.Add(Diagnostic.SyntaxError(message, lastToken.Location));
         if (typeof(T) == typeof(SemicolonToken))
             Synchronise();
     }
@@ -53,18 +53,18 @@ public partial class SyntaxValidator : ITokenProcessor
 
     public (Token[], Diagnostic[]) Process(Token[] input, Diagnostic[] diagnostics)
     {
-        tokens = input;
-        pos = 0;
-        errors = [..diagnostics];
+        _tokens = input;
+        _pos = 0;
+        _errors = [..diagnostics];
 
         while (Current is not EOFToken)
             ValidateStatement();
 
-        HashSet<(int Line, int Col)> seen = [];
-        return (input, errors
-            .OrderBy(e => e.Line)
-            .ThenBy(e => e.Col)
-            .Where(e => seen.Add((e.Line, e.Col)))
+        HashSet<Location?> seen = [];
+        return (input, _errors
+            .OrderBy(e => e.Location?.Line)
+            .ThenBy(e => e.Location?.Column)
+            .Where(e => seen.Add(e.Location))
             .ToArray());
     }
 }

@@ -4,6 +4,6 @@ namespace XMLSharpCompiler;
 
 public interface ILexer
 {
-    (Token[] Tokens, Diagnostic[] Errors) Lex(string input);
+    (Token[] Tokens, Diagnostic[] Errors) Lex(string input, FileInfo? file);
 }
 
