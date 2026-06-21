@@ -22,6 +22,8 @@ public record FunctionToken(int Line = 0, int Col = 0, int Length = 0) : Token(L
 public record ReturnToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
 public record SeparatorToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
 
+public record ImportToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+
 // matched by pattern
 public record AssignmentToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
 

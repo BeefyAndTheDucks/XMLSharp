@@ -23,5 +23,7 @@ public static class Keywords
         
         { "fn", () => new FunctionToken() },
         { "return", () => new ReturnToken() },
+        
+        { "import", () => new ImportToken() },
     };
 }

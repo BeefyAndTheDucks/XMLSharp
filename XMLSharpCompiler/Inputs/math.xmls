@@ -1,0 +1,9 @@
+$import "fib.xmls"; $ Unsupported currently.
+
+fn number add(number a, number b) {
+    return a + b;
+}
+
+$fn number fib_new(number n) {
+$    return fib(n);
+$}

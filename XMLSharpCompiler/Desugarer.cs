@@ -1,19 +1,10 @@
+using Common;
+
 namespace XMLSharpCompiler;
 
-public class Desugarer : IDesugarer
+// Remove syntactic sugar such as elif -> else { if() { } }
+public class Desugarer : ITokenProcessor
 {
-    // Remove syntactic sugar such as elif -> else { if() { } }
-    public Token[] Desugar(Token[] tokens)
-    {
-        Token[] desugaredTokens = [..tokens];
-        bool changed;
-        do
-        {
-            (desugaredTokens, changed) = DesugarPass(desugaredTokens);
-        } while (changed);
-        
-        return desugaredTokens.ToArray();
-    }
 
     private static (Token[] TokensOut, bool Changed) DesugarPass(Token[] tokens)
     {
@@ -101,5 +92,17 @@ public class Desugarer : IDesugarer
         }
         
         return (desugaredTokens.ToArray(), changed);
+    }
+
+    public (Token[], Diagnostic[]) Process(Token[] tokens, Diagnostic[] diagnostics)
+    {
+        Token[] desugaredTokens = [..tokens];
+        bool changed;
+        do
+        {
+            (desugaredTokens, changed) = DesugarPass(desugaredTokens);
+        } while (changed);
+        
+        return (desugaredTokens.ToArray(), diagnostics);
     }
 }

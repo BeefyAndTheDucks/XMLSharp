@@ -9,50 +9,38 @@ public static class Compiler
     {
         Console.WriteLine($"Compiling {settings.InputFile.FullName}...");
         
-        Stopwatch sw = Stopwatch.StartNew();
+        Directory.SetCurrentDirectory(settings.InputFile.DirectoryName!);
+        
+        var sw = Stopwatch.StartNew();
         ILexer lexer = new Lexer();
+        ImportExpander importExpander = new(lexer);
         IAstGenerator astGenerator = new AstGenerator();
         SyntaxValidator validator = new();
+        Desugarer desugarer = new();
 
         string fileContent = File.ReadAllText(settings.InputFile.FullName);
-        var (tokens, lexErrors) = lexer.Lex(fileContent);
+        var (tokens, errors) = lexer.Lex(fileContent)
+            .AddProcessor(importExpander)
+            .AddProcessor(validator)
+            .AddProcessor(desugarer);
 
-        if (settings.VerboseMode)
-        {
-            Console.WriteLine("Tokens:");
-            tokens.PrettyPrint();
-        }
-
-        List<Diagnostic> errors = [..lexErrors];
-        if (!settings.IgnoreErrors)
-        {
-            HashSet<(int Line, int Col)> lexPositions = [.. lexErrors.Select(e => (e.Line, e.Col))];
-            Diagnostic[] validatorErrors = validator.Validate(tokens)
-                .Where(e => !lexPositions.Contains((e.Line, e.Col)))
-                .ToArray();
-            errors.AddRange(validatorErrors);
-        }
-
-        if (errors.Count > 0)
+        if (errors.Length > 0)
         {
             ErrorReporter reporter = new();
             reporter.Report(fileContent, [..errors]);
             Environment.Exit(1);
         }
         
-        IDesugarer desugarer = new Desugarer();
-        Token[] desugaredTokens = desugarer.Desugar(tokens);
-        
         if (settings.VerboseMode)
         {
             Console.WriteLine("Desugared Tokens:");
-            desugaredTokens.PrettyPrint();
+            tokens.PrettyPrint();
             
             Console.WriteLine("Desugared source:");
-            Console.WriteLine(Detokeniser.ToSource(desugaredTokens));
+            Console.WriteLine(Detokeniser.ToSource(tokens));
         }
         
-        AstNode ast = astGenerator.Generate(desugaredTokens);
+        AstNode ast = astGenerator.Generate(tokens);
 
         if (settings.VerboseMode)
         {

@@ -2,11 +2,11 @@ using Common;
 
 namespace XMLSharpCompiler;
 
-public partial class SyntaxValidator
+public partial class SyntaxValidator : ITokenProcessor
 {
     private Token[] tokens = [];
     private int pos;
-    private readonly List<Diagnostic> errors = [];
+    private List<Diagnostic> errors = [];
 
     private Token Current => tokens[pos];
     private Token Previous => Peek(-1);
@@ -37,23 +37,6 @@ public partial class SyntaxValidator
             Synchronise();
     }
 
-    public Diagnostic[] Validate(Token[] input)
-    {
-        tokens = input;
-        pos = 0;
-        errors.Clear();
-
-        while (Current is not EOFToken)
-            ValidateStatement();
-
-        HashSet<(int Line, int Col)> seen = [];
-        return errors
-            .OrderBy(e => e.Line)
-            .ThenBy(e => e.Col)
-            .Where(e => seen.Add((e.Line, e.Col)))
-            .ToArray();
-    }
-
     private string TokenName(Token token)
     {
         if (token is IdentifierToken id) return $"'{id.Name}'";
@@ -66,5 +49,22 @@ public partial class SyntaxValidator
             _ => "'type'"
         };
         return TokenReverseMap.TryGet(token, out string value) ? $"'{value}'" : token.GetType().Name.Replace("Token", "");
+    }
+
+    public (Token[], Diagnostic[]) Process(Token[] input, Diagnostic[] diagnostics)
+    {
+        tokens = input;
+        pos = 0;
+        errors = [..diagnostics];
+
+        while (Current is not EOFToken)
+            ValidateStatement();
+
+        HashSet<(int Line, int Col)> seen = [];
+        return (input, errors
+            .OrderBy(e => e.Line)
+            .ThenBy(e => e.Col)
+            .Where(e => seen.Add((e.Line, e.Col)))
+            .ToArray());
     }
 }
