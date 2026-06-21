@@ -73,20 +73,16 @@ public class IR : IIR
             
             // Datatypes/Constants
             case NumberNode numberNode:
-                instructions.Add(new IRInstruction(IROperation.Constant, _constants.Count, 0, _temporaryValueIndex));
-                _constants.Add(IRConstant.From(numberNode.Value));
+                instructions.Add(new IRInstruction(IROperation.Constant, CreateConstant(numberNode.Value), 0, _temporaryValueIndex));
                 break;
             case DecimalNode decimalNode:
-                instructions.Add(new IRInstruction(IROperation.Constant, _constants.Count, 0, _temporaryValueIndex));
-                _constants.Add(IRConstant.From(decimalNode.Value));
+                instructions.Add(new IRInstruction(IROperation.Constant, CreateConstant(decimalNode.Value), 0, _temporaryValueIndex));
                 break;
             case TextNode textNode:
-                instructions.Add(new IRInstruction(IROperation.Constant, _constants.Count, 0, _temporaryValueIndex));
-                _constants.Add(IRConstant.From(textNode.Value));
+                instructions.Add(new IRInstruction(IROperation.Constant, CreateConstant(textNode.Value), 0, _temporaryValueIndex));
                 break;
             case BooleanNode booleanNode:
-                instructions.Add(new IRInstruction(IROperation.Constant, _constants.Count, 0, _temporaryValueIndex));
-                _constants.Add(IRConstant.From(booleanNode.Value));
+                instructions.Add(new IRInstruction(IROperation.Constant, CreateConstant(booleanNode.Value), 0, _temporaryValueIndex));
                 break;
             
             // Control flow
@@ -257,5 +253,14 @@ public class IR : IIR
         {
             return false;
         }
+    }
+
+    private int CreateConstant<T>(T value)
+    {
+        IRConstant constant = IRConstant.From(value);
+        int index = _constants.IndexOf(constant);
+        if (index >= 0) return index;
+        _constants.Add(constant);
+        return _constants.Count - 1;
     }
 }

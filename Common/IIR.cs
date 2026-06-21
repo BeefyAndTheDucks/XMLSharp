@@ -78,6 +78,18 @@ public record IRConstant(
     public static IRConstant From(bool value) => new(IRConstantKind.Bool, value);
     public static IRConstant From(string value) => new(IRConstantKind.Text, value);
     public static IRConstant From(float value) => new(IRConstantKind.Decimal, value);
+
+    public static IRConstant From<T>(T value)
+    {
+        return value switch
+        {
+            int @int => From(@int),
+            bool @bool => From(@bool),
+            string @string => From(@string),
+            float @decimal => From(@decimal),
+            _ => throw new IndexOutOfRangeException()
+        };
+    }
 }
 
 public enum IROperation : byte
