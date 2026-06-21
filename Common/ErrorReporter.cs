@@ -4,42 +4,41 @@ namespace XMLSharpCompiler;
 
 public class ErrorReporter
 {
-    public void Report(string? source, Diagnostic[] errors)
+    private readonly Dictionary<string, string[]> _sourcesCache = new();
+    
+    public void Report(Diagnostic[] errors)
     {
-        string[] lines = [];
-        if (source is not null)
-            lines = source.Replace("\r\n", "\n").Split('\n');
-
-
-        foreach (Diagnostic error in errors)
+        foreach ((XMLSErrorType errorType, string errorMessage, Location? location) in errors)
         {
-            Console.ForegroundColor = error.Type switch
+            Console.ForegroundColor = errorType switch
             {
                 XMLSErrorType.SyntaxError => ConsoleColor.Red,
                 XMLSErrorType.Warning => ConsoleColor.Yellow,
 
                 _ => ConsoleColor.Cyan
             };
+            
+            string? relativeFilePath = GetRelativeFilePath(location?.AbsoluteFilePath);
 
-            if (error.Line > 0 && error.Col > 0)
-                Console.Error.WriteLine($"{error.Type} at {error.Line}:{error.Col}");
-            else
-                Console.Error.WriteLine($"{error.Type} — {error.Message}");
+            Console.Error.WriteLine(location is { Line: > 0, Column: > 0 }
+                ? $"{errorType} at {location.Line}:{location.Column} in \"{relativeFilePath ?? "unknown file"}\""
+                : $"{errorType} — {errorMessage}");
 
             Console.ResetColor();
+            
+            string? line = GetLine(location);
 
-            if (source is not null && error.Line > 0 && error.Line <= lines.Length)
+            if (line is not null)
             {
-                string lineText = lines[error.Line - 1];
-                string lineNum = error.Line.ToString();
+                string lineNum = location!.Line.ToString();
                 string margin = new(' ', lineNum.Length);
 
-                Console.Error.WriteLine($"{lineNum} | {lineText}");
+                Console.Error.WriteLine($"{lineNum} | {line}");
 
-                string padding = margin + " | " + new string(' ', Math.Max(0, error.Col - 1));
-                string pointer = new('~', Math.Max(0, error.Length));
+                string padding = margin + " | " + new string(' ', Math.Max(0, location.Column - 1));
+                string pointer = new('~', Math.Max(0, location.Length));
 
-                Console.Error.WriteLine($"{padding}{pointer} {error.Message}\n");
+                Console.Error.WriteLine($"{padding}{pointer} {errorMessage}\n");
             }
         }
 
@@ -47,5 +46,38 @@ public class ErrorReporter
         string s = errors.Length == 1 ? "" : "s";
         Console.Error.WriteLine($" {errors.Length} error{s} found. Compilation aborted. ");
         Console.ResetColor();
+    }
+
+    private string? GetLine(Location? location)
+    {
+        if (location is null) return null;
+        string[]? lines = GetSource(location.AbsoluteFilePath);
+        if (lines is null) return null;
+        if (lines.Length <= location.Line) return null;
+        return lines[location.Line - 1];
+    }
+    
+    private string[]? GetSource(string? file)
+    {
+        return file is null 
+            ? null 
+            : GetSource(new FileInfo(file));
+    }
+
+    private string[]? GetSource(FileInfo? file)
+    {
+        if (file is null) return null;
+        if (!file.Exists) return null;
+        if (_sourcesCache.TryGetValue(file.FullName, out string[]? source))
+            return source;
+        string[] lines = File.ReadAllLines(file.FullName);
+        _sourcesCache[file.FullName] = lines;
+        return lines;
+    }
+
+    private string? GetRelativeFilePath(string? absolutePath)
+    {
+        if (absolutePath is null) return null;
+        return Path.GetRelativePath(Directory.GetCurrentDirectory(), absolutePath);
     }
 }

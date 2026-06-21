@@ -19,7 +19,7 @@ public static class Compiler
         Desugarer desugarer = new();
 
         string fileContent = File.ReadAllText(settings.InputFile.FullName);
-        var (tokens, errors) = lexer.Lex(fileContent)
+        var (tokens, errors) = lexer.Lex(fileContent, settings.InputFile)
             .AddProcessor(importExpander)
             .AddProcessor(validator)
             .AddProcessor(desugarer);
@@ -27,7 +27,7 @@ public static class Compiler
         if (errors.Length > 0)
         {
             ErrorReporter reporter = new();
-            reporter.Report(fileContent, [..errors]);
+            reporter.Report(errors);
             Environment.Exit(1);
         }
         

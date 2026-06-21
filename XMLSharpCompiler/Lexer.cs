@@ -6,7 +6,7 @@ public class Lexer : ILexer
 {
     private readonly List<Diagnostic> _errors = [];
 
-    public (Token[] Tokens, Diagnostic[] Errors) Lex(string input)
+    public (Token[] Tokens, Diagnostic[] Errors) Lex(string input, FileInfo? file)
     {
         List<Token> tokens = [];
         _errors.Clear();
@@ -67,11 +67,13 @@ public class Lexer : ILexer
                     col++;
                 }
                 int length = col - startCol;
+                
+                Location location = Location.From(file, line, startCol, length);
 
                 if (hasDot)
-                    tokens.Add(new DecimalToken(float.Parse(word), line, startCol, length));
+                    tokens.Add(new DecimalToken(float.Parse(word), location));
                 else
-                    tokens.Add(new NumberToken(int.Parse(word), line, startCol, length));
+                    tokens.Add(new NumberToken(int.Parse(word), location));
 
                 continue;
             }
@@ -89,15 +91,17 @@ public class Lexer : ILexer
                 }
                 int length = col - startCol;
 
+                Location location = Location.From(file, line, startCol, length);
+                
                 if (keywords.TryGetValue(word, out var create))
                 {
                     Token token = create();
-                    token = token with { Line = line, Col = startCol, Length = length };
+                    token = token with { Location = location };
                     tokens.Add(token);
                 }
                 else
                 {
-                    tokens.Add(new IdentifierToken(word, line, startCol, length));
+                    tokens.Add(new IdentifierToken(word, location));
                 }
                 continue;
             }
@@ -114,7 +118,7 @@ public class Lexer : ILexer
                 {
                     if (input[i] == ';')
                     {
-                        _errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, "Unterminated string.", line, startCol, col - startCol));
+                        _errors.Add(Diagnostic.SyntaxError("Unterminated string.", Location.From(file, line, startCol, col - startCol)));
                         break;
                     }
 
@@ -145,14 +149,15 @@ public class Lexer : ILexer
 
                 if (i >= input.Length)
                 {
-                    _errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, "Unterminated string.", line, startCol, col - startCol));
+                    _errors.Add(Diagnostic.SyntaxError("Unterminated string.", Location.From(file, line, startCol, col - startCol)));
                     continue;
                 }
 
                 i++;
                 col++;
                 int length = col - startCol;
-                tokens.Add(new TextToken(word, line, startCol, length));
+                Location location = Location.From(file, line, startCol, length);
+                tokens.Add(new TextToken(word, location));
                 continue;
             }
 
@@ -164,7 +169,8 @@ public class Lexer : ILexer
                 if (i + length <= input.Length && input.Substring(i, length) == definition.Pattern)
                 {
                     Token token = definition.Create();
-                    token = token with { Line = line, Col = col, Length = length };
+                    Location location = Location.From(file, line, col, length);
+                    token = token with { Location = location };
                     tokens.Add(token);
                     i += length;
                     col += length;
@@ -175,13 +181,15 @@ public class Lexer : ILexer
 
             if (!matched)
             {
-                _errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, $"Unexpected character '{input[i]}'.", line, col, 1));
+                Location location = Location.From(file, line, col, 1);
+                _errors.Add(Diagnostic.SyntaxError($"Unexpected character '{input[i]}'.", location));
                 i++;
                 col++;
             }
         }
 
-        tokens.Add(new EOFToken(line, col));
+        Location eofLocation = Location.From(file, line, col, 0);
+        tokens.Add(new EOFToken(eofLocation));
         return (tokens.ToArray(), _errors.ToArray());
     }
 }

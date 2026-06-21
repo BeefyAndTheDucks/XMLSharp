@@ -2,71 +2,71 @@ using Common;
 
 namespace XMLSharpCompiler;
 
-public abstract record Token(int Line = 0, int Col = 0, int Length = 0);
+public abstract record Token(Location? Location = null);
 
 // matched by content
-public record NumberToken(int Value, int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record TextToken(string Text, int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record IdentifierToken(string Name, int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record TypeToken(XMLSType Type, int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record DecimalToken(float Value, int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+public record NumberToken(int Value, Location? Location = null) : Token(Location);
+public record TextToken(string Text, Location? Location = null) : Token(Location);
+public record IdentifierToken(string Name, Location? Location = null) : Token(Location);
+public record TypeToken(XMLSType Type, Location? Location = null) : Token(Location);
+public record DecimalToken(float Value, Location? Location = null) : Token(Location);
 
-public record IfToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record ElseToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record ElifToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+public record IfToken(Location? Location = null) : Token(Location);
+public record ElseToken(Location? Location = null) : Token(Location);
+public record ElifToken(Location? Location = null) : Token(Location);
 
-public record WhileToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record ForToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+public record WhileToken(Location? Location = null) : Token(Location);
+public record ForToken(Location? Location = null) : Token(Location);
 
-public record FunctionToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record ReturnToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record SeparatorToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+public record FunctionToken(Location? Location = null) : Token(Location);
+public record ReturnToken(Location? Location = null) : Token(Location);
+public record SeparatorToken(Location? Location = null) : Token(Location);
 
-public record ImportToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+public record ImportToken(Location? Location = null) : Token(Location);
 
 // matched by pattern
-public record AssignmentToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+public record AssignmentToken(Location? Location = null) : Token(Location);
 
-public record AddToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record SubtractToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record MultiplyToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record DivideToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record ModuloToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+public record AddToken(Location? Location = null) : Token(Location);
+public record SubtractToken(Location? Location = null) : Token(Location);
+public record MultiplyToken(Location? Location = null) : Token(Location);
+public record DivideToken(Location? Location = null) : Token(Location);
+public record ModuloToken(Location? Location = null) : Token(Location);
 
-public record LessOrEqualsToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record GreaterOrEqualsToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record GreaterToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record LessToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record EqualsToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record NotEqualsToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+public record LessOrEqualsToken(Location? Location = null) : Token(Location);
+public record GreaterOrEqualsToken(Location? Location = null) : Token(Location);
+public record GreaterToken(Location? Location = null) : Token(Location);
+public record LessToken(Location? Location = null) : Token(Location);
+public record EqualsToken(Location? Location = null) : Token(Location);
+public record NotEqualsToken(Location? Location = null) : Token(Location);
 
-public record AndToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record OrToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record NotToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record XorToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+public record AndToken(Location? Location = null) : Token(Location);
+public record OrToken(Location? Location = null) : Token(Location);
+public record NotToken(Location? Location = null) : Token(Location);
+public record XorToken(Location? Location = null) : Token(Location);
 
-public record YesToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record NoToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+public record YesToken(Location? Location = null) : Token(Location);
+public record NoToken(Location? Location = null) : Token(Location);
 
-public record ConcatToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+public record ConcatToken(Location? Location = null) : Token(Location);
 
-public record OpenParenToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record CloseParenToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+public record OpenParenToken(Location? Location = null) : Token(Location);
+public record CloseParenToken(Location? Location = null) : Token(Location);
 
-public record SemicolonToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+public record SemicolonToken(Location? Location = null) : Token(Location);
 
-public record BeginBlockToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
-public record EndBlockToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+public record BeginBlockToken(Location? Location = null) : Token(Location);
+public record EndBlockToken(Location? Location = null) : Token(Location);
 
-public record PrintToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+public record PrintToken(Location? Location = null) : Token(Location);
 
-public record IncrementByToken(int Line = 0, int Col = 0) : Token(Line, Col);
-public record DecrementByToken(int Line = 0, int Col = 0) : Token(Line, Col);
-public record MultiplyByToken(int Line = 0, int Col = 0) : Token(Line, Col);
-public record DivideByToken(int Line = 0, int Col = 0) : Token(Line, Col);
-public record ModuloByToken(int Line = 0, int Col = 0) : Token(Line, Col);
-public record IncrementToken(int Line = 0, int Col = 0) : Token(Line, Col);
-public record DecrementToken(int Line = 0, int Col = 0) : Token(Line, Col);
+public record IncrementByToken(Location? Location = null) : Token(Location);
+public record DecrementByToken(Location? Location = null) : Token(Location);
+public record MultiplyByToken(Location? Location = null) : Token(Location);
+public record DivideByToken(Location? Location = null) : Token(Location);
+public record ModuloByToken(Location? Location = null) : Token(Location);
+public record IncrementToken(Location? Location = null) : Token(Location);
+public record DecrementToken(Location? Location = null) : Token(Location);
 
 // special
-public record EOFToken(int Line = 0, int Col = 0, int Length = 0) : Token(Line, Col, Length);
+public record EOFToken(Location? Location = null) : Token(Location);

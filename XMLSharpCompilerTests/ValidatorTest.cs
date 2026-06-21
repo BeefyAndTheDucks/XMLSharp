@@ -13,11 +13,11 @@ public class SyntaxValidatorTest
     public void TestValidVariableDeclaration()
     {
         Token[] tokens = [
-            new TypeToken(XMLSType.Number, 1, 1),
-            new IdentifierToken("foo", 1, 8),
-            new AssignmentToken(1, 12),
-            new NumberToken(10, 1, 14),
-            new SemicolonToken(1, 16),
+            new TypeToken(XMLSType.Number, new Location(null, 1, 1, 0)),
+            new IdentifierToken("foo", new Location(null, 1, 8, 0)),
+            new AssignmentToken(new Location(null, 1, 12, 0)),
+            new NumberToken(10, new Location(null, 1, 14, 0)),
+            new SemicolonToken(new Location(null, 1, 16, 0)),
             new EOFToken()
         ];
 
@@ -29,8 +29,8 @@ public class SyntaxValidatorTest
     public void TestMissingIdentifierAfterType()
     {
         Token[] tokens = [
-            new TypeToken(XMLSType.Number, 1, 1),
-            new AssignmentToken(1, 8),
+            new TypeToken(XMLSType.Number, new Location(null, 1, 1, 0)),
+            new AssignmentToken(new Location(null, 1, 8, 0)),
             new EOFToken()
         ];
 
@@ -39,11 +39,11 @@ public class SyntaxValidatorTest
         {
             Assert.That(errors, Has.Length.EqualTo(2));
             Assert.That(errors[0].Message, Is.EqualTo("Expected identifier after type."));
-            Assert.That(errors[0].Line, Is.EqualTo(1));
-            Assert.That(errors[0].Col, Is.EqualTo(1));
+            Assert.That(errors[0].Location!.Line, Is.EqualTo(1));
+            Assert.That(errors[0].Location!.Column, Is.EqualTo(1));
             Assert.That(errors[1].Message, Is.EqualTo("Expected expression after '='."));
-            Assert.That(errors[1].Line, Is.EqualTo(1));
-            Assert.That(errors[1].Col, Is.EqualTo(8));
+            Assert.That(errors[1].Location!.Line, Is.EqualTo(1));
+            Assert.That(errors[1].Location!.Column, Is.EqualTo(8));
         }
     }
 
@@ -51,10 +51,10 @@ public class SyntaxValidatorTest
     public void TestMissingAssignmentAfterIdentifier()
     {
         Token[] tokens = [
-            new TypeToken(XMLSType.Number, 1, 1, 6),
-            new IdentifierToken("foo", 1, 8, 3),
-            new NumberToken(10, 1, 12, 2),
-            new SemicolonToken(1, 14, 1),
+            new TypeToken(XMLSType.Number, new Location(null, 1, 1, 6)),
+            new IdentifierToken("foo", new Location(null, 1, 8, 3)),
+            new NumberToken(10, new Location(null, 1, 12, 2)),
+            new SemicolonToken(new Location(null, 1, 14, 1)),
             new EOFToken()
         ];
 
@@ -63,8 +63,8 @@ public class SyntaxValidatorTest
         {
             Assert.That(errors, Has.Length.EqualTo(1));
             Assert.That(errors[0].Message, Is.EqualTo("Expected '=' after 'foo'."));
-            Assert.That(errors[0].Line, Is.EqualTo(1));
-            Assert.That(errors[0].Col, Is.EqualTo(8));
+            Assert.That(errors[0].Location!.Line, Is.EqualTo(1));
+            Assert.That(errors[0].Location!.Column, Is.EqualTo(8));
         }
     }
     
@@ -72,11 +72,11 @@ public class SyntaxValidatorTest
     public void TestPrintFunction()
     {
         Token[] tokens = [
-            new PrintToken(1, 1),
-            new TextToken("foo", 1, 7),
-            new ConcatToken(1, 11),
-            new TextToken("bar", 1, 13),
-            new SemicolonToken(1, 16),
+            new PrintToken(new Location(null, 1, 1, 0)),
+            new TextToken("foo", new Location(null, 1, 7, 0)),
+            new ConcatToken(new Location(null, 1, 11, 0)),
+            new TextToken("bar", new Location(null, 1, 13, 0)),
+            new SemicolonToken(new Location(null, 1, 16, 0)),
             new EOFToken()
         ];
         

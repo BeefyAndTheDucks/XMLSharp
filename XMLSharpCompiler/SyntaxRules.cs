@@ -6,7 +6,7 @@ public partial class SyntaxValidator
 {
     private void ValidateStatement()
     {
-        int posBeforeStatement = pos;
+        int posBeforeStatement = _pos;
 
         switch (Current)
         {
@@ -24,12 +24,12 @@ public partial class SyntaxValidator
             case FunctionToken: ValidateFunctionDefinition(); break;
             case ReturnToken: ValidateReturn(); break;
             default:
-                errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, $"Unexpected token {TokenName(Current)}.", Current.Line, Current.Col, Current.Length));
+                _errors.Add(Diagnostic.SyntaxError($"Unexpected token {TokenName(Current)}.", Current.Location));
                 Advance();
                 return;
         }
 
-        if (pos == posBeforeStatement)
+        if (_pos == posBeforeStatement)
             Synchronise();
     }
 
@@ -44,8 +44,8 @@ public partial class SyntaxValidator
         Expect<AssignmentToken>($"Expected '=' after {TokenName(nameTok)}.");
         if (!IsExpressionStart())
         {
-            Token lastToken = pos > 0 ? tokens[pos - 1] : Current;
-            errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, $"Expected expression after {TokenName(lastToken)}.", lastToken.Line, lastToken.Col, lastToken.Length));
+            Token lastToken = _pos > 0 ? _tokens[_pos - 1] : Current;
+            _errors.Add(Diagnostic.SyntaxError($"Expected expression after {TokenName(lastToken)}.", lastToken.Location));
             Synchronise();
             return;
         }
@@ -84,7 +84,7 @@ public partial class SyntaxValidator
                 Expect<SemicolonToken>("Expected ';' after statement.");
                 break;
             default:
-                errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, $"Expected assignment operator after {TokenName(nameTok)}.", Current.Line, Current.Col, Current.Length));
+                _errors.Add(Diagnostic.SyntaxError($"Expected assignment operator after {TokenName(nameTok)}.", Current.Location));
                 Synchronise();
                 break;
         }
@@ -132,16 +132,16 @@ public partial class SyntaxValidator
         ValidateBlock();
     }
 
-    private static readonly HashSet<Type> ForIncrementOperators = new()
-    {
+    private static readonly HashSet<Type> ForIncrementOperators =
+    [
         typeof(IncrementToken),
         typeof(DecrementToken),
         typeof(IncrementByToken),
         typeof(DecrementByToken),
         typeof(MultiplyByToken),
         typeof(DivideByToken),
-        typeof(ModuloByToken),
-    };
+        typeof(ModuloByToken)
+    ];
 
     private void ValidateFor()
     {
@@ -151,7 +151,7 @@ public partial class SyntaxValidator
         Expect<TypeToken>("Expected type after 'for'.");
         if (Current is not IdentifierToken)
         {
-            errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, $"Expected identifier after {TokenName(typeTok)}.", typeTok.Line, typeTok.Col, typeTok.Length));
+            _errors.Add(Diagnostic.SyntaxError($"Expected identifier after {TokenName(typeTok)}.", typeTok.Location));
             Synchronise();
             return;
         }
@@ -163,13 +163,12 @@ public partial class SyntaxValidator
         ValidateExpression();
         Expect<SemicolonToken>("Expected ';' after condition.");
 
-        Token incTok = Current;
         Expect<IdentifierToken>("Expected variable name in for increment step.");
 
         if (!ForIncrementOperators.Contains(Current.GetType()))
         {
-            Token lastToken = pos > 0 ? tokens[pos - 1] : Current;
-            errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, $"Expected increment or decrement after {TokenName(lastToken)}.", lastToken.Line, lastToken.Col, lastToken.Length));
+            Token lastToken = _pos > 0 ? _tokens[_pos - 1] : Current;
+            _errors.Add(Diagnostic.SyntaxError($"Expected increment or decrement after {TokenName(lastToken)}.", lastToken.Location));
             Synchronise();
             return;
         }
@@ -202,8 +201,8 @@ public partial class SyntaxValidator
         Expect<EndBlockToken>("Expected '}'.");
     }
 
-    private static readonly HashSet<Type> ExpressionOperators = new()
-    {
+    private static readonly HashSet<Type> ExpressionOperators =
+    [
         typeof(AddToken),
         typeof(SubtractToken),
         typeof(MultiplyToken),
@@ -218,8 +217,8 @@ public partial class SyntaxValidator
         typeof(AndToken),
         typeof(OrToken),
         typeof(XorToken),
-        typeof(ConcatToken),
-    };
+        typeof(ConcatToken)
+    ];
 
     private void ValidateExpression()
     {
@@ -263,7 +262,7 @@ public partial class SyntaxValidator
                 ValidatePrimary();
                 break;
             default:
-                errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, $"Expected expression, got {TokenName(Current)}.", Current.Line, Current.Col, Current.Length));
+                _errors.Add(Diagnostic.SyntaxError($"Expected expression, got {TokenName(Current)}.", Current.Location));
                 break;
         }
     }
@@ -276,7 +275,7 @@ public partial class SyntaxValidator
         {
             if (noComma)
             {
-                errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, "Expected ',' between parameters.", Previous.Line, Previous.Col, Previous.Length));
+                _errors.Add(Diagnostic.SyntaxError("Expected ',' between parameters.", Previous.Location));
                 break;
             }
             ValidateExpression();
@@ -300,7 +299,7 @@ public partial class SyntaxValidator
         {
             if (noComma)
             {
-                errors.Add(new Diagnostic(XMLSErrorType.SyntaxError, "Expected ',' between parameters.", Previous.Line, Previous.Col, Previous.Length));
+                _errors.Add(Diagnostic.SyntaxError("Expected ',' between parameters.", Previous.Location));
                 break;
             }
             // Handle parameters
@@ -324,7 +323,7 @@ public partial class SyntaxValidator
     }
 
     // add any tokens that mark the start of a new statement or block boundary.
-    private static readonly HashSet<Type> syncStopToken =
+    private static readonly HashSet<Type> SyncStopToken =
     [
         typeof(IfToken),
         typeof(WhileToken),
@@ -348,7 +347,7 @@ public partial class SyntaxValidator
                 Advance();
                 return;
             }
-            if (syncStopToken.Contains(Current.GetType()))
+            if (SyncStopToken.Contains(Current.GetType()))
                 return;
 
             Advance();
