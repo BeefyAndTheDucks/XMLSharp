@@ -52,4 +52,20 @@ public static class InstructionHelper
 
         throw new KeyNotFoundException("Variable not found in any frame.");
     }
+
+    public static void SetVariableValue(int variableIndex, Stack<Dictionary<int, dynamic>> variables, dynamic value)
+    {
+        var index = 0;
+        while (index < variables.Count)
+        {
+            var variablesInFrame = variables.ElementAt(index);
+            if (variablesInFrame.ContainsKey(variableIndex))
+            {
+                variablesInFrame[variableIndex] = value;
+                return;
+            }
+
+            index++;
+        }
+    }
 }

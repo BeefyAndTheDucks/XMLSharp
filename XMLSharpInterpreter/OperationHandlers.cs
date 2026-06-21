@@ -211,7 +211,7 @@ internal class SetVarHandler : IOperationHandler
     {
         if (variables is null) throw new InvalidOperationException("Variables table is required for variable operations.");
 
-        variables.Peek()[instruction.Operand1] = registers.Peek()[instruction.Operand2];
+        SetVariableValue(instruction.Operand1, variables, registers.Peek()[instruction.Operand2]);
         
         if (verboseMode)
             Console.Write($"{variables.Peek()[instruction.Operand1]}");
